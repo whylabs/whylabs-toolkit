@@ -1,0 +1,38 @@
+name: Whylabs Package Workflow
+
+on:
+  push:
+    branches: ["mainline"]
+  pull_request:
+    branches: ["*"]
+
+jobs:
+  publish_templates:
+    name: Run lints and tests on PRs and merges
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-python@v4
+        name: Install Python
+        with:
+          python-version: "3.8.15"
+
+      - uses: Gr1N/setup-poetry@v7
+        name: Install poetry
+        with:
+          poetry-version: 1.2.2
+
+      - name: Install python dependencies
+        run: make setup
+
+      - name: Check types
+        run: make lint
+
+      - name: Check formatting
+        run: make format
+
+      - name: Run test
+        run: make test

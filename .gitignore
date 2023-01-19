@@ -1,0 +1,8 @@
+
+# Can generate requirements.txt from the latest poetry package lock with `make requirements.txt`
+*requirements.txt
+
+**/__pycache__/**
+.vscode/
+.ipynb_checkpoints
+.venv/

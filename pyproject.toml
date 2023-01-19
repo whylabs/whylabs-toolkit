@@ -1,0 +1,29 @@
+[tool.poetry]
+name = "whylabs"
+version = "0.0.1"
+description = "Whylabs CLI and Helpers package."
+authors = ["Anthony Naddeo <anthony.naddeo@gmail.com>", "Murilo Mendonca <murilommen@gmail.com>"]
+license = "Apache-2.0 license"
+readme = "README.md"
+packages = [{include = "whylabs/**/*.py"}]
+
+[tool.poetry.dependencies]
+python = ">=3.8"
+whylabs-client = "^0.4.2"
+types-requests = "^2.28.11"
+
+[tool.poetry.dev-dependencies]
+pytest = "^7.2.0"
+black = "^22.10.0"
+mypy = "^0.991"
+jupyterlab = "^3.5.1"
+
+[tool.black]
+line-length = 140
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[flake8]
+max-line-length = 140
