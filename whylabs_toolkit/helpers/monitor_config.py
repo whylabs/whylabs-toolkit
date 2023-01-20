@@ -1,14 +1,13 @@
-import os
 import json
 import logging
+import os
 from typing import Any
 
-
 import requests
-
-from whylabs_toolkit.helpers.utils import get_models_api
-from whylabs_toolkit.helpers.client import client
 from whylabs_client.exceptions import ApiValueError
+
+from whylabs_toolkit.helpers.client import client
+from whylabs_toolkit.helpers.utils import get_models_api
 
 BASE_ENDPOINT = "https://api.whylabsapp.com"
 logger = logging.getLogger(__name__)

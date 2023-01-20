@@ -1,4 +1,5 @@
-from whylabs_client import Configuration, ApiClient
+from whylabs_client import ApiClient, Configuration
+
 from .config import Config
 
 

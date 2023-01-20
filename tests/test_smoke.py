@@ -1,9 +1,9 @@
 import pytest
-    
+
 
 def test_error_without_env_var() -> None:
     with pytest.raises(TypeError):
-        import whylabs.helpers.client
+        import whylabs_toolkit.helpers.client
 
 
 class TestImport:
@@ -13,4 +13,4 @@ class TestImport:
         os.environ["WHYLABS_API_KEY"] = "api_key"
     
     def test_import(self) -> None:
-        import whylabs.helpers.client
+        import whylabs_toolkit.helpers.client

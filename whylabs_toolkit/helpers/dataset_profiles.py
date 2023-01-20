@@ -1,7 +1,9 @@
 # from whylabs_client.api.
-from typing import Optional, Union
 from datetime import datetime
+from typing import Optional, Union
+
 from whylabs_client.api.dataset_profile_api import DeleteDatasetProfilesResponse
+
 from whylabs_toolkit.helpers.utils import get_dataset_profile_api
 
 date_or_millis = Union[datetime, int]

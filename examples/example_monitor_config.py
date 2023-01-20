@@ -1,5 +1,6 @@
-from whylabs_toolkit.helpers.monitor_config import delete_monitor, get_monitor_config, get_analyzer_ids
-
+from whylabs_toolkit.helpers.monitor_config import (delete_monitor,
+                                                    get_analyzer_ids,
+                                                    get_monitor_config)
 
 delete_monitor(
     org_id="org_id",

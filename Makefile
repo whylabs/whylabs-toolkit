@@ -3,7 +3,7 @@ PY_SOURCE=$(shell find src/ -type f -name "*.py")
 SHA=$(shell git rev-parse HEAD)
 VERSION=$(SHA)
 REQUIREMENTS=requirements.txt
-SRC_DIR=./whylabs/
+SRC_DIR=./whylabs_toolkit/
 
 .PHONY: default 
 .PHONY: lint format format-fix test setup help requirements

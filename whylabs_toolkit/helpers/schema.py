@@ -1,9 +1,9 @@
-from abc import ABC, abstractmethod
-import os
 import json
 import logging
-from typing import List, Dict, Optional, Any
-from dataclasses import dataclass
+import os
+from abc import ABC, abstractmethod
+from dataclasses import dataclass, field
+from typing import Any, Dict, List, Optional
 
 import requests
 
@@ -73,8 +73,8 @@ class UpdateEntity(ABC):
 
 @dataclass
 class ColumnsClasses:
-    inputs: List[str]
-    outputs: List[str]
+    inputs: List[str] = field(default=None)
+    outputs: List[str] = field(default=None)
 
     def __post_init__(self) -> None:
         if self.inputs is None:
@@ -149,8 +149,8 @@ class UpdateEntityDataTypes(UpdateEntity):
 
 @dataclass
 class ColumnsDiscreteness:
-    discrete: List[str]
-    continuous: List[str]
+    discrete: List[str] = field(default=None)
+    continuous: List[str] = field(default=None)
 
     def __post_init__(self) -> None:
         if self.discrete is None:

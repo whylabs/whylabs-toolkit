@@ -11,11 +11,7 @@ from whylabs_toolkit.monitor_schema.models.commons import (
     Metadata,
     NoExtrasBaseModel,
 )
-from whylabs_toolkit.monitor_schema.models.utils import (
-    COLUMN_NAME_TYPE,
-    METRIC_NAME_STR,
-    anyOf_to_oneOf,
-)
+from whylabs_toolkit.monitor_schema.models.utils import COLUMN_NAME_TYPE, METRIC_NAME_STR, anyOf_to_oneOf
 
 
 class MonitorConfigMetadata(NoExtrasBaseModel):

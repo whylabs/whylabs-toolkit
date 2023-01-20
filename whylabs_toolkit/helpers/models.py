@@ -1,11 +1,11 @@
 import logging
 from typing import Optional
 
-from whylabs_toolkit.helpers.utils import get_models_api
-from whylabs_client.model.time_period import TimePeriod
-from whylabs_client.model.model_type import ModelType
 from whylabs_client.exceptions import ApiValueError
+from whylabs_client.model.model_type import ModelType
+from whylabs_client.model.time_period import TimePeriod
 
+from whylabs_toolkit.helpers.utils import get_models_api
 
 logger = logging.getLogger(__name__)
 
