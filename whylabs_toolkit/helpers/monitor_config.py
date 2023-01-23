@@ -26,7 +26,7 @@ def get_analyzer_ids(org_id: str, dataset_id: str, monitor_id: str) -> Any:
     for item in monitor_config["monitors"]:
         if item["id"] == monitor_id:
             resp = item["analyzerIds"]
-    return resp
+            return resp
 
 
 def delete_monitor(org_id: str, dataset_id: str, monitor_id: str) -> None:
@@ -35,6 +35,8 @@ def delete_monitor(org_id: str, dataset_id: str, monitor_id: str) -> None:
         resp_monitor = api.delete_monitor(org_id=org_id, dataset_id=dataset_id, monitor_id=monitor_id)
         logger.debug(f"Deleted monitor with Resp:{resp_monitor}")
         analyzer_ids = get_analyzer_ids(org_id=org_id, dataset_id=dataset_id, monitor_id=monitor_id)
+        if analyzer_ids is None:
+            return
         for analyzer_id in analyzer_ids:
             resp_analyzer = api.delete_analyzer(org_id=org_id, dataset_id=dataset_id, analyzer_id=analyzer_id)
             logger.debug(f"Deleted analyzer with Resp:{resp_analyzer}")
