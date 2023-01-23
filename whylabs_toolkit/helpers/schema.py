@@ -1,14 +1,11 @@
-import json
 import logging
-import os
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 
-import requests
-
 from whylabs_toolkit.helpers.client import client
 from whylabs_toolkit.helpers.config import Config
+from whylabs_toolkit.helpers.utils import get_models_api
 
 BASE_ENDPOINT = "https://api.whylabsapp.com"
 
@@ -22,30 +19,14 @@ class UpdateEntity(ABC):
     def __init__(self, dataset_id: str, org_id: Optional[str] = None):
         self.dataset_id = dataset_id
         self.org_id = org_id or Config().get_default_org_id()
-
-        self.entity_schema_url = f"v0/organizations/{org_id}/models/{dataset_id}/schema"
-        self.req_url = os.path.join(BASE_ENDPOINT, self.entity_schema_url)
+        self.api = get_models_api()
 
     def _get_entity_schema(self) -> Any:
-        # TODO change once whylabs_client is updated
-        entity_schema = requests.get(
-            url=self.req_url,
-            headers={"accept": "application/json", "X-API-Key": client.configuration.api_key["ApiKeyAuth"]},
-        )
-        return entity_schema.json()
+        entity_schema = self.api.get_entity_schema(org_id=self.org_id, dataset_id=self.dataset_id)
+        return entity_schema
 
     def _put_entity_schema(self, schema: Dict) -> None:
-        # TODO change once whylabs_client is updated
-        resp = requests.put(
-            url=self.req_url,
-            headers={
-                "accept": "application/json",
-                "X-API-Key": client.configuration.api_key["ApiKeyAuth"],
-                "Content-Type": "application/json",
-            },
-            data=json.dumps(schema),
-        )
-        logger.debug(resp.status_code, resp.content)
+        self.api.put_entity_schema(org_id=self.org_id, dataset_id=self.dataset_id, body=schema)
 
     def _get_current_entity_schema(self) -> None:
         self.current_entity_schema = self._get_entity_schema()
@@ -73,8 +54,8 @@ class UpdateEntity(ABC):
 
 @dataclass
 class ColumnsClasses:
-    inputs: List[str] = field(default=None)
-    outputs: List[str] = field(default=None)
+    inputs: List[str] = field(default=None)  # type: ignore
+    outputs: List[str] = field(default=None)  # type: ignore
 
     def __post_init__(self) -> None:
         if self.inputs is None:
@@ -149,8 +130,8 @@ class UpdateEntityDataTypes(UpdateEntity):
 
 @dataclass
 class ColumnsDiscreteness:
-    discrete: List[str] = field(default=None)
-    continuous: List[str] = field(default=None)
+    discrete: List[str] = field(default=None)  # type: ignore
+    continuous: List[str] = field(default=None)  # type: ignore
 
     def __post_init__(self) -> None:
         if self.discrete is None:

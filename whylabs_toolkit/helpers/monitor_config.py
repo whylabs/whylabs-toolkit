@@ -1,12 +1,8 @@
-import json
 import logging
-import os
 from typing import Any
 
-import requests
 from whylabs_client.exceptions import ApiValueError
 
-from whylabs_toolkit.helpers.client import client
 from whylabs_toolkit.helpers.utils import get_models_api
 
 BASE_ENDPOINT = "https://api.whylabsapp.com"
@@ -20,16 +16,9 @@ logger = logging.getLogger(__name__)
 
 
 def get_monitor_config(org_id: str, dataset_id: str) -> Any:
-    # TODO change to commented section once whylabs_client is updated
-    # api = get_models_api(org_id=org_id)
-    # monitor_config = api.get_monitor_config_v3(org_id=org_id, dataset_id=dataset_id)
-    get_monitor_config_url = f"v0/organizations/{org_id}/models/{dataset_id}/monitor-config/v3"
-    req_url = os.path.join(BASE_ENDPOINT, get_monitor_config_url)
-    resp = requests.get(
-        url=req_url,
-        headers={"accept": "application/json", "X-API-Key": client.configuration.api_key["ApiKeyAuth"]},
-    )
-    return json.loads(resp.content)
+    api = get_models_api()
+    monitor_config = api.get_monitor_config_v3(org_id=org_id, dataset_id=dataset_id)
+    return monitor_config
 
 
 def get_analyzer_ids(org_id: str, dataset_id: str, monitor_id: str) -> Any:
