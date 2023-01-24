@@ -1,5 +1,3 @@
-from typing import Optional
-
 from whylabs_client.api.dataset_profile_api import DatasetProfileApi
 from whylabs_client.api.models_api import ModelsApi
 
