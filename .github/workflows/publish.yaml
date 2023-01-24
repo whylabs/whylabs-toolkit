@@ -11,7 +11,7 @@ jobs:
     name: Run lints and tests on PRs and merges
     timeout-minutes: 10
     runs-on: ubuntu-latest
-
+    environment: whylabs-toolkit-ci
     steps:
       - uses: actions/checkout@v3
 
