@@ -28,6 +28,8 @@ update_model_metadata(
 And to change the model granularity:
 
 ```python
+from whylabs_toolkit.helpers.models import update_model_metadata
+
 update_model_metadata(
     dataset_id="dataset_id", 
     org_id="org_id", 
@@ -43,22 +45,18 @@ Entity Schema helpers assist users to change some of their dataset metadata, suc
 #### Column Classes
 ```python
 from whylabs_toolkit.helpers.schema import (
-    UpdateColumnClasses, 
-    UpdateEntityDataTypes, 
-    ColumnsClasses,
-    UpdateColumnsDiscreteness,
-    ColumnsDiscreteness
+    UpdateColumnClassifiers, 
+    ColumnsClassifiers,
 )
 
 # Note that you don't need to specify all existing columns, but only those you wish to modify
 
-classes = ColumnsClasses(
-    inputs=[],
+classifiers = ColumnsClassifiers(
     outputs=["actual_temperature", "predicted_temperature"]
 )
 
-update_entity = UpdateColumnClasses(
-    classes=classes,
+update_entity = UpdateColumnClassifiers(
+    classifiers=classifiers,
     dataset_id="dataset_id",
     org_id="org_id"
 )
@@ -68,9 +66,14 @@ update_entity.update()
 ```
 #### Data types
 ```python
+from whylabs_toolkit.helpers.schema import (
+    UpdateEntityDataTypes, 
+    DataType
+)
+
 columns_schema = {
-    "temperature": "fractional",
-    "is_active": "bool"
+    "temperature": DataType.FRACTIONAL,
+    "is_active": DataType.BOOL
 }
 
 update_data_types = UpdateEntityDataTypes(
@@ -83,14 +86,18 @@ update_data_types.update()
 ```
 #### Discreteness
 ```python
-columns_discrete = ColumnsDiscreteness(
-    discrete=["temperature"],
-    continuous=[]
+from whylabs_toolkit.helpers.schema import (
+    UpdateColumnsDiscreteness,
+    ColumnsDiscreteness
+)
+
+columns = ColumnsDiscreteness(
+    discrete=["temperature"]
 )
 
 update_discreteness = UpdateColumnsDiscreteness(
     dataset_id="dataset_id",
-    classes=columns_discrete,
+    columns=columns,
     org_id="org_id"
 )
 
@@ -101,6 +108,8 @@ The Monitors helpers will help you manage existing alerts on WhyLabs' platform.
 
 #### Delete monitor
 ```python
+from whylabs_toolkit.helpers.monitor_config import delete_monitor
+
 delete_monitor(
     org_id="org_id",
     dataset_id="dataset_id",
