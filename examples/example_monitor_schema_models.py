@@ -6,32 +6,21 @@ import json
 import uuid
 from typing import Dict
 
-from whylabs_toolkit.monitor_schema.models import (
-    Analyzer,
-    AnomalyFilter,
-    BaselineType,
-    Cadence,
-    ColumnDataType,
-    ColumnDiscreteness,
-    ColumnMatrix,
-    ColumnSchema,
-    DatasetMatrix,
-    DigestMode,
-    Document,
-    DriftConfig,
-    EntitySchema,
-    EveryAnomalyMode,
-    FixedCadenceSchedule,
-    GlobalAction,
-    Granularity,
-    Monitor,
-    Segment,
-    SendEmail,
-    SlackWebhook,
-    StddevConfig,
-    TargetLevel,
-    TrailingWindowBaseline,
-)
+from whylabs_toolkit.monitor_schema.models import (Analyzer, AnomalyFilter,
+                                                   BaselineType, Cadence,
+                                                   ColumnDataType,
+                                                   ColumnDiscreteness,
+                                                   ColumnMatrix, ColumnSchema,
+                                                   DatasetMatrix, DigestMode,
+                                                   Document, DriftConfig,
+                                                   EntitySchema,
+                                                   EveryAnomalyMode,
+                                                   FixedCadenceSchedule,
+                                                   GlobalAction, Granularity,
+                                                   Monitor, Segment, SendEmail,
+                                                   SlackWebhook, StddevConfig,
+                                                   TargetLevel,
+                                                   TrailingWindowBaseline)
 
 
 def main() -> Dict:

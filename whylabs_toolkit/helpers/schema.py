@@ -1,51 +1,26 @@
+from enum import Enum
 from abc import ABC, abstractmethod
-import os
-import json
-import logging
-from typing import List, Dict, Optional, Any
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from typing import Any, Dict, List, Optional
 
-import requests
-
-from whylabs_toolkit.helpers.client import client
 from whylabs_toolkit.helpers.config import Config
+from whylabs_toolkit.helpers.utils import get_models_api
 
 BASE_ENDPOINT = "https://api.whylabsapp.com"
-
-logger = logging.getLogger(__name__)
-
-
-# TODO make arguments more generic and meaningful
 
 
 class UpdateEntity(ABC):
     def __init__(self, dataset_id: str, org_id: Optional[str] = None):
         self.dataset_id = dataset_id
         self.org_id = org_id or Config().get_default_org_id()
-
-        self.entity_schema_url = f"v0/organizations/{org_id}/models/{dataset_id}/schema"
-        self.req_url = os.path.join(BASE_ENDPOINT, self.entity_schema_url)
+        self.api = get_models_api()
 
     def _get_entity_schema(self) -> Any:
-        # TODO change once whylabs_client is updated
-        entity_schema = requests.get(
-            url=self.req_url,
-            headers={"accept": "application/json", "X-API-Key": client.configuration.api_key["ApiKeyAuth"]},
-        )
-        return entity_schema.json()
+        entity_schema = self.api.get_entity_schema(org_id=self.org_id, dataset_id=self.dataset_id)
+        return entity_schema
 
     def _put_entity_schema(self, schema: Dict) -> None:
-        # TODO change once whylabs_client is updated
-        resp = requests.put(
-            url=self.req_url,
-            headers={
-                "accept": "application/json",
-                "X-API-Key": client.configuration.api_key["ApiKeyAuth"],
-                "Content-Type": "application/json",
-            },
-            data=json.dumps(schema),
-        )
-        logger.debug(resp.status_code, resp.content)
+        self.api.put_entity_schema(org_id=self.org_id, dataset_id=self.dataset_id, body=schema)
 
     def _get_current_entity_schema(self) -> None:
         self.current_entity_schema = self._get_entity_schema()
@@ -72,9 +47,9 @@ class UpdateEntity(ABC):
 
 
 @dataclass
-class ColumnsClasses:
-    inputs: List[str]
-    outputs: List[str]
+class ColumnsClassifiers:
+    inputs: List[str] = field(default=None)  # type: ignore
+    outputs: List[str] = field(default=None)  # type: ignore
 
     def __post_init__(self) -> None:
         if self.inputs is None:
@@ -83,22 +58,33 @@ class ColumnsClasses:
             self.outputs = []
 
 
-class UpdateColumnClasses(UpdateEntity):
-    def __init__(self, dataset_id: str, classes: ColumnsClasses, org_id: Optional[str] = None):
+class UpdateColumnClassifiers(UpdateEntity):
+    def __init__(self, dataset_id: str, classifiers: ColumnsClassifiers, org_id: Optional[str] = None):
         super().__init__(dataset_id, org_id)
-        self.classes = classes
+        self.classifiers = classifiers
 
     def _validate_input(self) -> None:
-        if self.classes.inputs == [] and self.classes.outputs == []:
-            logger.error("You must define either input or output features to use this function.")
-            raise ValueError
+        if self.classifiers.inputs == [] and self.classifiers.outputs == []:
+            raise ValueError("You must define either input or output features to use this function.")
+        same_list = [item for item in self.classifiers.inputs if item in self.classifiers.outputs]
+        if same_list:
+            raise ValueError(f"Column {same_list[0]} must either be input or output.")
 
     def _update_entity_schema(self) -> Any:
         for key in self.columns_dict.keys():
-            if key in self.classes.inputs and self.columns_dict[key]["classifier"] != "input":
+            if key in self.classifiers.inputs and self.columns_dict[key]["classifier"] != "input":
                 self.columns_dict[key].update({"classifier": "input"})
-            elif key in self.classes.outputs and self.columns_dict[key]["classifier"] != "output":
+            elif key in self.classifiers.outputs and self.columns_dict[key]["classifier"] != "output":
                 self.columns_dict[key].update({"classifier": "output"})
+
+
+class DataType(Enum):
+    INTEGRAL = "integral"
+    FRACTIONAL = "fractional"
+    BOOL = "bool"
+    STRING = "string"
+    UNKNOWN = "unknown"
+    NULL = "null"
 
 
 class UpdateEntityDataTypes(UpdateEntity):
@@ -107,15 +93,15 @@ class UpdateEntityDataTypes(UpdateEntity):
 
     Arguments
     ----
-    columns_schema: Dict[str, str]
+    columns_schema: Dict[str, DataType]
         The keys are column names and the values are the
         desired data_types, as the example below shows
 
     ```python
     columns_schema = {
-        "column_1": "fractional",
-        "column_2": "bool",
-        "column_3": "string"
+        "column_1": DataType.FRACTIONAL,
+        "column_2": DataType.BOOL,
+        "column_3": DataType.STRING,
     }
     ```
 
@@ -130,27 +116,27 @@ class UpdateEntityDataTypes(UpdateEntity):
     ---
     """
 
-    def __init__(self, dataset_id: str, columns_schema: Dict[str, str], org_id: Optional[str] = None):
+    def __init__(self, dataset_id: str, columns_schema: Dict[str, DataType], org_id: Optional[str] = None):
         super().__init__(dataset_id, org_id)
         self.columns_schema = columns_schema
 
     def _validate_input(self) -> None:
-        possible_data_types = ["integral", "fractional", "bool", "string", "unknown", "null"]
-        for value in self.columns_schema.values():
-            if value not in possible_data_types:
-                logger.error("{value} is not an accepted data type! Refer to this functions help to learn more.")
-                raise ValueError
+        for data_type in self.columns_schema.values():
+            if not isinstance(data_type, DataType):
+                raise ValueError(
+                    f"{data_type} is not an accepted data type! Refer to this functions help to learn more."
+                )
 
     def _update_entity_schema(self) -> None:
-        for key, value in self.columns_schema.items():
-            if key in self.columns_dict.keys() and self.columns_dict[key]["dataType"] != value:
-                self.columns_dict[key].update({"dataType": self.columns_schema[key]})
+        for column, data_type in self.columns_schema.items():
+            if column in self.columns_dict.keys() and self.columns_dict[column]["dataType"] != data_type.value:
+                self.columns_dict[column].update({"dataType": self.columns_schema[column].value})
 
 
 @dataclass
 class ColumnsDiscreteness:
-    discrete: List[str]
-    continuous: List[str]
+    discrete: List[str] = field(default=None)  # type: ignore
+    continuous: List[str] = field(default=None)  # type: ignore
 
     def __post_init__(self) -> None:
         if self.discrete is None:
@@ -160,18 +146,21 @@ class ColumnsDiscreteness:
 
 
 class UpdateColumnsDiscreteness(UpdateEntity):
-    def __init__(self, dataset_id: str, classes: ColumnsDiscreteness, org_id: Optional[str] = None):
+    def __init__(self, dataset_id: str, columns: ColumnsDiscreteness, org_id: Optional[str] = None):
         super().__init__(dataset_id, org_id)
-        self.classes = classes
+        self.columns = columns
 
     def _validate_input(self) -> None:
-        if self.classes.discrete == [] and self.classes.continuous == []:
-            logger.error("You must define either discrete or continuous columns to use this.")
-            raise ValueError
+        if self.columns.discrete == [] and self.columns.continuous == []:
+            raise ValueError("You must define either discrete or continuous columns to use this.")
+
+        same_list = [item for item in self.columns.discrete if item in self.columns.continuous]
+        if same_list:
+            raise ValueError(f"Column {same_list[0]} must either be discrete or continuous.")
 
     def _update_entity_schema(self) -> Any:
         for key in self.columns_dict.keys():
-            if key in self.classes.discrete and self.columns_dict[key]["discreteness"] != "discrete":
+            if key in self.columns.discrete and self.columns_dict[key]["discreteness"] != "discrete":
                 self.columns_dict[key].update({"discreteness": "discrete"})
-            elif key in self.classes.continuous and self.columns_dict[key]["discreteness"] != "continuous":
+            elif key in self.columns.continuous and self.columns_dict[key]["discreteness"] != "continuous":
                 self.columns_dict[key].update({"discreteness": "continuous"})

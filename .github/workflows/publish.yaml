@@ -11,7 +11,7 @@ jobs:
     name: Run lints and tests on PRs and merges
     timeout-minutes: 10
     runs-on: ubuntu-latest
-
+    environment: whylabs-toolkit-ci
     steps:
       - uses: actions/checkout@v3
 
@@ -36,3 +36,10 @@ jobs:
 
       - name: Run test
         run: make test
+        env:
+          ORG_ID : ${{ secrets.ORG_ID }}
+          DATASET_ID : ${{ secrets.DATASET_ID }}
+          WHYLABS_API_KEY : ${{ secrets.WHYLABS_API_KEY }}
+          MONITOR_ID : ${{ secrets.MONITOR_ID }}
+          ANALYZER_ID : ${{ secrets.ANALYZER_ID }}
+
