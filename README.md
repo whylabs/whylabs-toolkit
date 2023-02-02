@@ -66,14 +66,12 @@ update_entity.update()
 ```
 #### Data types
 ```python
-from whylabs_toolkit.helpers.schema import (
-    UpdateEntityDataTypes, 
-    DataType
-)
+from whylabs_toolkit.helpers.schema import UpdateEntityDataTypes
+from whylabs_toolkit.monitor_schema.models.column_schema import ColumnDataType
 
 columns_schema = {
-    "temperature": DataType.FRACTIONAL,
-    "is_active": DataType.BOOL
+    "temperature": ColumnDataType.fractional,
+    "is_active": ColumnDataType.boolean
 }
 
 update_data_types = UpdateEntityDataTypes(

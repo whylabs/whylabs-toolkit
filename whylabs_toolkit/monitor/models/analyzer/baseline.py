@@ -4,7 +4,7 @@ from typing import List, Literal, Optional
 
 from pydantic import Field
 
-from whylabs_toolkit.monitor_schema.models.commons import DATASET_ID_DEF, NoExtrasBaseModel, TimeRange
+from whylabs_toolkit.monitor.models.commons import DATASET_ID_DEF, NoExtrasBaseModel, TimeRange
 
 
 class BaselineType(str, Enum):

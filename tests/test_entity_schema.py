@@ -7,9 +7,9 @@ from whylabs_toolkit.helpers.schema import (
     ColumnsDiscreteness,
     UpdateColumnClassifiers,
     UpdateColumnsDiscreteness,
-    UpdateEntityDataTypes,
-    DataType
+    UpdateEntityDataTypes
 )
+from whylabs_toolkit.monitor.models.column_schema import ColumnDataType
 
 ORG_ID = os.environ["ORG_ID"]
 DATASET_ID = os.environ["DATASET_ID"]
@@ -108,7 +108,7 @@ def test_same_column_on_both_parameters_should_raise():
         update_entity.update()
 
 def test_change_columns_schema():
-    columns_schema = {"temperature": DataType.BOOL}
+    columns_schema = {"temperature": ColumnDataType.boolean}
 
     update_data_types = UpdateEntityDataTypes(
         dataset_id=DATASET_ID,
@@ -120,7 +120,7 @@ def test_change_columns_schema():
 
     assert update_data_types.current_entity_schema["columns"]["temperature"]["dataType"] == "bool"
 
-    columns_schema = {"temperature": DataType.FRACTIONAL}
+    columns_schema = {"temperature": ColumnDataType.fractional}
 
     update_data_types = UpdateEntityDataTypes(
         dataset_id=DATASET_ID,
@@ -135,7 +135,7 @@ def test_change_columns_schema():
 
 def test_wrong_configuration_on_data_types():
     # If the specified column does not exist
-    columns_schema = {"some_weird_column": DataType.BOOL}
+    columns_schema = {"some_weird_column": ColumnDataType.boolean}
 
     update_data_types = UpdateEntityDataTypes(
         dataset_id=DATASET_ID,

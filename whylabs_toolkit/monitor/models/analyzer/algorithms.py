@@ -4,14 +4,14 @@ from typing import Any, Dict, List, Literal, Optional, Union
 
 from pydantic import BaseModel, Field, constr
 
-from whylabs_toolkit.monitor_schema.models.analyzer.baseline import (
+from whylabs_toolkit.monitor.models.analyzer.baseline import (
     ReferenceProfileId,
     SingleBatchBaseline,
     TimeRangeBaseline,
     TrailingWindowBaseline,
 )
-from whylabs_toolkit.monitor_schema.models.commons import NoExtrasBaseModel, TimeRange
-from whylabs_toolkit.monitor_schema.models.utils import COLUMN_NAME_TYPE, anyOf_to_oneOf
+from whylabs_toolkit.monitor.models.commons import NoExtrasBaseModel, TimeRange
+from whylabs_toolkit.monitor.models.utils import COLUMN_NAME_TYPE, anyOf_to_oneOf
 
 
 class AlgorithmType(str, Enum):

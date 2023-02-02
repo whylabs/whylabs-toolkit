@@ -5,6 +5,7 @@ from typing import Any, Dict, List, Optional
 
 from whylabs_toolkit.helpers.config import Config
 from whylabs_toolkit.helpers.utils import get_models_api
+from whylabs_toolkit.monitor.models.column_schema import ColumnDataType
 
 BASE_ENDPOINT = "https://api.whylabsapp.com"
 
@@ -78,14 +79,6 @@ class UpdateColumnClassifiers(UpdateEntity):
                 self.columns_dict[key].update({"classifier": "output"})
 
 
-class DataType(Enum):
-    INTEGRAL = "integral"
-    FRACTIONAL = "fractional"
-    BOOL = "bool"
-    STRING = "string"
-    UNKNOWN = "unknown"
-    NULL = "null"
-
 
 class UpdateEntityDataTypes(UpdateEntity):
     """
@@ -93,15 +86,15 @@ class UpdateEntityDataTypes(UpdateEntity):
 
     Arguments
     ----
-    columns_schema: Dict[str, DataType]
+    columns_schema: Dict[str, ColumnDataType]
         The keys are column names and the values are the
         desired data_types, as the example below shows
 
     ```python
     columns_schema = {
-        "column_1": DataType.FRACTIONAL,
-        "column_2": DataType.BOOL,
-        "column_3": DataType.STRING,
+        "column_1": ColumnDataType.fractional,
+        "column_2": ColumnDataType.boolean,
+        "column_3": ColumnDataType.string,
     }
     ```
 
@@ -116,13 +109,13 @@ class UpdateEntityDataTypes(UpdateEntity):
     ---
     """
 
-    def __init__(self, dataset_id: str, columns_schema: Dict[str, DataType], org_id: Optional[str] = None):
+    def __init__(self, dataset_id: str, columns_schema: Dict[str, ColumnDataType], org_id: Optional[str] = None):
         super().__init__(dataset_id, org_id)
         self.columns_schema = columns_schema
 
     def _validate_input(self) -> None:
         for data_type in self.columns_schema.values():
-            if not isinstance(data_type, DataType):
+            if not isinstance(data_type, ColumnDataType):
                 raise ValueError(
                     f"{data_type} is not an accepted data type! Refer to this functions help to learn more."
                 )

@@ -3,7 +3,7 @@ from typing import List
 
 from pydantic import Field
 
-from whylabs_toolkit.monitor_schema.models.commons import NoExtrasBaseModel
+from whylabs_toolkit.monitor.models.commons import NoExtrasBaseModel
 
 
 class SegmentTag(NoExtrasBaseModel):
