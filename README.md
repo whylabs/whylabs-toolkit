@@ -105,8 +105,9 @@ update_discreteness.update()
 The Monitors helpers will help you manage existing alerts on WhyLabs' platform.
 
 #### Delete monitor
+
 ```python
-from whylabs_toolkit.helpers.monitor_config import delete_monitor
+from whylabs_toolkit.helpers.monitor_helpers import delete_monitor
 
 delete_monitor(
     org_id="org_id",
