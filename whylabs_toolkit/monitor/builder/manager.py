@@ -60,13 +60,13 @@ class MonitorManager:
             org_id=self.__builder.org_id,
             dataset_id=self.__builder.dataset_id,
             analyzer_id=self.__builder.analyzer_id,
-            body=self.__builder.analyzer.dict() # type: ignore
+            body=self.__builder.analyzer.dict(exclude_none=True) # type: ignore
         )
         api.put_monitor(
             org_id=self.__builder.org_id,
             dataset_id=self.__builder.dataset_id,
             monitor_id=self.__builder.monitor_id,
-            body=self.__builder.monitor.dict().update({"mode": {"type": "DIGEST"}}) # type: ignore
+            body=self.__builder.monitor.dict(exclude_none=True) # type: ignore
         )
 
 
