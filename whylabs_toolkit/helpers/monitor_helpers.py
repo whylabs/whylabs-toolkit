@@ -48,14 +48,14 @@ def get_analyzers(org_id: str, dataset_id: str, monitor_id: str) -> List[Any]:
 def delete_monitor(org_id: str, dataset_id: str, monitor_id: str) -> None:
     api = get_models_api()
     try:
-        resp_monitor = api.delete_monitor(org_id=org_id, dataset_id=dataset_id, monitor_id=monitor_id)
-        logger.debug(f"Deleted monitor with Resp:{resp_monitor}")
         analyzer_ids = get_analyzer_ids(org_id=org_id, dataset_id=dataset_id, monitor_id=monitor_id)
         if analyzer_ids is None:
             return
         for analyzer_id in analyzer_ids:
             resp_analyzer = api.delete_analyzer(org_id=org_id, dataset_id=dataset_id, analyzer_id=analyzer_id)
             logger.debug(f"Deleted analyzer with Resp:{resp_analyzer}")
+        resp_monitor = api.delete_monitor(org_id=org_id, dataset_id=dataset_id, monitor_id=monitor_id)
+        logger.debug(f"Deleted monitor with Resp:{resp_monitor}")
     except ApiValueError as e:
         raise e
 

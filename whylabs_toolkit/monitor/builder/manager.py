@@ -1,9 +1,10 @@
 import os
 from typing import List, Union, Dict
 
-from whylabs_toolkit.monitor.builder.builder import MonitorBuilder
+from whylabs_toolkit.monitor.builder.builder import MonitorBuilder, MissingDataMonitorBuilder
 from whylabs_toolkit.monitor.models import *
 from whylabs_toolkit.helpers.utils import get_models_api
+
 
 
 class MonitorManager:
@@ -71,10 +72,11 @@ class MonitorManager:
 
 
 if __name__ == "__main__":
-    builder = MonitorBuilder(
+    builder = MissingDataMonitorBuilder(
         org_id=os.environ["ORG_ID"],
         dataset_id=os.environ["DATASET_ID"],
-        monitor_id="my-awesome-monitor"
+        monitor_id="my-awesome-monitor-2",
+        percentage=20,
     )
 
     manager = MonitorManager(
