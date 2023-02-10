@@ -45,10 +45,30 @@ class MonitorManager:
         for action in actions:
             self.__builder.monitor.actions.append(action)
 
+    def get_model_granularity(self) -> Granularity:
+        api = get_models_api()
+        model_meta = api.get_model(org_id=self.__builder.org_id, model_id=self.__builder.dataset_id)
 
-    def dump(self) -> Dict:
-        # TODO build Document object with Metadata, Monitor and Analyzer
-        pass
+        time_period_to_gran = {
+            "H": Granularity.hourly,
+            "D": Granularity.daily,
+            "W": Granularity.weekly,
+            "M": Granularity.monthly
+        }
+
+        for key, value in time_period_to_gran.items():
+            if key in model_meta["time_period"].value:
+                return value
+
+    def dump(self) -> str:
+        doc = Document(
+            orgId=self.__builder.org_id,
+            datasetId=self.__builder.dataset_id,
+            granularity=self.get_model_granularity(),
+            analyzers=[self.__builder.analyzer],
+            monitors=[self.__builder.monitor]
+        )
+        return doc.json(indent=2, exclude_none=True)
 
     def validate(self):
         Monitor.validate(self.__builder.monitor)
@@ -83,9 +103,10 @@ if __name__ == "__main__":
         monitor_builder=builder
     )
 
-    manager.add_actions(
-        actions=[
-            SendEmail(type="email", target="some_mail@example.com")
-        ]
-    )
-    manager.save()
+    # manager.add_actions(
+    #     actions=[
+    #         SendEmail(type="email", target="some_mail@example.com")
+    #     ]
+    # )
+
+    print(manager.dump())
