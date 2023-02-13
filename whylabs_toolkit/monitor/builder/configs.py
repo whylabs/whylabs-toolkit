@@ -11,15 +11,16 @@ class Metrics(Enum):
 class MonitorConfig(ABC):
     pass
 
+
 @dataclass
 class FixedThresholdConfig(MonitorConfig):
     threshold: int
-    direction: str # should be "upper", "lower" or None (both directions)
+    direction: str  # should be "upper", "lower" or None (both directions)
     metric: Metrics
-    start_date: datetime = field(default=None)
-    end_date: datetime = field(default=None)
+    start_date: datetime = field(default=None)  # type: ignore
+    end_date: datetime = field(default=None)  # type: ignore
 
 
 @dataclass
 class MovingAverageDiff(MonitorConfig):
-    window_size: int # in days
+    window_size: int  # in days

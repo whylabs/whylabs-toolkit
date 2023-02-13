@@ -26,12 +26,14 @@ def get_monitor(org_id: str, dataset_id: str, monitor_id: str) -> Any:
     api = get_models_api()
     return api.get_monitor(org_id=org_id, dataset_id=dataset_id, monitor_id=monitor_id)
 
+
 def get_analyzer_ids(org_id: str, dataset_id: str, monitor_id: str) -> Any:
     monitor_config = get_monitor_config(org_id=org_id, dataset_id=dataset_id)
     for item in monitor_config["monitors"]:
         if item["id"] == monitor_id:
             resp = item["analyzerIds"]
             return resp
+
 
 def get_analyzers(org_id: str, dataset_id: str, monitor_id: str) -> List[Any]:
     api = get_models_api()

@@ -79,7 +79,6 @@ class UpdateColumnClassifiers(UpdateEntity):
                 self.columns_dict[key].update({"classifier": "output"})
 
 
-
 class UpdateEntityDataTypes(UpdateEntity):
     """
     Update data types on each column of the dataset
