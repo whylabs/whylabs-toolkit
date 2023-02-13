@@ -319,7 +319,7 @@ class DiffMode(str, Enum):
 
 
 class ThresholdType(str, Enum):
-    """By default an anomaly will be generated when the target is above or below the baseline
+    """By default, an anomaly will be generated when the target is above or below the baseline
     by the specified threshold.
 
     If its only desirable to alert when the target is above the

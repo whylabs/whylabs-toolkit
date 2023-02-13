@@ -1,10 +1,7 @@
-import os
-from typing import List, Union, Dict
-
-from whylabs_toolkit.monitor.builder.builder import MonitorBuilder, MissingDataMonitorBuilder
+from whylabs_toolkit.monitor.builder.builder import MonitorBuilder
 from whylabs_toolkit.monitor.models import *
+from whylabs_toolkit.monitor.models.analyzer.algorithms import *
 from whylabs_toolkit.helpers.utils import get_models_api
-
 
 
 class MonitorManager:
@@ -14,7 +11,7 @@ class MonitorManager:
         self.__builder.add_analyzer()
         self.__builder.add_monitor()
 
-    def add_schedule(self, schedule: Union[CronSchedule, FixedCadenceSchedule]):
+    def add_schedule(self, schedule: FixedCadenceSchedule):  # in the future -> Union[CronSchedule, FixedCadenceSchedule]):
         monitor_schedule = ImmediateSchedule(type="immediate")
         analyzer_schedule = schedule
         self.__builder.monitor.schedule = monitor_schedule
@@ -30,7 +27,6 @@ class MonitorManager:
         FixedThresholdsConfig,
         StddevConfig,
         DriftConfig,
-        ExperimentalConfig,
         SeasonalConfig,
     ]):
         self.__builder.analyzer.config = config
@@ -89,24 +85,3 @@ class MonitorManager:
             monitor_id=self.__builder.monitor_id,
             body=self.__builder.monitor.dict(exclude_none=True) # type: ignore
         )
-
-
-if __name__ == "__main__":
-    builder = MissingDataMonitorBuilder(
-        org_id=os.environ["ORG_ID"],
-        dataset_id=os.environ["DATASET_ID"],
-        monitor_id="my-awesome-monitor-2",
-        percentage=20,
-    )
-
-    manager = MonitorManager(
-        monitor_builder=builder
-    )
-
-    # manager.add_actions(
-    #     actions=[
-    #         SendEmail(type="email", target="some_mail@example.com")
-    #     ]
-    # )
-
-    print(manager.dump())

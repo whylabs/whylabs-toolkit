@@ -1,4 +1,5 @@
-from typing import List, Optional
+import pytz
+from datetime import datetime
 
 from whylabs_client.exceptions import NotFoundException
 
@@ -98,6 +99,26 @@ class MissingDataMonitorBuilder(MonitorBuilder):
             if type(self.columns) != list or not all(isinstance(column, str) for column in self.columns):
                 raise ValueError("columns must be a List of strings")
 
+    def configure_fixed_dates_baseline(self, start_date: datetime, end_date: datetime):
+        if not start_date.tzinfo:
+            start_date.replace(tzinfo=pytz.UTC)
+        if not end_date.tzinfo:
+            end_date.replace(tzinfo=pytz.UTC)
+
+        self.analyzer.config = DiffConfig(
+            type=AlgorithmType.diff,
+            mode=DiffMode.pct,
+            metric=SimpleColumnMetric.count_null_ratio,
+            threshold=self.percentage,
+            baseline=TimeRangeBaseline(
+                type=BaselineType.TimeRange,
+                range=TimeRange(
+                    start=start_date,
+                    end=end_date
+                )
+            )
+        )
+
     def add_monitor(self) -> None:
         existing_monitor = self._check_if_monitor_exists()
 
@@ -119,13 +140,17 @@ class MissingDataMonitorBuilder(MonitorBuilder):
             displayName=self.analyzer_id,
             targetMatrix=
             ColumnMatrix(
-                include=self.columns
+                include=self.columns,
+                exclude=[],
+                segments=[]
             ) if self.columns else
             ColumnMatrix(
                 type=TargetLevel.column,
                 include=["*"],
+                exclude=[],
+                segments=[]
             ),
-            tags=[],
+            tags=["featureSelection:all"],
             schedule=FixedCadenceSchedule(type="fixed", cadence=Cadence.daily),
             config=DiffConfig(
                 type=AlgorithmType.diff,
@@ -140,7 +165,7 @@ class FixedCountsMonitorBuilder(MonitorBuilder):
     pass
 
 class DynamicCountsMonitorBuilder(MonitorBuilder):
-    def __init__(self, org_id: str, dataset_id: str, monitor_id: str, percentage: int, trailing_window_size: int):
+    def __init__(self, org_id: str, dataset_id: str, monitor_id: str):
         super().__init__(org_id=org_id, dataset_id=dataset_id, monitor_id=monitor_id)
 
     def __validate_input(self):
