@@ -62,7 +62,7 @@ class MonitorManager:
                 return value
         return None
 
-    def dump(self) -> str:
+    def dump(self) -> Any:
         doc = Document(
             orgId=self.__builder.org_id,
             datasetId=self.__builder.dataset_id,
