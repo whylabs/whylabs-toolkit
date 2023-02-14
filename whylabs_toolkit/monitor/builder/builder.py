@@ -37,7 +37,7 @@ class MonitorBuilder:
             existing_analyzer = None
         return existing_analyzer
 
-    def add_analyzer(self) -> None:
+    def set_analyzer(self) -> None:
         existing_analyzer = self._check_if_analyzer_exists()
 
         self.analyzer = existing_analyzer or Analyzer(
@@ -58,7 +58,7 @@ class MonitorBuilder:
             ),
         )
 
-    def add_monitor(self) -> None:
+    def set_monitor(self) -> None:
         existing_monitor = self._check_if_monitor_exists()
 
         self.monitor = existing_monitor or Monitor(
@@ -72,6 +72,10 @@ class MonitorBuilder:
             actions=[],
         )
 
+    def build(self) -> None:
+        self.set_monitor()
+        self.set_analyzer()
+    
 
 class MissingDataMonitorBuilder(MonitorBuilder):
     """
@@ -117,7 +121,7 @@ class MissingDataMonitorBuilder(MonitorBuilder):
             baseline=TimeRangeBaseline(type=BaselineType.TimeRange, range=TimeRange(start=start_date, end=end_date)),
         )
 
-    def add_monitor(self) -> None:
+    def set_monitor(self) -> None:
         existing_monitor = self._check_if_monitor_exists()
 
         self.monitor = existing_monitor or Monitor(
@@ -130,7 +134,7 @@ class MissingDataMonitorBuilder(MonitorBuilder):
             actions=[],
         )
 
-    def add_analyzer(self) -> None:
+    def set_analyzer(self) -> None:
         existing_analyzer = self._check_if_analyzer_exists()
 
         self.analyzer = existing_analyzer or Analyzer(

@@ -27,8 +27,15 @@ manager.add_actions(
         SendEmail(type="email", target="some_mail@example.com")
     ]
 )
+```
 
+With the modified Manager, you are able to either dump the monitor config to a JSON-string with `dump()` or `validate()` it to check if you've set things correctly.
+```python
 print(manager.dump())
 manager.validate()
+```
+
+In case you want to persist changes to WhyLabs directly, you can just call:
+```python
 manager.save()
 ```

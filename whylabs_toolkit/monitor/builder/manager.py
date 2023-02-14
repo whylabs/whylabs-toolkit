@@ -8,8 +8,7 @@ class MonitorManager:
     def __init__(self, monitor_builder: MonitorBuilder) -> None:
         self.monitor_id = monitor_builder.monitor_id
         self.__builder = monitor_builder
-        self.__builder.add_analyzer()
-        self.__builder.add_monitor()
+        self.__builder.build()
 
     def add_schedule(
         self, schedule: FixedCadenceSchedule

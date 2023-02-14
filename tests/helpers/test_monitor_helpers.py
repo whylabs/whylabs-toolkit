@@ -1,5 +1,8 @@
 import os
 
+import pytest
+from whylabs_client.exceptions import NotFoundException
+
 from whylabs_toolkit.helpers.monitor_helpers import (
     delete_monitor,
     get_analyzer_ids,
@@ -76,9 +79,9 @@ class TestDeleteMonitor:
         for monitor in monitor_config["monitors"]:
             assert MONITOR_ID not in monitor["id"]
 
-        analyzers_list = get_analyzer_ids(
-            org_id=ORG_ID,
-            dataset_id=DATASET_ID,
-            monitor_id=MONITOR_ID
-        )
-        assert not analyzers_list
+        with pytest.raises(NotFoundException):
+            get_analyzer_ids(
+                org_id=ORG_ID,
+                dataset_id=DATASET_ID,
+                monitor_id=MONITOR_ID
+            )
