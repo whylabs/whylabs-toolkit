@@ -12,9 +12,6 @@ logger = logging.getLogger(__name__)
 
 # TODO create deactivate_monitor
 
-# TODO Set up a monitor/alert on a text feature that triggers alerts based on an
-# x% increase or y change in std dev for the total volume (counts?) received for that particular feature?
-
 
 def get_monitor_config(org_id: str, dataset_id: str) -> Any:
     api = get_models_api()
@@ -60,12 +57,3 @@ def delete_monitor(org_id: str, dataset_id: str, monitor_id: str) -> None:
         logger.debug(f"Deleted monitor with Resp:{resp_monitor}")
     except ApiValueError as e:
         raise e
-
-
-if __name__ == "__main__":
-    print(
-        get_monitor_config(
-            org_id="org-fjx9Rz",
-            dataset_id="model-7",
-        )
-    )
