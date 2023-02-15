@@ -3,10 +3,10 @@ from enum import Enum
 
 
 class ConfigVars(Enum):
-    WHYLABS_API_KEY = ""
+    ORG_ID = 1
+    DATASET_ID = 2
+    WHYLABS_API_KEY = 3
     WHYLABS_HOST = "https://api.whylabsapp.com"
-    ORG_ID = ""
-    DATASET_ID = ""
 
 
 class Config:
@@ -25,6 +25,7 @@ class Config:
     @staticmethod
     def get_default_dataset_id() -> str:
         return Validations.require(ConfigVars.DATASET_ID)
+
 
 class Validations:
     @staticmethod

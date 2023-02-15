@@ -76,7 +76,7 @@ class MonitorBuilder:
     def build(self) -> None:
         self.set_monitor()
         self.set_analyzer()
-    
+
 
 class MissingDataMonitorBuilder(MonitorBuilder):
     """
@@ -91,9 +91,7 @@ class MissingDataMonitorBuilder(MonitorBuilder):
          :type percentage: int
     """
 
-    def __init__(
-        self, credentials: MonitorCredentials, percentage: int, columns: Optional[List[str]] = None
-    ):
+    def __init__(self, credentials: MonitorCredentials, percentage: int, columns: Optional[List[str]] = None):
         super().__init__(credentials=credentials)
         self.percentage = percentage
         self.columns = columns
