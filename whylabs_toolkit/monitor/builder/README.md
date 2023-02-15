@@ -4,18 +4,16 @@ This package gives users a workflow to author and modify existing WhyLabs Monito
 using a Builder-Manager approach.
 
 ```python
-builder = MissingDataMonitorBuilder(
-    org_id=os.environ["ORG_ID"],
-    dataset_id=os.environ["DATASET_ID"],
-    monitor_id="my-awesome-monitor-3",
-    percentage=20,
+# org_id and dataset_id are both defined through env_vars: DATASET_ID and ORG_ID
+
+credentials = MonitorCredentials(
+    monitor_id="my-awesome-monitor-3"
 )
 
-# defaults to trailing window of 14 days
 
-builder.configure_fixed_dates_baseline(
-    start_date=datetime(2022,12,8),
-    end_date=datetime(2022,12,14)
+builder = MonitorBuilder(
+    credentials=credentials,
+    percentage=20,
 )
 
 manager = MonitorManager(
@@ -31,11 +29,13 @@ manager.add_actions(
 
 With the modified Manager, you are able to either dump the monitor config to a JSON-string with `dump()` or `validate()` it to check if you've set things correctly.
 ```python
-print(manager.dump())
 manager.validate()
+
+print(manager.dump())
 ```
 
-In case you want to persist changes to WhyLabs directly, you can just call:
+In case you want to persist changes to WhyLabs directly, you can call:
 ```python
 manager.save()
 ```
+Which will validate and push changes to your WhyLabs monitors.

@@ -6,6 +6,7 @@ class ConfigVars(Enum):
     WHYLABS_API_KEY = ""
     WHYLABS_HOST = "https://api.whylabsapp.com"
     ORG_ID = ""
+    DATASET_ID = ""
 
 
 class Config:
@@ -21,13 +22,16 @@ class Config:
     def get_default_org_id() -> str:
         return Validations.require(ConfigVars.ORG_ID)
 
+    @staticmethod
+    def get_default_dataset_id() -> str:
+        return Validations.require(ConfigVars.DATASET_ID)
 
 class Validations:
     @staticmethod
     def require(env: ConfigVars) -> str:
         val = os.getenv(env.name)
         if not val:
-            raise TypeError(f"Missing {ConfigVars.WHYLABS_API_KEY.name} env variable.")
+            raise TypeError(f"Missing {env.name} env variable.")
         return val
 
     @staticmethod

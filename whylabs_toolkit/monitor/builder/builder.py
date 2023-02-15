@@ -6,17 +6,18 @@ from whylabs_client.exceptions import NotFoundException
 from whylabs_toolkit.helpers.monitor_helpers import get_analyzers, get_monitor
 from whylabs_toolkit.monitor.models import *
 from whylabs_toolkit.monitor.models.analyzer.algorithms import *
+from whylabs_toolkit.monitor.builder.credentials import MonitorCredentials
 
 
 class MonitorBuilder:
     analyzer: Analyzer
     monitor: Monitor
 
-    def __init__(self, org_id: str, dataset_id: str, monitor_id: str) -> None:
-        self.org_id = org_id
-        self.dataset_id = dataset_id
-        self.monitor_id = monitor_id
-        self.analyzer_id = f"{monitor_id}-analyzer"
+    def __init__(self, credentials: MonitorCredentials) -> None:
+        self.org_id = credentials.org_id
+        self.dataset_id = credentials.dataset_id
+        self.monitor_id = credentials.monitor_id
+        self.analyzer_id = f"{self.monitor_id}-analyzer"
 
     def _check_if_monitor_exists(self) -> Any:
         try:
@@ -91,9 +92,9 @@ class MissingDataMonitorBuilder(MonitorBuilder):
     """
 
     def __init__(
-        self, org_id: str, dataset_id: str, monitor_id: str, percentage: int, columns: Optional[List[str]] = None
+        self, credentials: MonitorCredentials, percentage: int, columns: Optional[List[str]] = None
     ):
-        super().__init__(org_id=org_id, dataset_id=dataset_id, monitor_id=monitor_id)
+        super().__init__(credentials=credentials)
         self.percentage = percentage
         self.columns = columns
         self.__validate_input()
