@@ -226,7 +226,7 @@ class StddevConfig(_ThresholdBaseConfig):
     For 2 values, we use the formula sqrt((x_i - avg(x))^2 / n - 1)
     """
 
-    type: Literal[AlgorithmType.stddev]
+    type: Optional[Literal[AlgorithmType.stddev]] = Field(AlgorithmType.stddev)
     factor: Optional[float] = Field(
         3.0, description="The multiplier used with stddev to build the upper and lower bounds."
     )

@@ -53,7 +53,7 @@ class TrailingWindowBaseline(_SegmentBaseline):
     monitors.
     """
 
-    type: Literal[BaselineType.TrailingWindow]
+    type: Optional[Literal[BaselineType.TrailingWindow]] = Field(BaselineType.TrailingWindow)
     size: int = Field(description="Window size", le=90, gt=3)
     offset: Optional[int] = Field(
         None,
