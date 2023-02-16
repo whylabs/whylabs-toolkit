@@ -11,15 +11,14 @@ class MonitorManager:
     def __init__(self, builder: MonitorBuilder) -> None:
         self._builder = builder
 
-    def deactivate(self):
+    def deactivate(self) -> None:
         # TODO implement
         pass
 
     def get_granularity(self) -> Optional[Granularity]:
         api = get_models_api()
         model_meta = api.get_model(
-            org_id=self._builder.credentials.org_id,
-            model_id=self._builder.credentials.dataset_id
+            org_id=self._builder.credentials.org_id, model_id=self._builder.credentials.dataset_id
         )
 
         time_period_to_gran = {
