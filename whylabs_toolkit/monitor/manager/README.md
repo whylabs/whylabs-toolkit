@@ -1,0 +1,103 @@
+# Monitor creation workflow
+
+This package gives users a workflow to author and modify existing WhyLabs Monitors.
+
+## 1. Set your credentials
+The first step is to set your credentials to WhyLabs with `MonitorCredentials`.
+
+```python
+import os
+
+from whylabs_toolkit.monitor.manager.credentials import MonitorCredentials
+
+os.environ["ORG_ID"] = "org-id"
+os.environ["DATASET_ID"] = "dataset-id"
+
+credentials = MonitorCredentials(
+    monitor_id="my-awesome-monitor-3",
+    dataset_id=None  # Optionally, you might set the `dataset_id` as an argument instead
+)
+```
+
+## 2. Create a MonitorBuilder object
+
+Then, you will need to create a `MonitorBuilder` object, 
+either for a generic monitor configuration or an available preset. The `monitor_id` passed to 
+the `MonitorCredentials` is the unique name given to a monitor. If there is an existing monitor, 
+the builder will try to fetch it, otherwise, it will create a default one.
+
+```python
+from whylabs_toolkit.monitor.manager import MonitorBuilder
+
+builder = MonitorBuilder(
+    credentials=credentials,
+)
+```
+
+### Add a configuration
+This is probably the most important to be configured on a default `MonitorBuilder`. 
+It declares how WhyLabs will detect an anomaly and trigger alerts. 
+Here is an example configuration to detect Drift:
+
+```python
+from datetime import datetime
+from whylabs_toolkit.monitor.models import *
+
+# Add a DriftConfig with a Trailing window Baseline
+builder.config = StddevConfig(
+        metric=SimpleColumnMetric.median,
+        factor=2.0,
+        baseline=TrailingWindowBaseline(size=14)
+)
+
+# Or with a fixed TimeRange, with a helper method
+
+builder.set_fixed_dates_baseline(
+    start_date=datetime(2022,1,12),
+    end_date=datetime(2022,1,29)
+)
+```
+
+### Add alert actions 
+
+```python
+from pydantic.networks import HttpUrl
+from whylabs_toolkit.monitor.models.monitor import SendEmail, SlackWebhook
+
+builder.actions = [
+        SendEmail(target="some_mail@example.com"),
+        SlackWebhook(target=HttpUrl("https://slack.web.hook.com"))
+]
+```
+
+### Build the Monitor object
+
+This step is important. If you don't build the configured Monitor, you will not be able to
+persist changes to WhyLabs, nor get the JSON configuration schema from it.
+
+```python
+builder.build()
+```
+
+## 3. Interact with the created monitor
+
+```python
+from whylabs_toolkit.monitor.manager import MonitorManager
+
+manager = MonitorManager(
+    builder=builder
+)
+```
+With the `MonitorManager`, you are able to either dump the monitor config to a JSON configuration with `dump()` 
+or `validate()` it to check if you've set things correctly.
+```python
+manager.validate()
+
+print(manager.dump())
+```
+
+The validation method call is optional. In case you want to persist changes to your monitor to WhyLabs, you can `save`:
+```python
+manager.save()
+```
+Which will validate and push changes to your WhyLabs monitors.

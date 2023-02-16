@@ -56,7 +56,7 @@ class ColumnGroups(str, Enum):
 class ColumnMatrix(_BaseMatrix):
     """Define the matrix of columns and segments to fan out for monitoring."""
 
-    type: Literal[TargetLevel.column]
+    type: Literal[TargetLevel.column] = TargetLevel.column
     include: Optional[List[Union[ColumnGroups, COLUMN_NAME_TYPE]]] = Field(  # type: ignore
         None,
         description="List of allowed fields/features/columns. Could be a grouping as well.",

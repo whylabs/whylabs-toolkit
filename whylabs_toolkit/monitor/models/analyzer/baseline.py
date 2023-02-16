@@ -38,7 +38,7 @@ class ReferenceProfileId(_Baseline):
     as well for an ML model.
     """
 
-    type: Literal[BaselineType.Reference]
+    type: Literal[BaselineType.Reference] = BaselineType.Reference
     profileId: str = Field(
         title="ProfileId",
         description="The unique profile ID for the reference profile",
@@ -75,7 +75,7 @@ class TimeRangeBaseline(_SegmentBaseline):
     Instead of using a single profile or a trailing window, user can lock in a "good" period.
     """
 
-    type: Literal[BaselineType.TimeRange]
+    type: Literal[BaselineType.TimeRange] = BaselineType.TimeRange
     range: TimeRange = Field(description="The range to set the time range with")
 
 
@@ -85,7 +85,7 @@ class SingleBatchBaseline(_SegmentBaseline):
     This is used when you want to use one batch to monitor another batch in a different metric entity.
     """
 
-    type: Literal[BaselineType.CurrentBatch]
+    type: Literal[BaselineType.CurrentBatch] = BaselineType.CurrentBatch
     offset: Optional[int] = Field(
         None,
         description="Offset from the current batch for the baseline. Default to 0 - (the current batch). This means "

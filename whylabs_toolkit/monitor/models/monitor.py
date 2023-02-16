@@ -25,28 +25,28 @@ class MonitorConfigMetadata(NoExtrasBaseModel):
 class GlobalAction(NoExtrasBaseModel):
     """Actions that are configured at the team/organization level."""
 
-    type: Literal["global"]
+    type: Literal["global"] = "global"
     target: str = Field(description="The unique action ID in the platform", regex="[a-zA-Z0-9\\-_]+", max_length=100)
 
 
 class SendEmail(NoExtrasBaseModel):
     """Action to send an email."""
 
-    type: Literal["email"]
+    type: Literal["email"] = "email"
     target: str = Field(description="Destination email", format="email", max_length=1000)
 
 
 class SlackWebhook(NoExtrasBaseModel):
     """Action to send a Slack webhook."""
 
-    type: Literal["slack"]
+    type: Literal["slack"] = "slack"
     target: HttpUrl = Field(description="The Slack webhook")
 
 
 class RawWebhook(NoExtrasBaseModel):
     """Action to send a Slack webhook."""
 
-    type: Literal["raw"]
+    type: Literal["raw"] = "raw"
     target: HttpUrl = Field(description="Sending raw unformatted message in JSON format to a webhook")
 
 
@@ -134,7 +134,7 @@ excludeMetrics: Optional[List[METRIC_NAME_STR]] = Field(  # type: ignore
 class EveryAnomalyMode(NoExtrasBaseModel):
     """Config mode that indicates the monitor will send out individual messages per anomaly."""
 
-    type: Literal["EVERY_ANOMALY"]
+    type: Literal["EVERY_ANOMALY"] = "EVERY_ANOMALY"
     filter: Optional[AnomalyFilter] = Field(None, description="Filter for anomalies")
 
 
@@ -151,7 +151,7 @@ class DigestModeGrouping(str, Enum):
 class DigestMode(NoExtrasBaseModel):
     """Config mode that indicates the monitor will send out a digest message."""
 
-    type: Literal["DIGEST"]
+    type: Literal["DIGEST"] = Field("DIGEST")
     filter: Optional[AnomalyFilter] = Field(None, description="Filter for anomalies")
     creationTimeOffset: Optional[str] = Field(
         None,

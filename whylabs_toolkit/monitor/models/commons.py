@@ -31,7 +31,7 @@ class NoExtrasBaseModel(BaseModel, extra=Extra.forbid):  # type: ignore
 class ImmediateSchedule(NoExtrasBaseModel):
     """Schedule the monitor to run immediately."""
 
-    type: Literal["immediate"]
+    type: Literal["immediate"] = "immediate"
 
 
 class TimeRange(NoExtrasBaseModel):
@@ -44,7 +44,7 @@ class TimeRange(NoExtrasBaseModel):
 class CronSchedule(NoExtrasBaseModel):
     """Support for scheduling."""
 
-    type: Literal["cron"]
+    type: Literal["cron"] = "cron"
     cron: str = Field(
         description="Cron expression",
         regex=CRON_REGEX,
@@ -67,7 +67,7 @@ class Cadence(str, Enum):
 class FixedCadenceSchedule(NoExtrasBaseModel):
     """Support for scheduling based on a predefined cadence."""
 
-    type: Literal["fixed"]
+    type: Literal["fixed"] = "fixed"
     cadence: Literal[Cadence.hourly, Cadence.daily, Cadence.weekly, Cadence.monthly] = Field(
         description="Frequency to run the analyzer or monitor, based on UTC time. The monitor will run at the start of "
         "the cadence with some SLA depending on the customer tiers.",
