@@ -61,12 +61,12 @@ builder.set_fixed_dates_baseline(
 ### Add alert actions 
 
 ```python
-from pydantic.networks import HttpUrl
+from pydantic.networks import HttpUrl, parse_obj_as
 from whylabs_toolkit.monitor.models.monitor import SendEmail, SlackWebhook
 
 builder.actions = [
         SendEmail(target="some_mail@example.com"),
-        SlackWebhook(target=HttpUrl("https://slack.web.hook.com"))
+        SlackWebhook(target=parse_obj_as(HttpUrl, "https://slack.web.hook.com"))
 ]
 ```
 
@@ -95,8 +95,75 @@ manager.validate()
 
 print(manager.dump())
 ```
+Which will print the following JSON object to the console:
+```bash
+{
+  "schemaVersion": 1,
+  "orgId": "org-id",
+  "datasetId": "dataset-id",
+  "granularity": "monthly",
+  "analyzers": [
+    {
+      "id": "my-awesome-monitor-3-analyzer",
+      "displayName": "my-awesome-monitor-3-analyzer",
+      "tags": [],
+      "schedule": {
+        "type": "fixed",
+        "cadence": "daily"
+      },
+      "targetMatrix": {
+        "segments": [],
+        "type": "column",
+        "include": [
+          "*"
+        ],
+        "exclude": []
+      },
+      "config": {
+        "metric": "median",
+        "type": "stddev",
+        "factor": 2.0,
+        "minBatchSize": 1,
+        "baseline": {
+          "type": "TrailingWindow",
+          "size": 14
+        }
+      }
+    }
+  ],
+  "monitors": [
+    {
+      "id": "my-awesome-monitor-3",
+      "displayName": "my-awesome-monitor-3",
+      "tags": [],
+      "analyzerIds": [
+        "my-awesome-monitor-3-analyzer"
+      ],
+      "schedule": {
+        "type": "immediate"
+      },
+      "disabled": false,
+      "severity": 3,
+      "mode": {
+        "type": "DIGEST"
+      },
+      "actions": [
+        {
+          "type": "email",
+          "target": "some_mail@example.com"
+        },
+        {
+          "type": "slack",
+          "target": "https://slack.web.hook.com"
+        }
+      ]
+    }
+  ]
+}
+```
+It can be used to interact with WhyLabs' API endpoints as the request body. The validation method call is optional at this point. 
+In case you want to persist changes to your monitor to WhyLabs, you can `save`:
 
-The validation method call is optional. In case you want to persist changes to your monitor to WhyLabs, you can `save`:
 ```python
 manager.save()
 ```
