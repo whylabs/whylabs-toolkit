@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "whylabs"
+name = "whylabs_toolkit"
 version = "0.0.1"
-description = "Whylabs CLI and Helpers package."
+description = "Whylabs Toolkit package."
 authors = ["Anthony Naddeo <anthony.naddeo@gmail.com>", "Murilo Mendonca <murilommen@gmail.com>"]
 license = "Apache-2.0 license"
 readme = "README.md"
