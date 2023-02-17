@@ -1,4 +1,4 @@
-name: Upload Airflow Provider Python Package
+name: Upload Package to PyPi
 
 on:
   release:
