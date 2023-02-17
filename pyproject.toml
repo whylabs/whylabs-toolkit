@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "whylabs"
+name = "whylabs-toolkit"
 version = "0.0.1-dev0"
 description = "Whylabs CLI and Helpers package."
 authors = ["Anthony Naddeo <anthony.naddeo@gmail.com>", "Murilo Mendonca <murilommen@gmail.com>"]
