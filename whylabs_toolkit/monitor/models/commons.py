@@ -25,8 +25,6 @@ class NoExtrasBaseModel(BaseModel, extra=Extra.forbid):  # type: ignore
     Inherit to prevent accidental extra fields.
     """
 
-    pass
-
 
 class ImmediateSchedule(NoExtrasBaseModel):
     """Schedule the monitor to run immediately."""
