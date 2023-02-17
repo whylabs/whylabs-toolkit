@@ -4,14 +4,14 @@ from typing import Any, Dict, List, Literal, Optional, Union
 
 from pydantic import BaseModel, Field, constr
 
-from whylabs_toolkit.monitor_schema.models.analyzer.baseline import (
+from whylabs_toolkit.monitor.models.analyzer.baseline import (
     ReferenceProfileId,
     SingleBatchBaseline,
     TimeRangeBaseline,
     TrailingWindowBaseline,
 )
-from whylabs_toolkit.monitor_schema.models.commons import NoExtrasBaseModel, TimeRange
-from whylabs_toolkit.monitor_schema.models.utils import COLUMN_NAME_TYPE, anyOf_to_oneOf
+from whylabs_toolkit.monitor.models.commons import NoExtrasBaseModel, TimeRange
+from whylabs_toolkit.monitor.models.utils import COLUMN_NAME_TYPE, anyOf_to_oneOf
 
 
 class AlgorithmType(str, Enum):
@@ -160,7 +160,7 @@ class ComparisonConfig(AlgorithmConfig):
     This is useful to detect data type change, for instance.
     """
 
-    type: Literal[AlgorithmType.comparison]
+    type: Literal[AlgorithmType.comparison] = AlgorithmType.comparison
     operator: ComparisonOperator = Field(
         description="The operator for the comparison. The right hand side is the target batch's metric. The left hand"
         "side is the expected value or a baseline's metric."
@@ -179,7 +179,7 @@ class ColumnListChangeConfig(AlgorithmConfig):
     This is useful to detect data type change, for instance.
     """
 
-    type: Literal[AlgorithmType.column_list]
+    type: Literal[AlgorithmType.column_list] = AlgorithmType.column_list
     mode: Literal["ON_ADD_AND_REMOVE", "ON_ADD", "ON_REMOVE"] = "ON_ADD_AND_REMOVE"
     metric: Literal[ComplexMetrics.column_list]
     exclude: Optional[List[COLUMN_NAME_TYPE]] = Field(  # type: ignore
@@ -198,7 +198,7 @@ class FixedThresholdsConfig(AlgorithmConfig):
     WhyLabs might enforce the present of either fields in the future.
     """
 
-    type: Literal[AlgorithmType.fixed]
+    type: Literal[AlgorithmType.fixed] = AlgorithmType.fixed
     upper: Optional[float] = Field(None, description="Upper bound of the static threshold")
     lower: Optional[float] = Field(None, description="Lower bound of the static threshold")
 
@@ -226,7 +226,7 @@ class StddevConfig(_ThresholdBaseConfig):
     For 2 values, we use the formula sqrt((x_i - avg(x))^2 / n - 1)
     """
 
-    type: Literal[AlgorithmType.stddev]
+    type: Optional[Literal[AlgorithmType.stddev]] = Field(AlgorithmType.stddev)
     factor: Optional[float] = Field(
         3.0, description="The multiplier used with stddev to build the upper and lower bounds."
     )
@@ -244,7 +244,7 @@ class SeasonalConfig(_ThresholdBaseConfig):
     This only works with TrailingWindow baseline (TODO: add backend validation)
     """
 
-    type: Literal[AlgorithmType.seasonal]
+    type: Literal[AlgorithmType.seasonal] = AlgorithmType.seasonal
     algorithm: Literal["arima", "rego", "stastforecast"] = Field(
         "arima", description="The algorithm implementation for seasonal analysis"
     )
@@ -283,7 +283,7 @@ class DriftConfig(AlgorithmConfig):
     of 0.7.
     """
 
-    type: Literal[AlgorithmType.drift]
+    type: Literal[AlgorithmType.drift] = AlgorithmType.drift
     algorithm: Literal["hellinger", "ks_test", "kl_divergence", "variation_distance"] = Field(
         "hellinger", description="The algorithm to use when calculating drift."
     )
@@ -305,7 +305,7 @@ class DriftConfig(AlgorithmConfig):
 class ExperimentalConfig(AlgorithmConfig):
     """Experimental algorithm that is not standardized by the above ones yet."""
 
-    type: Literal[AlgorithmType.experimental]
+    type: Literal[AlgorithmType.experimental] = AlgorithmType.experimental
     implementation: str = Field(description="The implementation of an experimental config", max_length=100)
     baseline: Union[TrailingWindowBaseline, ReferenceProfileId, TimeRangeBaseline, SingleBatchBaseline]
     stub: Optional[AlgorithmType] = Field(description="Stub field to flow algoirthm type into the schema. Do not use.")
@@ -319,7 +319,7 @@ class DiffMode(str, Enum):
 
 
 class ThresholdType(str, Enum):
-    """By default an anomaly will be generated when the target is above or below the baseline
+    """By default, an anomaly will be generated when the target is above or below the baseline
     by the specified threshold.
 
     If its only desirable to alert when the target is above the
@@ -332,7 +332,7 @@ class ThresholdType(str, Enum):
 class DiffConfig(AlgorithmConfig):
     """Detecting the differences between two numerical metrics."""
 
-    type: Literal[AlgorithmType.diff]
+    type: Literal[AlgorithmType.diff] = AlgorithmType.diff
     mode: DiffMode
     thresholdType: Optional[ThresholdType]
     threshold: float = Field(

@@ -18,6 +18,7 @@ __all__ = [
     "BaselineType",
     "ReferenceProfileId",
     "TimeRangeBaseline",
+    "TimeRange",
     "TrailingWindowBaseline",
     "SingleBatchBaseline",
     # configs

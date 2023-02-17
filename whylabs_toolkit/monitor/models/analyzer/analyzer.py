@@ -3,7 +3,7 @@ from typing import Any, Dict, List, Optional, Union
 
 from pydantic import BaseModel, Field, constr
 
-from whylabs_toolkit.monitor_schema.models.commons import NoExtrasBaseModel
+from whylabs_toolkit.monitor.models.commons import NoExtrasBaseModel
 
 from ..commons import CronSchedule, FixedCadenceSchedule, Metadata
 from ..utils import anyOf_to_oneOf, duration_field

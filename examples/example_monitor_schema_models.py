@@ -6,7 +6,7 @@ import json
 import uuid
 from typing import Dict
 
-from whylabs_toolkit.monitor_schema.models import (Analyzer, AnomalyFilter,
+from whylabs_toolkit.monitor.models import (Analyzer, AnomalyFilter,
                                                    BaselineType, Cadence,
                                                    ColumnDataType,
                                                    ColumnDiscreteness,
@@ -63,6 +63,7 @@ def main() -> Dict:
             baseline=TrailingWindowBaseline(type=BaselineType.TrailingWindow, size=14),
         ),
     )
+
     freqitems_drift_analyzer = Analyzer(
         id='frequent_items_drift-analyzer',
         schedule=FixedCadenceSchedule(type='fixed', cadence=Cadence.daily),

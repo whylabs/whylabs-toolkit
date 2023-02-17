@@ -10,6 +10,8 @@ packages = [{include = "whylabs_toolkit/**/*.py"}]
 [tool.poetry.dependencies]
 python = ">=3.8"
 whylabs-client = "^0.4.2"
+types-pytz = "^2022.7.1.0"
+pydantic = "^1.10.4"
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.2.0"

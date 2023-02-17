@@ -3,28 +3,36 @@ from enum import Enum
 
 
 class ConfigVars(Enum):
-    WHYLABS_API_KEY = ""
+    ORG_ID = 1
+    DATASET_ID = 2
+    WHYLABS_API_KEY = 3
     WHYLABS_HOST = "https://api.whylabsapp.com"
-    ORG_ID = ""
 
 
 class Config:
-    def get_whylabs_api_key(self) -> str:
+    @staticmethod
+    def get_whylabs_api_key() -> str:
         return Validations.require(ConfigVars.WHYLABS_API_KEY)
 
-    def get_whylabs_host(self) -> str:
+    @staticmethod
+    def get_whylabs_host() -> str:
         return Validations.get_or_default(ConfigVars.WHYLABS_HOST)
 
-    def get_default_org_id(self) -> str:
+    @staticmethod
+    def get_default_org_id() -> str:
         return Validations.require(ConfigVars.ORG_ID)
+
+    @staticmethod
+    def get_default_dataset_id() -> str:
+        return Validations.require(ConfigVars.DATASET_ID)
 
 
 class Validations:
     @staticmethod
     def require(env: ConfigVars) -> str:
         val = os.getenv(env.name)
-        if val is None or val == "":
-            raise TypeError(f"Missing {ConfigVars.WHYLABS_API_KEY.name} env variable.")
+        if not val:
+            raise TypeError(f"Missing {env.name} env variable.")
         return val
 
     @staticmethod

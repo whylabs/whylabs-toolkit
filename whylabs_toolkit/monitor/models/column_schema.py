@@ -4,9 +4,9 @@ from typing import Dict, List, Optional
 
 from pydantic import Field
 
-from whylabs_toolkit.monitor_schema.models.commons import Metadata, NoExtrasBaseModel
-from whylabs_toolkit.monitor_schema.models.segments import Segment
-from whylabs_toolkit.monitor_schema.models.utils import COLUMN_NAME_TYPE
+from whylabs_toolkit.monitor.models.commons import Metadata, NoExtrasBaseModel
+from whylabs_toolkit.monitor.models.segments import Segment
+from whylabs_toolkit.monitor.models.utils import COLUMN_NAME_TYPE
 
 
 class ColumnDiscreteness(str, Enum):

@@ -4,9 +4,9 @@ from typing import List, Literal, Optional, Union
 
 from pydantic import Field
 
-from whylabs_toolkit.monitor_schema.models.commons import NoExtrasBaseModel
-from whylabs_toolkit.monitor_schema.models.segments import Segment
-from whylabs_toolkit.monitor_schema.models.utils import COLUMN_NAME_TYPE
+from whylabs_toolkit.monitor.models.commons import NoExtrasBaseModel
+from whylabs_toolkit.monitor.models.segments import Segment
+from whylabs_toolkit.monitor.models.utils import COLUMN_NAME_TYPE
 
 
 class TargetLevel(str, Enum):
@@ -56,7 +56,7 @@ class ColumnGroups(str, Enum):
 class ColumnMatrix(_BaseMatrix):
     """Define the matrix of columns and segments to fan out for monitoring."""
 
-    type: Literal[TargetLevel.column]
+    type: Literal[TargetLevel.column] = TargetLevel.column
     include: Optional[List[Union[ColumnGroups, COLUMN_NAME_TYPE]]] = Field(  # type: ignore
         None,
         description="List of allowed fields/features/columns. Could be a grouping as well.",

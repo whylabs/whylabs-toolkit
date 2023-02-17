@@ -5,7 +5,7 @@ from typing import List, Literal, Optional
 
 from pydantic import Field
 
-from whylabs_toolkit.monitor_schema.models.commons import NoExtrasBaseModel
+from whylabs_toolkit.monitor.models.commons import NoExtrasBaseModel
 
 from .analyzer import Analyzer
 from .column_schema import EntitySchema, EntityWeights
