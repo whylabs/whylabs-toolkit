@@ -1,5 +1,4 @@
 import pytz
-from datetime import datetime
 
 from whylabs_toolkit.monitor.manager.builder import MonitorBuilder
 from whylabs_toolkit.monitor.models import *
