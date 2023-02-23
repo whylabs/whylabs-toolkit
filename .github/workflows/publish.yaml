@@ -7,7 +7,7 @@ on:
     branches: ["*"]
 
 jobs:
-  publish_templates:
+  build:
     name: Run lints and tests on PRs and merges
     timeout-minutes: 10
     runs-on: ubuntu-latest
