@@ -42,22 +42,25 @@ class MonitorManager:
         )
         return doc.json(indent=2, exclude_none=True)
 
-    def validate(self) -> None:
-        Monitor.validate(self._builder.monitor)
-        Analyzer.validate(self._builder.analyzer)
+    def validate(self) -> bool:
+        try:
+            Monitor.validate(self._builder.monitor)
+            Analyzer.validate(self._builder.analyzer)
+        finally:
+            return True
 
     def save(self) -> None:
-        self.validate()
-        api = get_models_api()
-        api.put_analyzer(
-            org_id=self._builder.credentials.org_id,
-            dataset_id=self._builder.credentials.dataset_id,
-            analyzer_id=self._builder.credentials.analyzer_id,
-            body=self._builder.analyzer.dict(exclude_none=True),  # type: ignore
-        )
-        api.put_monitor(
-            org_id=self._builder.credentials.org_id,
-            dataset_id=self._builder.credentials.dataset_id,
-            monitor_id=self._builder.credentials.monitor_id,
-            body=self._builder.monitor.dict(exclude_none=True),  # type: ignore
-        )
+        if self.validate() is True:
+            api = get_models_api()
+            api.put_analyzer(
+                org_id=self._builder.credentials.org_id,
+                dataset_id=self._builder.credentials.dataset_id,
+                analyzer_id=self._builder.credentials.analyzer_id,
+                body=self._builder.analyzer.dict(exclude_none=True),  # type: ignore
+            )
+            api.put_monitor(
+                org_id=self._builder.credentials.org_id,
+                dataset_id=self._builder.credentials.dataset_id,
+                monitor_id=self._builder.credentials.monitor_id,
+                body=self._builder.monitor.dict(exclude_none=True),  # type: ignore
+            )

@@ -7,6 +7,9 @@ from .document import *
 from .monitor import *
 from .segments import *
 
+# TODO add all algorithms
+
+
 __all__ = [
     "DatasetMetric",
     "SimpleColumnMetric",

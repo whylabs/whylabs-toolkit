@@ -4,14 +4,18 @@ This package gives users a workflow to author and modify existing WhyLabs Monito
 
 ## 1. Set your credentials
 The first step is to set your credentials to WhyLabs with `MonitorCredentials`.
-
+Define your environment variables:
 ```python
 import os
 
-from whylabs_toolkit.monitor.manager.credentials import MonitorCredentials
-
 os.environ["ORG_ID"] = "org-id"
 os.environ["DATASET_ID"] = "dataset-id"
+os.environ["WHYLABS_API_KEY"] = "api-key"
+```
+And create your `MonitorCredentials` object:
+```python
+from whylabs_toolkit.monitor.manager.credentials import MonitorCredentials
+
 
 credentials = MonitorCredentials(
     monitor_id="my-awesome-monitor-3",
@@ -43,7 +47,7 @@ Here is an example configuration to detect Drift:
 from datetime import datetime
 from whylabs_toolkit.monitor.models import *
 
-# Add a DriftConfig with a Trailing window Baseline
+# Add a Standard Dev Config with a Trailing window Baseline
 builder.config = StddevConfig(
         metric=SimpleColumnMetric.median,
         factor=2.0,
@@ -56,6 +60,9 @@ builder.set_fixed_dates_baseline(
     start_date=datetime(2022,1,12),
     end_date=datetime(2022,1,29)
 )
+
+# Optionally, you might want to include only certain columns to your monitor
+builder.set_target_columns(columns=["feature_1", "feature_2"])
 ```
 
 ### Add alert actions 
@@ -68,6 +75,9 @@ builder.actions = [
         SendEmail(target="some_mail@example.com"),
         SlackWebhook(target=parse_obj_as(HttpUrl, "https://slack.web.hook.com"))
 ]
+
+# Optionally, extend existing actions with
+builder.actions.extend([SendEmail(target="some_mail@example.com")])
 ```
 
 ### Build the Monitor object

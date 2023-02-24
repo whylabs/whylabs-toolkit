@@ -142,13 +142,23 @@ class MonitorBuilder:
         """
         if type(columns) != list or not all(isinstance(column, str) for column in columns):
             raise ValueError("columns must be a List of strings")
+        # TODO validate if columns exist, throw exception
+        # also use entity schema helpers from whylabs_toolkit
+        # TODO inc and exclude_columns should have a state
         self._target_matrix = ColumnMatrix(include=columns, exclude=[], segments=[])
+
+    def exclude_target_columns(self):
+        # TODO implement
+        pass
 
     def set_fixed_dates_baseline(self, start_date: datetime, end_date: datetime) -> None:
         if not start_date.tzinfo:
-            start_date.replace(tzinfo=pytz.UTC)
+            start_date = start_date.replace(tzinfo=pytz.UTC)
         if not end_date.tzinfo:
-            end_date.replace(tzinfo=pytz.UTC)
+            end_date = end_date.replace(tzinfo=pytz.UTC)
+
+
+        # TODO Make this independent from analyzer Config
 
         self._analyzer_config.baseline = TimeRangeBaseline(  # type: ignore
             range=TimeRange(start=start_date, end=end_date)
