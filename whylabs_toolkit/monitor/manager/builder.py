@@ -24,17 +24,14 @@ class MonitorBuilder:
         self._analyzer_config: Optional[
             Union[
                 DiffConfig,
-                ComparisonConfig,
-                ColumnListChangeConfig,
                 FixedThresholdsConfig,
                 StddevConfig,
                 DriftConfig,
-                ExperimentalConfig,
                 SeasonalConfig,
             ]
         ] = None
-        self._target_columns: Optional[List[str]] = None
-
+        self._target_columns: Optional[List[str]] = []
+        self._exclude_columns: Optional[List[str]] = []
         self._prefill_properties()
 
     def _check_if_monitor_exists(self) -> Any:
@@ -90,18 +87,7 @@ class MonitorBuilder:
     @property
     def config(
         self,
-    ) -> Optional[
-        Union[
-            DiffConfig,
-            ComparisonConfig,
-            FixedThresholdsConfig,
-            StddevConfig,
-            ColumnListChangeConfig,
-            DriftConfig,
-            ExperimentalConfig,
-            SeasonalConfig,
-        ]
-    ]:
+    ) -> Optional[Union[DiffConfig, FixedThresholdsConfig, StddevConfig, DriftConfig, SeasonalConfig,]]:
         return self._analyzer_config
 
     @config.setter
@@ -109,7 +95,6 @@ class MonitorBuilder:
         self,
         config: Union[
             DiffConfig,
-            ComparisonConfig,
             FixedThresholdsConfig,
             StddevConfig,
             DriftConfig,
@@ -134,31 +119,34 @@ class MonitorBuilder:
     def mode(self, mode: Union[EveryAnomalyMode, DigestMode]) -> None:
         self._monitor_mode = mode
 
-    def set_target_columns(self, columns: Optional[List[str]] = None) -> None:
-        """
-        Args:
-            :columns: A list of the targeted columns to monitor against the reference profile. Defaults to None
-            :type columns: List[str], Optional
-        """
-        if type(columns) != list or not all(isinstance(column, str) for column in columns):
-            raise ValueError("columns must be a List of strings")
+    @staticmethod
+    def _validate_columns_input(columns: List[str]) -> bool:
         # TODO validate if columns exist, throw exception
         # also use entity schema helpers from whylabs_toolkit
-        # TODO inc and exclude_columns should have a state
-        self._target_matrix = ColumnMatrix(include=columns, exclude=[], segments=[])
+        if type(columns) != list or not all(isinstance(column, str) for column in columns):
+            raise ValueError("columns must be a List of strings")
+        return True
 
-    def exclude_target_columns(self):
-        # TODO implement
-        pass
+    def set_target_columns(self, columns: List[str]) -> None:
+        """
+        Args:
+            :columns: A list of the targeted columns to monitor against the reference profile.
+            :type columns: List[str]
+        """
+        if self._validate_columns_input(columns=columns):
+            self._target_columns = columns
+            self._target_matrix = ColumnMatrix(include=self._target_columns, exclude=self._exclude_columns, segments=[])
+
+    def exclude_target_columns(self, columns: List[str]) -> None:
+        if self._validate_columns_input(columns=columns):
+            self._exclude_columns = columns
+            self._target_matrix = ColumnMatrix(include=self._target_columns, exclude=self._exclude_columns, segments=[])
 
     def set_fixed_dates_baseline(self, start_date: datetime, end_date: datetime) -> None:
         if not start_date.tzinfo:
             start_date = start_date.replace(tzinfo=pytz.UTC)
         if not end_date.tzinfo:
             end_date = end_date.replace(tzinfo=pytz.UTC)
-
-
-        # TODO Make this independent from analyzer Config
 
         self._analyzer_config.baseline = TimeRangeBaseline(  # type: ignore
             range=TimeRange(start=start_date, end=end_date)

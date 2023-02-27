@@ -3,8 +3,6 @@ from dataclasses import dataclass, field
 from whylabs_toolkit.helpers.config import Config
 
 
-# TODO get Whylabs API Key *after* instantiating the builder, and not when importing MonitorCredentials
-
 @dataclass
 class MonitorCredentials:
     monitor_id: str

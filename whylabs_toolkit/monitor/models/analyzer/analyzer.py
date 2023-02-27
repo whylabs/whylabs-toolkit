@@ -88,14 +88,17 @@ class Analyzer(NoExtrasBaseModel):
         "backfill request. We support 48 hours for hourly data, 30 days for daily data, and 6 months for "
         "monthly data.",
     )
+
+    # NOT YET IMPLEMENTED:
+    # ComparisonConfig,
+    # ExperimentalConfig,
+    # ColumnListChangeConfig,
+
     config: Union[
         DiffConfig,
-        ComparisonConfig,
-        ColumnListChangeConfig,
         FixedThresholdsConfig,
         StddevConfig,
         DriftConfig,
-        ExperimentalConfig,
         SeasonalConfig,
     ] = Field(description="The configuration map of the analyzer", discriminator="type")
 
