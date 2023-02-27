@@ -26,6 +26,13 @@ __all__ = [
     "ColumnListChangeConfig",
     "SeasonalConfig",
     "StddevConfig",
+    # enums
+    "DiffMode",
+    "ThresholdType",
+    "AlgorithmType",
+    "DatasetMetric",
+    "SimpleColumnMetric",
+    "ComplexMetrics",
     # targets
     "DatasetMatrix",
     "ColumnMatrix",

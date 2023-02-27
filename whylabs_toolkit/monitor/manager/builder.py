@@ -11,15 +11,19 @@ from whylabs_toolkit.monitor.manager.credentials import MonitorCredentials
 
 
 class MonitorBuilder:
-    def __init__(self, credentials: MonitorCredentials) -> None:
-        self.credentials = credentials
+    def __init__(self, monitor_id: str, dataset_id: Optional[str] = None) -> None:
+
+        self.credentials = MonitorCredentials(
+            monitor_id=monitor_id,
+            dataset_id=dataset_id
+        )
 
         self.monitor: Optional[Monitor] = self._check_if_monitor_exists()
         self.analyzer: Optional[Analyzer] = self._check_if_analyzer_exists()
 
         self._monitor_mode: Optional[Union[EveryAnomalyMode, DigestMode]] = None
         self._monitor_actions: Optional[List[Union[GlobalAction, SendEmail, SlackWebhook, RawWebhook]]] = None
-        self._analyzer_schedule: Optional[Union[CronSchedule, FixedCadenceSchedule]] = None
+        self._analyzer_schedule: Optional[FixedCadenceSchedule] = None
         self._target_matrix: Optional[Union[ColumnMatrix, DatasetMatrix]] = None
         self._analyzer_config: Optional[
             Union[
@@ -77,11 +81,11 @@ class MonitorBuilder:
         self._analyzer_schedule = schedule
 
     @property
-    def target(self) -> Optional[Union[ColumnMatrix, DatasetMatrix]]:
+    def target_matrix(self) -> Optional[Union[ColumnMatrix, DatasetMatrix]]:
         return self._target_matrix
 
-    @target.setter
-    def target(self, target: Union[ColumnMatrix, DatasetMatrix]) -> None:
+    @target_matrix.setter
+    def target_matrix(self, target: Union[ColumnMatrix, DatasetMatrix]) -> None:
         self._target_matrix = target
 
     @property
@@ -181,6 +185,7 @@ class MonitorBuilder:
     def build(self) -> None:
         monitor_mode = self._monitor_mode or DigestMode()
         actions = self._monitor_actions or []
+        self._analyzer_schedule = self._analyzer_schedule or FixedCadenceSchedule(cadence=Cadence.daily)
         self._target_matrix = self._target_matrix or ColumnMatrix(include=["*"], exclude=[], segments=[])
 
         self.__set_monitor(monitor_mode=monitor_mode, monitor_actions=actions)
@@ -196,18 +201,6 @@ class MissingDataMonitorBuilder(MonitorBuilder):
          Value must be greater or equal to 0 and lesser or equal to 100.
          :type percentage: int
     """
-
-    def __init__(self, credentials: MonitorCredentials, percentage: int):
-        super().__init__(credentials=credentials)
-        self.percentage = percentage
-        self._validate_input()
-
-    def _validate_input(self) -> None:
-        if type(self.percentage) != int:
-            raise ValueError("percentage must be an int")
-        if self.percentage >= 100 or self.percentage < 0:
-            raise ValueError("percentage must be between 0 and 100")
-
     def __set_analyzer(self) -> None:
         pass
 

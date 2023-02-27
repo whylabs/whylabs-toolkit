@@ -1,95 +1,85 @@
 # Monitor creation workflow
 
-This package gives users a workflow to author and modify existing WhyLabs Monitors.
+This package gives users a workflow to author and modify existing WhyLabs Monitors. 
+Users want to use and modify monitors to capture unexpected changes on their data based on their business logics and needs. 
+A Data Monitor can be briefly described as: a way to be **alerted** when a certain **criteria** is met.
+ 
 
-## 1. Set your credentials
-The first step is to set your credentials to WhyLabs with `MonitorCredentials`.
-Define your environment variables:
+## Set your credentials
+The first step is to set your credentials to access WhyLabs. Define your environment variables:
 ```python
 import os
 
 os.environ["ORG_ID"] = "org-id"
-os.environ["DATASET_ID"] = "dataset-id"
 os.environ["WHYLABS_API_KEY"] = "api-key"
-```
-And create your `MonitorCredentials` object:
-```python
-from whylabs_toolkit.monitor.manager.credentials import MonitorCredentials
 
-
-credentials = MonitorCredentials(
-    monitor_id="my-awesome-monitor-3",
-    dataset_id=None  # Optionally, you might set the `dataset_id` as an argument instead
-)
+# Option 1: set your dataset_id as an env var 
+os.environ["DATASET_ID"] = "dataset-id"
 ```
 
-## 2. Create a MonitorBuilder object
+## Create a Monitor Builder
 
-Then, you will need to create a `MonitorBuilder` object, 
-either for a generic monitor configuration or an available preset. The `monitor_id` passed to 
-the `MonitorCredentials` is the unique name given to a monitor. If there is an existing monitor, 
-the builder will try to fetch it, otherwise, it will create a default one.
+You will need to create a `MonitorBuilder` object. The `monitor_id` passed to 
+the builder is the unique name given to a monitor. If there is an existing monitor under that ID, 
+the builder will try to fetch it first. Otherwise, it will create a default one.
 
 ```python
 from whylabs_toolkit.monitor.manager import MonitorBuilder
 
 builder = MonitorBuilder(
-    credentials=credentials,
+    monitor_id="my-awesome-monitor",
+    dataset_id=None # Option 2: set your dataset_id as an argument 
 )
 ```
 
-### Add a configuration
-This is probably the most important to be configured on a default `MonitorBuilder`. 
-It declares how WhyLabs will detect an anomaly and trigger alerts. 
+## Add a configuration
+ 
+A configuration (or *criteria*) declares **how** WhyLabs will **detect an anomaly** and will then trigger alerts. 
 Here is an example configuration to detect Drift:
 
 ```python
-from datetime import datetime
 from whylabs_toolkit.monitor.models import *
 
-# Add a Standard Dev Config with a Trailing window Baseline
 builder.config = StddevConfig(
         metric=SimpleColumnMetric.median,
         factor=2.0,
         baseline=TrailingWindowBaseline(size=14)
 )
-
-# Or with a fixed TimeRange, with a helper method
-
-builder.set_fixed_dates_baseline(
-    start_date=datetime(2022,1,12),
-    end_date=datetime(2022,1,29)
-)
-
-# Optionally, you might want to include only certain columns to your monitor
-builder.set_target_columns(columns=["feature_1", "feature_2"])
 ```
 
-### Add alert actions 
+## Add alert actions 
+Now that you have a logic to which you will generate alerts, you need to define **how** you wish to be notified:
 
 ```python
 from pydantic.networks import HttpUrl, parse_obj_as
-from whylabs_toolkit.monitor.models.monitor import SendEmail, SlackWebhook
 
 builder.actions = [
         SendEmail(target="some_mail@example.com"),
         SlackWebhook(target=parse_obj_as(HttpUrl, "https://slack.web.hook.com"))
 ]
-
-# Optionally, extend existing actions with
-builder.actions.extend([SendEmail(target="some_mail@example.com")])
 ```
 
-### Build the Monitor object
+## Define a schedule
+You will also need to define **when** your criteria will run to check if it will meet your expectations.
 
-This step is important. If you don't build the configured Monitor, you will not be able to
-persist changes to WhyLabs, nor get the JSON configuration schema from it.
+```python
+builder.schedule = FixedCadenceSchedule(cadence=Cadence.weekly)
+```
+
+
+## Build the Monitor object
+
+You need to build your changes to the object to be able to persist them to WhyLabs later on.
 
 ```python
 builder.build()
 ```
 
-## 3. Interact with the created monitor
+## Interact with the created Monitor
+
+
+To persist your monitor to WhyLabs, you will create a `MonitorManager`
+object and save it:
 
 ```python
 from whylabs_toolkit.monitor.manager import MonitorManager
@@ -97,8 +87,14 @@ from whylabs_toolkit.monitor.manager import MonitorManager
 manager = MonitorManager(
     builder=builder
 )
+
+manager.save()
 ```
-With the `MonitorManager`, you are able to either dump the monitor config to a JSON configuration with `dump()` 
+Which will validate and push changes to your WhyLabs monitors.
+
+### Other Monitor interactions
+
+With the `MonitorManager`, you are also able to either dump the monitor config to a JSON configuration with `dump()` 
 or `validate()` it to check if you've set things correctly.
 ```python
 manager.validate()
@@ -119,7 +115,7 @@ Which will print the following JSON object to the console:
       "tags": [],
       "schedule": {
         "type": "fixed",
-        "cadence": "daily"
+        "cadence": "weekly"
       },
       "targetMatrix": {
         "segments": [],
@@ -171,10 +167,48 @@ Which will print the following JSON object to the console:
   ]
 }
 ```
-It can be used to interact with WhyLabs' API endpoints as the request body. The validation method call is optional at this point. 
-In case you want to persist changes to your monitor to WhyLabs, you can `save`:
+It can be used to interact with WhyLabs' API endpoints as the request body. The validation method call is optional at this point.
+
+## Modify existing Monitors
+In case you have an existing Monitor, and you wish to change one thing about it,
+you can instantiate again a `MonitorBuilder`, make the changes and `manager.save()` it again.
+Here are a few examples of other things you can do before building your monitor:
 
 ```python
+from datetime import datetime
+
+builder = MonitorBuilder(
+    monitor_id="existing-monitor-id"
+)
+
+# Set a fixed time range, with a helper method
+builder.set_fixed_dates_baseline(
+    start_date=datetime(2022,1,12),
+    end_date=datetime(2022,1,29)
+)
+
+# Include only certain columns to be monitored
+builder.set_target_columns(columns=["feature_1", "feature_2"])
+
+# Exclude other unnecessary colums
+builder.exclude_target_columns(columns=["id_column"])
+
+# Instead of setting a new action, extend the existing ones
+builder.actions.extend([SendEmail(target="other_email@example.com")])
+
+## Save your modifications
+builder.build()
+
+manager = MonitorManager(builder=builder)
 manager.save()
+
 ```
-Which will validate and push changes to your WhyLabs monitors.
+
+## Other configurations
+
+Use Songbird's DEV endpoint. Default is PROD. 
+```python
+import os
+
+os.environ["WHYLABS_HOST"] = "https://songbird.development.whylabsdev.com"
+```
