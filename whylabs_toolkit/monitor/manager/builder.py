@@ -13,10 +13,7 @@ from whylabs_toolkit.monitor.manager.credentials import MonitorCredentials
 class MonitorBuilder:
     def __init__(self, monitor_id: str, dataset_id: Optional[str] = None) -> None:
 
-        self.credentials = MonitorCredentials(
-            monitor_id=monitor_id,
-            dataset_id=dataset_id
-        )
+        self.credentials = MonitorCredentials(monitor_id=monitor_id, dataset_id=dataset_id)
 
         self.monitor: Optional[Monitor] = self._check_if_monitor_exists()
         self.analyzer: Optional[Analyzer] = self._check_if_analyzer_exists()
@@ -186,7 +183,9 @@ class MonitorBuilder:
         monitor_mode = self._monitor_mode or DigestMode()
         actions = self._monitor_actions or []
         self._analyzer_schedule = self._analyzer_schedule or FixedCadenceSchedule(cadence=Cadence.daily)
-        self._target_matrix = self._target_matrix or ColumnMatrix(include=["*"], exclude=[], segments=[])
+        self._target_matrix = self._target_matrix or ColumnMatrix(
+            include=self._target_columns or ["*"], exclude=self._exclude_columns, segments=[]
+        )
 
         self.__set_monitor(monitor_mode=monitor_mode, monitor_actions=actions)
         self.__set_analyzer()
@@ -201,6 +200,7 @@ class MissingDataMonitorBuilder(MonitorBuilder):
          Value must be greater or equal to 0 and lesser or equal to 100.
          :type percentage: int
     """
+
     def __set_analyzer(self) -> None:
         pass
 

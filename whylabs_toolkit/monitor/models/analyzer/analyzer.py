@@ -53,7 +53,8 @@ class Analyzer(NoExtrasBaseModel):
     ] = Field(  # noqa F722
         None, description="A list of tags that are associated with the analyzer."
     )
-    schedule: Optional[Union[CronSchedule, FixedCadenceSchedule]] = Field(
+    # disabling CronSchedule as it can be tricky on the BE
+    schedule: Optional[FixedCadenceSchedule] = Field( # Optional[Union[CronSchedule, FixedCadenceSchedule]] = Field(
         None,
         description="A schedule for running the analyzer. If not set, the analyzer's considered disabled",
         discriminator="type",

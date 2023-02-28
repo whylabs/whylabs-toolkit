@@ -1,8 +1,5 @@
 import os
 
-import pytest
-from whylabs_client.exceptions import NotFoundException
-
 from whylabs_toolkit.helpers.monitor_helpers import (
     delete_monitor,
     get_analyzer_ids,
@@ -28,11 +25,15 @@ MONITOR_BODY = {
 }
 ANALYZER_BODY = {
     "config": {
+        "metric": "median",
+        "type": "stddev",
+        "factor": 2.0,
+        "minBatchSize": 1,
         "baseline": {
-            "size": 7, "type": "TrailingWindow"
-        }, 
-        "metric": "inferred_data_type", "operator": "eq", "type": "comparison"
-    }, 
+          "type": "TrailingWindow",
+          "size": 14
+        }
+    },
     "id": ANALYZER_ID, 
     "schedule": {"type": "fixed", "cadence": "monthly"}, 
     "targetMatrix": {"include": ["*"], "segments": [], "type": "column"}, 

@@ -65,7 +65,6 @@ __all__ = [
     "SegmentWeightConfig",
     "Granularity",
     # enums
-    # enums
     "DiffMode",
     "ThresholdType",
     "AlgorithmType",

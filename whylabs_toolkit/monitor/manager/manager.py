@@ -1,5 +1,3 @@
-import pytz
-
 from whylabs_toolkit.monitor.manager.builder import MonitorBuilder
 from whylabs_toolkit.monitor.models import *
 from whylabs_toolkit.monitor.models.analyzer.algorithms import *
