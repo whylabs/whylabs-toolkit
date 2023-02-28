@@ -1,3 +1,4 @@
+from typing import Optional
 from dataclasses import dataclass, field
 
 from whylabs_toolkit.helpers.config import Config

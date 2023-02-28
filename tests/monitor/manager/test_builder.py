@@ -32,7 +32,7 @@ def test_exclude_target_columns(builder):
 
 
 def test_set_target_columns(builder):
-    builder.exclude_target_columns(
+    builder.set_target_columns(
         columns=["test_add_column"]
     )
 

@@ -57,7 +57,6 @@ class Analyzer(NoExtrasBaseModel):
     schedule: Optional[FixedCadenceSchedule] = Field(  # Optional[Union[CronSchedule, FixedCadenceSchedule]] = Field(
         None,
         description="A schedule for running the analyzer. If not set, the analyzer's considered disabled",
-        discriminator="type",
     )
     disabled: Optional[bool] = Field(
         None,

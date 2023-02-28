@@ -1,10 +1,11 @@
 import logging
-from typing import Any, List
+from typing import Any, List, Optional
 
 from whylabs_client.exceptions import ApiValueError
 from whylabs_client.exceptions import NotFoundException
 
 from whylabs_toolkit.helpers.utils import get_models_api
+from whylabs_toolkit.helpers.config import Config
 
 BASE_ENDPOINT = "https://api.whylabsapp.com"
 logger = logging.getLogger(__name__)
@@ -19,7 +20,11 @@ def get_monitor_config(org_id: str, dataset_id: str) -> Any:
     return monitor_config
 
 
-def get_monitor(org_id: str, dataset_id: str, monitor_id: str) -> Any:
+def get_monitor(monitor_id: str, org_id: Optional[str], dataset_id: Optional[str]) -> Any:
+    if not org_id:
+        org_id = Config().get_default_org_id()
+    if not dataset_id:
+        dataset_id = Config().get_default_dataset_id()
     api = get_models_api()
     return api.get_monitor(org_id=org_id, dataset_id=dataset_id, monitor_id=monitor_id)
 
@@ -32,7 +37,11 @@ def get_analyzer_ids(org_id: str, dataset_id: str, monitor_id: str) -> Any:
             return resp
 
 
-def get_analyzers(org_id: str, dataset_id: str, monitor_id: str) -> List[Any]:
+def get_analyzers(monitor_id: str, org_id: Optional[str], dataset_id: Optional[str]) -> List[Any]:
+    if not org_id:
+        org_id = Config().get_default_org_id()
+    if not dataset_id:
+        dataset_id = Config().get_default_dataset_id()
     api = get_models_api()
     analyzers = []
     analyzer_ids = get_analyzer_ids(org_id=org_id, dataset_id=dataset_id, monitor_id=monitor_id)
