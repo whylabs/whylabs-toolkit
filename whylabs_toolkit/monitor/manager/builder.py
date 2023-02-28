@@ -148,7 +148,7 @@ class MonitorBuilder:
             start_date = start_date.replace(tzinfo=pytz.UTC)
         if not end_date.tzinfo:
             end_date = end_date.replace(tzinfo=pytz.UTC)
-
+        # TODO make baseline nullable and default baseline to be TrailingWindowBaseline(size=14)
         self._analyzer_config.baseline = TimeRangeBaseline(  # type: ignore
             range=TimeRange(start=start_date, end=end_date)
         )

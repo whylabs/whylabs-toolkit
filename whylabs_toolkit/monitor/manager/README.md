@@ -169,7 +169,76 @@ Which will print the following JSON object to the console:
 ```
 It can be used to interact with WhyLabs' API endpoints as the request body. The validation method call is optional at this point.
 
-## Modify existing Monitors
+## Monitor examples
+
+What usually differs from monitors is **how** data changes will trigger alerts for the users.
+In here we will see a couple of different examples on how to set different monitor configurations
+into three main categories. All of them are relying on understanding the Monitor authoring workflow
+[previously explained](#add-a-configuration) on this tutorial.
+
+
+### Diff
+To capture a % difference in the F1-Score, you can create a `DiffConfig`, 
+and compare it either to a fixed Reference Profile:
+```python
+from whylabs_toolkit.monitor.models import *
+
+builder.config = DiffConfig(
+    metric=DatasetMetric.classification_f1, 
+    baseline=ReferenceProfileId(profileId="ref-prof-id"), 
+    mode=DiffMode.pct, # or DiffMode.abs 
+    threshold=5
+)
+```
+
+or to a Trailing Window Baseline:
+```python
+from whylabs_toolkit.monitor.models import *
+
+builder.config = DiffConfig(
+    metric=DatasetMetric.classification_f1, 
+    baseline=ReferenceProfileId(profileId="ref-Dixpvv5Wp8atRBcF"), 
+    mode=DiffMode.pct, # or DiffMode.abs 
+    threshold=5
+)
+```
+
+***IMPORTANT:*** For both of these algorithms, you will need to change the Target Matrix property of the Builder
+to a Dataset-level, since these aren't related to a particular column, as follows:
+
+```python
+builder.target_matrix = DatasetMatrix()
+```
+
+### Null counts ratio
+To compare the ratio of the null counts on a particular column to a certain time range.
+```python
+from whylabs_toolkit.monitor.models import *
+
+builder.config = StddevConfig(
+    factor = 1.5,
+    metric = SimpleColumnMetric.count_null_ratio,
+    baseline = TrailingWindowBaseline(size=14)
+)
+
+```
+
+### Drift
+To detect Drift on a continuous feature, you can use the `DriftConfig` object with its default
+drift calculation algorithm: Hellinger's Distance. 
+
+```python
+from whylabs_toolkit.monitor.models import *
+
+builder.config = DriftConfig(
+    metric = ComplexMetrics.histogram,
+    threshold = 0.6,
+    baseline = TrailingWindowBaseline(size=7),
+)
+```
+
+
+## Modify properties of existing Monitors
 In case you have an existing Monitor, and you wish to change one thing about it,
 you can instantiate again a `MonitorBuilder`, make the changes and `manager.save()` it again.
 Here are a few examples of other things you can do before building your monitor:
@@ -192,6 +261,14 @@ builder.set_target_columns(columns=["feature_1", "feature_2"])
 
 # Exclude other unnecessary colums
 builder.exclude_target_columns(columns=["id_column"])
+
+
+# Include ALL DISCRETE columns
+builder.set_target_columns(columns=["group: discrete"])
+
+# Exclude ALL OUTPUT columns
+builder.exclude_target_columns(columns=["group:output"])
+
 
 # Instead of setting a new action, extend the existing ones
 builder.actions.extend([SendEmail(target="other_email@example.com")])
