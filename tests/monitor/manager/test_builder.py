@@ -4,7 +4,6 @@ from datetime import datetime
 
 import pytest
 
-from whylabs_toolkit.monitor.manager import MonitorBuilder
 from whylabs_toolkit.monitor.models import *
 from tests.helpers.test_monitor_helpers import TestDeleteMonitor
 from whylabs_toolkit.helpers.monitor_helpers import delete_monitor
@@ -25,18 +24,18 @@ def test_set_fixed_dates_baseline(builder):
 
 def test_exclude_target_columns(builder):
     builder.exclude_target_columns(
-        columns=["test_exclude_column"]
+        columns=["prediction_temperature"]
     )
 
-    assert builder._exclude_columns == ["test_exclude_column"]
+    assert builder._exclude_columns == ["prediction_temperature"]
 
 
 def test_set_target_columns(builder):
     builder.set_target_columns(
-        columns=["test_add_column"]
+        columns=["prediction_temperature"]
     )
 
-    assert builder._target_columns == ["test_add_column"]
+    assert builder._target_columns == ["prediction_temperature"]
 
 
 def test_build(builder):
@@ -60,20 +59,20 @@ def test_set_and_exclude_columns_keep_state(builder):
     assert builder._target_columns == []
     assert builder._exclude_columns == []
 
-    builder.exclude_target_columns(columns=["test_exclude_column"])
+    builder.exclude_target_columns(columns=["prediction_temperature"])
 
     assert builder._target_columns == []
-    assert builder._exclude_columns == ["test_exclude_column"]
+    assert builder._exclude_columns == ["prediction_temperature"]
 
-    builder.set_target_columns(columns=["test_add_column"])
+    builder.set_target_columns(columns=["prediction_temperature"])
 
-    assert builder._target_columns == ["test_add_column"]
-    assert builder._exclude_columns == ["test_exclude_column"]
+    assert builder._target_columns == ["prediction_temperature"]
+    assert builder._exclude_columns == ["prediction_temperature"]
 
     builder.build()
 
     assert builder.target_matrix == ColumnMatrix(
-        include=["test_add_column"], exclude=["test_exclude_column"], segments=[]
+        include=["prediction_temperature"], exclude=["prediction_temperature"], segments=[]
     )
 
 
