@@ -45,7 +45,7 @@ ANALYZER_BODY = {
     }
 }
 
-class TestDeleteMonitor:
+class BaseTestMonitor:
     @classmethod
     def setup_class(cls) -> None:
         api = get_models_api()
@@ -53,15 +53,29 @@ class TestDeleteMonitor:
             org_id=ORG_ID,
             dataset_id=DATASET_ID,
             monitor_id=MONITOR_ID,
-            body=MONITOR_BODY # type: ignore
+            body=MONITOR_BODY  # type: ignore
         )
-        
+
         api.put_analyzer(
             org_id=ORG_ID,
             dataset_id=DATASET_ID,
             analyzer_id=ANALYZER_ID,
-            body=ANALYZER_BODY # type: ignore
+            body=ANALYZER_BODY  # type: ignore
         )
+
+    @classmethod
+    def teardown_class(cls):
+        delete_monitor(
+            org_id=ORG_ID,
+            dataset_id=DATASET_ID,
+            monitor_id=MONITOR_ID
+        )
+
+
+class TestDeleteMonitor(BaseTestMonitor):
+    @classmethod
+    def teardown_class(cls):
+        pass
 
     def test_get_analyzer_id(self):
         pass

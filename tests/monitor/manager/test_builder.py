@@ -5,8 +5,7 @@ from datetime import datetime
 import pytest
 
 from whylabs_toolkit.monitor.models import *
-from tests.helpers.test_monitor_helpers import TestDeleteMonitor
-from whylabs_toolkit.helpers.monitor_helpers import delete_monitor
+from tests.helpers.test_monitor_helpers import BaseTestMonitor
 
 
 def test_set_fixed_dates_baseline(builder):
@@ -76,19 +75,7 @@ def test_set_and_exclude_columns_keep_state(builder):
     )
 
 
-class TestExistingMonitor:
-    @classmethod
-    def setup_class(cls):
-        TestDeleteMonitor.setup_class()
-
-    @classmethod
-    def teardown_class(cls):
-        delete_monitor(
-            org_id=os.environ["ORG_ID"],
-            dataset_id=os.environ["DATASET_ID"],
-            monitor_id=os.environ["MONITOR_ID"]
-        )
-
+class TestExistingMonitor(BaseTestMonitor):
     def test_existing_monitor_builder_with_id(self, existing_monitor_builder):
         assert isinstance(existing_monitor_builder.config, StddevConfig)
 

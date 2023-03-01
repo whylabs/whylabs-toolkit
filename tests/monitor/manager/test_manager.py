@@ -6,22 +6,11 @@ import pytest
 
 from whylabs_toolkit.monitor.manager import MonitorManager
 from whylabs_toolkit.monitor.models import *
-from tests.helpers.test_monitor_helpers import TestDeleteMonitor
+from tests.helpers.test_monitor_helpers import BaseTestMonitor
 from whylabs_toolkit.helpers.monitor_helpers import delete_monitor, get_monitor, get_analyzer_ids
 
 
-class TestModelManager:
-    @classmethod
-    def setup_class(cls):
-        TestDeleteMonitor.setup_class()
-
-    @classmethod
-    def teardown_class(cls):
-        delete_monitor(
-            org_id=os.environ["ORG_ID"],
-            dataset_id=os.environ["DATASET_ID"],
-            monitor_id=os.environ["MONITOR_ID"]
-        )
+class TestModelManager(BaseTestMonitor):
     @pytest.fixture
     def manager(self, existing_monitor_builder) -> MonitorManager:
         mm = MonitorManager(builder=existing_monitor_builder)
