@@ -5,6 +5,7 @@ from abc import abstractmethod
 from whylabs_client.exceptions import NotFoundException
 
 from whylabs_toolkit.helpers.monitor_helpers import get_analyzers, get_monitor
+from whylabs_toolkit.helpers.utils import get_models_api
 from whylabs_toolkit.monitor.models import *
 from whylabs_toolkit.monitor.models.analyzer.algorithms import *
 from whylabs_toolkit.monitor.manager.credentials import MonitorCredentials
@@ -120,12 +121,18 @@ class MonitorBuilder:
     def mode(self, mode: Union[EveryAnomalyMode, DigestMode]) -> None:
         self._monitor_mode = mode
 
-    @staticmethod
-    def _validate_columns_input(columns: List[str]) -> bool:
-        # TODO validate if columns exist, throw exception
-        # also use entity schema helpers from whylabs_toolkit
+    def _validate_columns_input(self, columns: List[str]) -> bool:
         if type(columns) != list or not all(isinstance(column, str) for column in columns):
             raise ValueError("columns must be a List of strings")
+
+        api = get_models_api()
+        schema = api.get_entity_schema(org_id=self.credentials.org_id, dataset_id=self.credentials.dataset_id)
+        columns_dict = schema["columns"]
+
+        for col in columns:
+            if col not in columns_dict.keys():
+                raise ValueError(f"{col} is not present on {self.credentials.dataset_id}")
+
         return True
 
     def set_target_columns(self, columns: List[str]) -> None:

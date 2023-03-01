@@ -92,3 +92,13 @@ class TestExistingMonitor:
 
     def test_existing_monitor_builder_with_id(self, existing_monitor_builder):
         assert isinstance(existing_monitor_builder.config, StddevConfig)
+
+
+def test_validate_if_columns_exist_before_setting(existing_monitor_builder):
+    with pytest.raises(ValueError) as e:
+        existing_monitor_builder.exclude_target_columns(columns=["test_exclude_column"])
+        assert e.value == f"test_exclude_column is not present on {existing_monitor_builder.credentials.dataset_id}"
+
+    with pytest.raises(ValueError) as e:
+        existing_monitor_builder.set_target_columns(columns=["test_set_column"])
+        assert e.value == f"test_set_column is not present on {existing_monitor_builder.credentials.dataset_id}"
