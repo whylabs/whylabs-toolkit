@@ -50,9 +50,9 @@ __all__ = [
     "FixedCadenceSchedule",
     "Cadence",
     # monitor actions
-    "RawWebhook",
+    # "RawWebhook",
     "SlackWebhook",
-    "SendEmail",
+    "EmailRecipient",
     "GlobalAction",
     # big document
     "Document",

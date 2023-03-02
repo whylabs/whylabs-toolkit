@@ -64,7 +64,7 @@ class BaseTestMonitor:
         )
 
     @classmethod
-    def teardown_class(cls):
+    def teardown_class(cls) -> None:
         delete_monitor(
             org_id=ORG_ID,
             dataset_id=DATASET_ID,
@@ -74,19 +74,19 @@ class BaseTestMonitor:
 
 class TestDeleteMonitor(BaseTestMonitor):
     @classmethod
-    def teardown_class(cls):
+    def teardown_class(cls) -> None:
         pass
 
-    def test_get_analyzer_id(self):
+    def test_get_analyzer_id(self) -> None:
         pass
 
-    def test_get_analyzer_ids(self):
+    def test_get_analyzer_ids(self) -> None:
         pass
 
-    def test_get_monitor_config(self):
+    def test_get_monitor_config(self) -> None:
         pass
 
-    def test_get_monitor(self):
+    def test_get_monitor(self) -> None:
         pass
 
     def test_delete_monitor(self) -> None:

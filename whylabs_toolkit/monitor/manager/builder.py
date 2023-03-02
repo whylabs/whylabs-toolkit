@@ -1,4 +1,5 @@
 import pytz
+import logging
 from datetime import datetime
 from abc import abstractmethod
 
@@ -11,6 +12,10 @@ from whylabs_toolkit.monitor.models.analyzer.algorithms import *
 from whylabs_toolkit.monitor.manager.credentials import MonitorCredentials
 
 
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+
 class MonitorBuilder:
     def __init__(self, monitor_id: str, dataset_id: Optional[str] = None) -> None:
 
@@ -20,7 +25,7 @@ class MonitorBuilder:
         self.analyzer: Optional[Analyzer] = self._check_if_analyzer_exists()
 
         self._monitor_mode: Optional[Union[EveryAnomalyMode, DigestMode]] = None
-        self._monitor_actions: Optional[List[Union[GlobalAction, SendEmail, SlackWebhook, RawWebhook]]] = None
+        self._monitor_actions: Optional[List[Union[GlobalAction, EmailRecipient, SlackWebhook]]] = None
         self._analyzer_schedule: Optional[FixedCadenceSchedule] = None
         self._target_matrix: Optional[Union[ColumnMatrix, DatasetMatrix]] = None
         self._analyzer_config: Optional[
@@ -44,7 +49,9 @@ class MonitorBuilder:
                 monitor_id=self.credentials.monitor_id,
             )
             existing_monitor = Monitor.parse_obj(existing_monitor)
+            logger.info(f"Got existing {self.credentials.monitor_id} from WhyLabs!")
         except NotFoundException:
+            logger.info(f"Did not find a monitor with {self.credentials.monitor_id}, creating a new one.")
             existing_monitor = None
         return existing_monitor
 
@@ -106,11 +113,11 @@ class MonitorBuilder:
         self._analyzer_config = config
 
     @property
-    def actions(self) -> Optional[List[Union[GlobalAction, SendEmail, SlackWebhook, RawWebhook]]]:
+    def actions(self) -> Optional[List[Union[GlobalAction, EmailRecipient, SlackWebhook]]]:
         return self._monitor_actions
 
     @actions.setter
-    def actions(self, actions: List[Union[GlobalAction, SendEmail, SlackWebhook, RawWebhook]]) -> None:
+    def actions(self, actions: List[Union[GlobalAction, EmailRecipient, SlackWebhook]]) -> None:
         self._monitor_actions = actions
 
     @property

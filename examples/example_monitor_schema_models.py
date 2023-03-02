@@ -17,7 +17,7 @@ from whylabs_toolkit.monitor.models import (Analyzer, AnomalyFilter,
                                                    EveryAnomalyMode,
                                                    FixedCadenceSchedule,
                                                    GlobalAction, Granularity,
-                                                   Monitor, Segment, SendEmail,
+                                                   Monitor, Segment, EmailRecipient,
                                                    SlackWebhook, StddevConfig,
                                                    TargetLevel,
                                                    TrailingWindowBaseline)
@@ -109,7 +109,7 @@ def main() -> Dict:
                 ),
                 actions=[
                     GlobalAction(type='global', target='action-xyz'),
-                    SendEmail(type='email', target='demo@whylabs.ai'),
+                    EmailRecipient(type='email', target='demo@whylabs.ai'),
                     SlackWebhook(type='slack', target='https://demo.com'),
                 ],
             ),
@@ -124,7 +124,7 @@ def main() -> Dict:
                 ),
                 actions=[
                     GlobalAction(type='global', target='action-xyz'),
-                    SendEmail(type='email', target='demo@whylabs.ai'),
+                    EmailRecipient(type='email', target='demo@whylabs.ai'),
                     SlackWebhook(type='slack', target='https://demo.com'),
                 ],
             ),
@@ -136,7 +136,7 @@ def main() -> Dict:
                 mode=EveryAnomalyMode(type='EVERY_ANOMALY'),
                 actions=[
                     GlobalAction(type='global', target='action-xyz'),
-                    SendEmail(type='email', target='demo@whylabs.ai'),
+                    EmailRecipient(type='email', target='demo@whylabs.ai'),
                 ],
             ),
         ],

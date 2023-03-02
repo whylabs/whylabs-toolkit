@@ -197,7 +197,7 @@ from whylabs_toolkit.monitor.models import *
 
 builder.config = DiffConfig(
     metric=DatasetMetric.classification_f1, 
-    baseline=ReferenceProfileId(profileId="ref-Dixpvv5Wp8atRBcF"), 
+    baseline=TrailingWindowBaseline(size=14), 
     mode=DiffMode.pct, # or DiffMode.abs 
     threshold=5
 )
