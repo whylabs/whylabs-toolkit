@@ -1,6 +1,5 @@
 """Schema for configuring a monitor."""
 from enum import Enum
-from pydantic.dataclasses import dataclass
 from typing import Any, Dict, List, Literal, Optional, Union
 
 from pydantic import BaseModel, Field, constr, HttpUrl, parse_obj_as, validator
@@ -12,7 +11,6 @@ from whylabs_toolkit.monitor.models.commons import (
     ImmediateSchedule,
     Metadata,
     NoExtrasBaseModel,
-    
 )
 from whylabs_toolkit.monitor.models.utils import COLUMN_NAME_TYPE, METRIC_NAME_STR, anyOf_to_oneOf
 
@@ -46,13 +44,16 @@ class SlackWebhook(NoExtrasBaseModel):
     type: Literal["slack"] = "slack"
     id: str = Field(description="The endpoint ID to which you wish to send notifications to")
     destination: str = Field(description="The Slack target webhook endpoint")
-        
-# class RawWebhook(NoExtrasBaseModel):
-#     """Action to send a Slack webhook."""
 
-#     type: Literal["raw"] = "raw"
-#     id: str = Field(description="The endpoint ID to which you wish to send notifications to")
-#     destination: Optional[str] = Field(default=None, description="Sending raw unformatted message in JSON format to a webhook")
+
+class RawWebhook(NoExtrasBaseModel):
+    """Action to send a Slack webhook."""
+
+    type: Literal["raw"] = "raw"
+    id: str = Field(description="The endpoint ID to which you wish to send notifications to")
+    destination: Optional[str] = Field(
+        default=None, description="Sending raw unformatted message in JSON format to a webhook"
+    )
 
 
 class AnomalyFilter(NoExtrasBaseModel):

@@ -1,5 +1,8 @@
 import logging
 
+from whylabs_client.api.notification_settings_api import NotificationSettingsApi
+from whylabs_client.api.models_api import ModelsApi
+
 from whylabs_toolkit.monitor.manager.builder import MonitorBuilder
 from whylabs_toolkit.monitor.models import *
 from whylabs_toolkit.monitor.models.analyzer.algorithms import *
@@ -11,10 +14,15 @@ logger = logging.getLogger(__name__)
 
 
 class MonitorManager:
-    def __init__(self, builder: MonitorBuilder) -> None:
+    def __init__(
+        self,
+        builder: MonitorBuilder,
+        notifications_api: Optional[NotificationSettingsApi] = None,
+        models_api: Optional[ModelsApi] = None,
+    ) -> None:
         self._builder = builder
-        self.__notifications_api = get_notification_api()
-        self.__models_api = get_models_api()
+        self.__notifications_api = notifications_api or get_notification_api()
+        self.__models_api = models_api or get_models_api()
 
     def deactivate(self) -> None:
         # TODO implement
@@ -43,33 +51,39 @@ class MonitorManager:
         for action in actions_dict_list:
             action_ids.append(action.get("id"))
         return action_ids
-    
-    
-    def _parse_monitor_actions(self) -> None:
-        existing_actions: List[str] = self._get_existing_notification_actions()
+
+    def _update_notification_actions(self) -> None:
+        """
+        Updates the notification actions to be passed to WhyLabs based on the actions defined in the MonitorBuilder object.
+        """
         if not self._builder.monitor:
             raise ValueError("You must call build() on your MonitorBuilder object!")
-        
-        # only designed for slack and email actions
+
+        existing_actions = self._get_existing_notification_actions()
+
         for action in self._builder.monitor.actions:
-            payload_key = get_notification_request_payload(action=action)
-            
+            if isinstance(action, GlobalAction):
+                continue
+
             if action.id not in existing_actions:
                 logger.info(f"Didn't find a {action.type} action under the ID {action.id}, creating one now!")
+                payload_key = get_notification_request_payload(action=action)
                 self.__notifications_api.put_notification_action(
                     org_id=self._builder.credentials.org_id,
                     type=action.type.upper(),
                     action_id=action.id,
-                    body={payload_key: action.destination}
+                    body={payload_key: action.destination},
                 )
-            
-        self._builder.monitor.actions = [GlobalAction(target=action.id) for action in self._builder.monitor.actions]
-            
 
-    
+        if self._builder.monitor:
+            self._builder.monitor.actions = [
+                action if isinstance(action, GlobalAction) else GlobalAction(target=action.id)
+                for action in self._builder.monitor.actions
+            ]
+
     def dump(self) -> Any:
-        self._parse_monitor_actions()
-        
+        self._update_notification_actions()
+
         doc = Document(
             orgId=self._builder.credentials.org_id,
             datasetId=self._builder.credentials.dataset_id,
@@ -88,7 +102,7 @@ class MonitorManager:
 
     def save(self) -> None:
         if self.validate() is True:
-            
+
             self.__models_api.put_analyzer(
                 org_id=self._builder.credentials.org_id,
                 dataset_id=self._builder.credentials.dataset_id,
