@@ -7,6 +7,9 @@ from .document import *
 from .monitor import *
 from .segments import *
 
+# TODO add all algorithms
+
+
 __all__ = [
     "DatasetMetric",
     "SimpleColumnMetric",
@@ -47,9 +50,9 @@ __all__ = [
     "FixedCadenceSchedule",
     "Cadence",
     # monitor actions
-    "RawWebhook",
+    # "RawWebhook",
     "SlackWebhook",
-    "SendEmail",
+    "EmailRecipient",
     "GlobalAction",
     # big document
     "Document",
@@ -61,4 +64,11 @@ __all__ = [
     "WeightConfig",
     "SegmentWeightConfig",
     "Granularity",
+    # enums
+    "DiffMode",
+    "ThresholdType",
+    "AlgorithmType",
+    "DatasetMetric",
+    "SimpleColumnMetric",
+    "ComplexMetrics",
 ]

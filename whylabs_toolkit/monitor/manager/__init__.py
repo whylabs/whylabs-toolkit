@@ -1,5 +1,5 @@
 from .manager import MonitorManager
 from .credentials import MonitorCredentials
-from .builder import MonitorBuilder
+from .monitor_setup import MonitorSetup
 
-ALL = [MonitorManager, MonitorCredentials, MonitorBuilder]
+ALL = [MonitorManager, MonitorCredentials, MonitorSetup]

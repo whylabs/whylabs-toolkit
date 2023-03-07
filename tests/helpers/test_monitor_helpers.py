@@ -1,8 +1,5 @@
 import os
 
-import pytest
-from whylabs_client.exceptions import NotFoundException
-
 from whylabs_toolkit.helpers.monitor_helpers import (
     delete_monitor,
     get_analyzer_ids,
@@ -28,11 +25,15 @@ MONITOR_BODY = {
 }
 ANALYZER_BODY = {
     "config": {
+        "metric": "median",
+        "type": "stddev",
+        "factor": 2.0,
+        "minBatchSize": 1,
         "baseline": {
-            "size": 7, "type": "TrailingWindow"
-        }, 
-        "metric": "inferred_data_type", "operator": "eq", "type": "comparison"
-    }, 
+          "type": "TrailingWindow",
+          "size": 14
+        }
+    },
     "id": ANALYZER_ID, 
     "schedule": {"type": "fixed", "cadence": "monthly"}, 
     "targetMatrix": {"include": ["*"], "segments": [], "type": "column"}, 
@@ -44,7 +45,7 @@ ANALYZER_BODY = {
     }
 }
 
-class TestDeleteMonitor:
+class BaseTestMonitor:
     @classmethod
     def setup_class(cls) -> None:
         api = get_models_api()
@@ -52,26 +53,40 @@ class TestDeleteMonitor:
             org_id=ORG_ID,
             dataset_id=DATASET_ID,
             monitor_id=MONITOR_ID,
-            body=MONITOR_BODY # type: ignore
+            body=MONITOR_BODY  # type: ignore
         )
-        
+
         api.put_analyzer(
             org_id=ORG_ID,
             dataset_id=DATASET_ID,
             analyzer_id=ANALYZER_ID,
-            body=ANALYZER_BODY # type: ignore
+            body=ANALYZER_BODY  # type: ignore
         )
 
-    def test_get_analyzer_id(self):
+    @classmethod
+    def teardown_class(cls) -> None:
+        delete_monitor(
+            org_id=ORG_ID,
+            dataset_id=DATASET_ID,
+            monitor_id=MONITOR_ID
+        )
+
+
+class TestDeleteMonitor(BaseTestMonitor):
+    @classmethod
+    def teardown_class(cls) -> None:
         pass
 
-    def test_get_analyzer_ids(self):
+    def test_get_analyzer_id(self) -> None:
         pass
 
-    def test_get_monitor_config(self):
+    def test_get_analyzer_ids(self) -> None:
         pass
 
-    def test_get_monitor(self):
+    def test_get_monitor_config(self) -> None:
+        pass
+
+    def test_get_monitor(self) -> None:
         pass
 
     def test_delete_monitor(self) -> None:

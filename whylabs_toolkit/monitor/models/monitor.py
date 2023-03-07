@@ -2,7 +2,8 @@
 from enum import Enum
 from typing import Any, Dict, List, Literal, Optional, Union
 
-from pydantic import BaseModel, Field, HttpUrl, constr
+from pydantic import BaseModel, Field, constr, HttpUrl, parse_obj_as, validator
+
 
 from whylabs_toolkit.monitor.models.commons import (
     CronSchedule,
@@ -29,25 +30,30 @@ class GlobalAction(NoExtrasBaseModel):
     target: str = Field(description="The unique action ID in the platform", regex="[a-zA-Z0-9\\-_]+", max_length=100)
 
 
-class SendEmail(NoExtrasBaseModel):
+class EmailRecipient(NoExtrasBaseModel):
     """Action to send an email."""
 
     type: Literal["email"] = "email"
-    target: str = Field(description="Destination email", format="email", max_length=1000)
+    id: str = Field(description="The e-mail ID to which you wish to send notifications to")
+    destination: str = Field(description="Destination email", format="email", max_length=1000)
 
 
 class SlackWebhook(NoExtrasBaseModel):
     """Action to send a Slack webhook."""
 
     type: Literal["slack"] = "slack"
-    target: HttpUrl = Field(description="The Slack webhook")
+    id: str = Field(description="The endpoint ID to which you wish to send notifications to")
+    destination: str = Field(description="The Slack target webhook endpoint")
 
 
 class RawWebhook(NoExtrasBaseModel):
     """Action to send a Slack webhook."""
 
     type: Literal["raw"] = "raw"
-    target: HttpUrl = Field(description="Sending raw unformatted message in JSON format to a webhook")
+    id: str = Field(description="The endpoint ID to which you wish to send notifications to")
+    destination: Optional[str] = Field(
+        default=None, description="Sending raw unformatted message in JSON format to a webhook"
+    )
 
 
 class AnomalyFilter(NoExtrasBaseModel):
@@ -217,7 +223,7 @@ class Monitor(NoExtrasBaseModel):
         description="Notification mode and how we might handle different analysis",
         discriminator="type",
     )
-    actions: List[Union[GlobalAction, SendEmail, SlackWebhook, RawWebhook]] = Field(
+    actions: List[Union[GlobalAction, EmailRecipient, SlackWebhook]] = Field(
         description="List of destination for the outgoing messages",
         max_items=100,
     )

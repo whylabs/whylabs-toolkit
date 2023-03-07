@@ -1,3 +1,4 @@
+from typing import Optional
 from dataclasses import dataclass, field
 
 from whylabs_toolkit.helpers.config import Config
@@ -6,7 +7,7 @@ from whylabs_toolkit.helpers.config import Config
 @dataclass
 class MonitorCredentials:
     monitor_id: str
-    dataset_id: str = field(default=None)  # type: ignore
+    dataset_id: Optional[str] = field(default=None)  # type: ignore
 
     def __post_init__(self) -> None:
         self.org_id = Config().get_default_org_id()
