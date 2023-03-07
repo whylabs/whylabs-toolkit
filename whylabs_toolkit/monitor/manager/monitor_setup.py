@@ -16,7 +16,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-class MonitorBuilder:
+class MonitorSetup:
     def __init__(self, monitor_id: str, dataset_id: Optional[str] = None) -> None:
 
         self.credentials = MonitorCredentials(monitor_id=monitor_id, dataset_id=dataset_id)
@@ -24,7 +24,7 @@ class MonitorBuilder:
         self.monitor: Optional[Monitor] = self._check_if_monitor_exists()
         self.analyzer: Optional[Analyzer] = self._check_if_analyzer_exists()
 
-        self._monitor_mode: Optional[Union[EveryAnomalyMode, DigestMode]] = None
+        self.monitor_mode: Optional[Union[EveryAnomalyMode, DigestMode]] = None
         self._monitor_actions: Optional[List[Union[GlobalAction, EmailRecipient, SlackWebhook]]] = None
         self._analyzer_schedule: Optional[FixedCadenceSchedule] = None
         self._target_matrix: Optional[Union[ColumnMatrix, DatasetMatrix]] = None
@@ -70,7 +70,7 @@ class MonitorBuilder:
 
     def _prefill_properties(self) -> None:
         if self.monitor:
-            self._monitor_mode = self.monitor.mode
+            self.monitor_mode = self.monitor.mode
             self._monitor_actions = self.monitor.actions
         if self.analyzer:
             self._analyzer_schedule = self.analyzer.schedule
@@ -122,15 +122,15 @@ class MonitorBuilder:
 
     @property
     def mode(self) -> Optional[Union[EveryAnomalyMode, DigestMode]]:
-        return self._monitor_mode
+        return self.monitor_mode
 
     @mode.setter
     def mode(self, mode: Union[EveryAnomalyMode, DigestMode]) -> None:
-        self._monitor_mode = mode
+        self.monitor_mode = mode
 
     def _validate_columns_input(self, columns: List[str]) -> bool:
         if type(columns) != list or not all(isinstance(column, str) for column in columns):
-            raise ValueError("columns must be a List of strings")
+            raise ValueError("columns argument must be a List of strings")
 
         api = get_models_api()
         schema = api.get_entity_schema(org_id=self.credentials.org_id, dataset_id=self.credentials.dataset_id)
@@ -138,7 +138,9 @@ class MonitorBuilder:
 
         for col in columns:
             if col not in columns_dict.keys():
-                raise ValueError(f"{col} is not present on {self.credentials.dataset_id}")
+                raise ValueError(
+                    f"{col} is not present on {self.credentials.dataset_id}. Available columns are: {columns_dict.keys()}"
+                )
 
         return True
 
@@ -181,7 +183,6 @@ class MonitorBuilder:
     def __set_monitor(
         self, monitor_mode: Optional[Union[EveryAnomalyMode, DigestMode]], monitor_actions: Optional[List[Any]]
     ) -> None:
-
         self.monitor = Monitor(
             id=self.credentials.monitor_id,
             disabled=False,
@@ -193,19 +194,26 @@ class MonitorBuilder:
             actions=monitor_actions,
         )
 
-    def build(self) -> None:
-        monitor_mode = self._monitor_mode or DigestMode()
-        actions = self._monitor_actions or []
-        self._analyzer_schedule = self._analyzer_schedule or FixedCadenceSchedule(cadence=Cadence.daily)
+    def __configure_target_matrix(self) -> None:
         self._target_matrix = self._target_matrix or ColumnMatrix(
             include=self._target_columns or ["*"], exclude=self._exclude_columns, segments=[]
         )
+        if self.analyzer:
+            if isinstance(self.analyzer.config.metric, DatasetMetric):
+                self._target_matrix = DatasetMatrix()
+
+    def apply(self) -> None:
+        monitor_mode = self.monitor_mode or DigestMode()
+        actions = self._monitor_actions or []
+        self._analyzer_schedule = self._analyzer_schedule or FixedCadenceSchedule(cadence=Cadence.daily)
 
         self.__set_monitor(monitor_mode=monitor_mode, monitor_actions=actions)
+
+        self.__configure_target_matrix()
         self.__set_analyzer()
 
 
-class MissingDataMonitorBuilder(MonitorBuilder):
+class MissingDataMonitorSetup(MonitorSetup):
     """
     Use this preset MonitorOptions to monitor change on missing Data compared to a threshold
 
@@ -219,11 +227,11 @@ class MissingDataMonitorBuilder(MonitorBuilder):
         pass
 
 
-class FixedCountsMonitorBuilder(MonitorBuilder):
+class FixedCountsMonitorSetup(MonitorSetup):
     def __set_analyzer(self) -> None:
         pass
 
 
-class DynamicCountsMonitorBuilder(MonitorBuilder):
+class DynamicCountsMonitorSetup(MonitorSetup):
     def __set_analyzer(self) -> None:
         pass

@@ -26,4 +26,4 @@ def get_notification_request_payload(action: Union[SlackWebhook, EmailRecipient]
     elif isinstance(action, EmailRecipient):
         return "email"
     else:
-        raise ValueError(f"Can't work with {action} type")
+        raise ValueError(f"Can't work with {action} type. Available options are SlackWebhook and EmailRecipient.")

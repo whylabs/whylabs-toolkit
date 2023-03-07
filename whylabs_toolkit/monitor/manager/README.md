@@ -17,18 +17,18 @@ os.environ["WHYLABS_API_KEY"] = "api-key"
 os.environ["DATASET_ID"] = "dataset-id"
 ```
 
-## Create a Monitor Builder
+## Create a Monitor Setup
 
-You will need to create a `MonitorBuilder` object. The `monitor_id` passed to 
-the builder is the unique name given to a monitor. If there is an existing monitor under that ID, 
-the builder will try to fetch it first. Otherwise, it will create a default one.
+You will need to create a `MonitorSetup` object. The `monitor_id` passed to 
+the setup is the unique name given to a monitor. If there is an existing monitor under that ID, 
+it will try to fetch it first. Otherwise, it will create a default one.
 
 ```python
-from whylabs_toolkit.monitor.manager import MonitorBuilder
+from whylabs_toolkit.monitor import MonitorSetup
 
-builder = MonitorBuilder(
+monitor_setup = MonitorSetup(
     monitor_id="my-awesome-monitor",
-    dataset_id=None # Option 2: set your dataset_id as an argument 
+    dataset_id=None  # Option 2: set your dataset_id as an argument 
 )
 ```
 
@@ -40,7 +40,7 @@ Here is an example configuration to detect Drift:
 ```python
 from whylabs_toolkit.monitor.models import *
 
-builder.config = StddevConfig(
+monitor_setup.config = StddevConfig(
         metric=SimpleColumnMetric.median,
         factor=2.0,
         baseline=TrailingWindowBaseline(size=14)
@@ -51,11 +51,9 @@ builder.config = StddevConfig(
 Now that you have a logic to which you will generate alerts, you need to define **how** you wish to be notified:
 
 ```python
-from pydantic.networks import HttpUrl, parse_obj_as
-
-builder.actions = [
-        SendEmail(target="some_mail@example.com"),
-        SlackWebhook(target=parse_obj_as(HttpUrl, "https://slack.web.hook.com"))
+monitor_setup.actions = [
+        SendEmail(id="my-email", destination="some_mail@example.com"),
+        SlackWebhook(id="my-slack-wh", destination="https://slack.web.hook.com")
 ]
 ```
 
@@ -63,16 +61,16 @@ builder.actions = [
 You will also need to define **when** your criteria will run to check if it will meet your expectations.
 
 ```python
-builder.schedule = FixedCadenceSchedule(cadence=Cadence.weekly)
+monitor_setup.schedule = FixedCadenceSchedule(cadence=Cadence.weekly)
 ```
 
 
-## Build the Monitor object
+## Apply the changes
 
-You need to build your changes to the object to be able to persist them to WhyLabs later on.
+You need to call the `apply()` method to apply your changes to the object to be able to persist them to WhyLabs later on.
 
 ```python
-builder.build()
+monitor_setup.apply()
 ```
 
 ## Interact with the created Monitor
@@ -82,10 +80,10 @@ To persist your monitor to WhyLabs, you will create a `MonitorManager`
 object and save it:
 
 ```python
-from whylabs_toolkit.monitor.manager import MonitorManager
+from whylabs_toolkit.monitor import MonitorManager
 
 manager = MonitorManager(
-    builder=builder
+    setup=monitor_setup
 )
 
 manager.save()
@@ -183,7 +181,7 @@ and compare it either to a fixed Reference Profile:
 ```python
 from whylabs_toolkit.monitor.models import *
 
-builder.config = DiffConfig(
+monitor_setup.config = DiffConfig(
     metric=DatasetMetric.classification_f1, 
     baseline=ReferenceProfileId(profileId="ref-prof-id"), 
     mode=DiffMode.pct, # or DiffMode.abs 
@@ -195,7 +193,7 @@ or to a Trailing Window Baseline:
 ```python
 from whylabs_toolkit.monitor.models import *
 
-builder.config = DiffConfig(
+monitor_setup.config = DiffConfig(
     metric=DatasetMetric.classification_f1, 
     baseline=TrailingWindowBaseline(size=14), 
     mode=DiffMode.pct, # or DiffMode.abs 
@@ -203,19 +201,12 @@ builder.config = DiffConfig(
 )
 ```
 
-***IMPORTANT:*** For both of these algorithms, you will need to change the Target Matrix property of the Builder
-to a Dataset-level, since these aren't related to a particular column, as follows:
-
-```python
-builder.target_matrix = DatasetMatrix()
-```
-
 ### Null counts ratio
 To compare the ratio of the null counts on a particular column to a certain time range.
 ```python
 from whylabs_toolkit.monitor.models import *
 
-builder.config = StddevConfig(
+monitor_setup.config = StddevConfig(
     factor = 1.5,
     metric = SimpleColumnMetric.count_null_ratio,
     baseline = TrailingWindowBaseline(size=14)
@@ -230,7 +221,7 @@ drift calculation algorithm: Hellinger's Distance.
 ```python
 from whylabs_toolkit.monitor.models import *
 
-builder.config = DriftConfig(
+monitor_setup.config = DriftConfig(
     metric = ComplexMetrics.histogram,
     threshold = 0.6,
     baseline = TrailingWindowBaseline(size=7),
@@ -240,43 +231,41 @@ builder.config = DriftConfig(
 
 ## Modify properties of existing Monitors
 In case you have an existing Monitor, and you wish to change one thing about it,
-you can instantiate again a `MonitorBuilder`, make the changes and `manager.save()` it again.
-Here are a few examples of other things you can do before building your monitor:
+you can instantiate again a `MonitorSetup`, make the changes and `manager.save()` it again.
+Here are a few examples of other things you can do before creating your monitor:
 
 ```python
 from datetime import datetime
 
-builder = MonitorBuilder(
+monitor_setup = MonitorSetup(
     monitor_id="existing-monitor-id"
 )
 
 # Set a fixed time range, with a helper method
-builder.set_fixed_dates_baseline(
-    start_date=datetime(2022,1,12),
-    end_date=datetime(2022,1,29)
+monitor_setup.set_fixed_dates_baseline(
+    start_date=datetime(2022, 1, 12),
+    end_date=datetime(2022, 1, 29)
 )
 
 # Include only certain columns to be monitored
-builder.set_target_columns(columns=["feature_1", "feature_2"])
+monitor_setup.set_target_columns(columns=["feature_1", "feature_2"])
 
 # Exclude other unnecessary colums
-builder.exclude_target_columns(columns=["id_column"])
-
+monitor_setup.exclude_target_columns(columns=["id_column"])
 
 # Include ALL DISCRETE columns
-builder.set_target_columns(columns=["group: discrete"])
+monitor_setup.set_target_columns(columns=["group: discrete"])
 
 # Exclude ALL OUTPUT columns
-builder.exclude_target_columns(columns=["group:output"])
-
+monitor_setup.exclude_target_columns(columns=["group:output"])
 
 # Instead of setting a new action, extend the existing ones
-builder.actions.extend([SendEmail(target="other_email@example.com")])
+monitor_setup.actions.extend([SendEmail(id="existing-email-id")])
 
 ## Save your modifications
-builder.build()
+monitor_setup.apply()
 
-manager = MonitorManager(builder=builder)
+manager = MonitorManager(monitor_setup=monitor_setup)
 manager.save()
 
 ```

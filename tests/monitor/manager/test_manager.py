@@ -6,7 +6,7 @@ from unittest.mock import call, MagicMock
 
 import pytest
 
-from whylabs_toolkit.monitor.manager import MonitorManager, MonitorBuilder
+from whylabs_toolkit.monitor.manager import MonitorManager, MonitorSetup
 from whylabs_toolkit.monitor.models import *
 from tests.helpers.test_monitor_helpers import BaseTestMonitor
 from whylabs_toolkit.helpers.monitor_helpers import delete_monitor, get_monitor, get_analyzer_ids
@@ -14,8 +14,8 @@ from whylabs_toolkit.helpers.monitor_helpers import delete_monitor, get_monitor,
 
 class TestModelManager(BaseTestMonitor):
     @pytest.fixture
-    def manager(self, existing_monitor_builder: MonitorBuilder) -> MonitorManager:
-        mm = MonitorManager(builder=existing_monitor_builder)
+    def manager(self, existing_monitor_setup: MonitorSetup) -> MonitorManager:
+        mm = MonitorManager(setup=existing_monitor_setup)
         return mm
     def test_get_granularity(self, manager: MonitorManager) -> None:
         granularity = manager.get_granularity()
@@ -50,11 +50,11 @@ class TestModelManager(BaseTestMonitor):
 
 class TestNotificationActions(TestCase):
     def setUp(self) -> None:
-        self.monitor_builder = MagicMock()
-        self.monitor_builder.credentials.org_id = 'test_org'
+        self.monitor_setup = MagicMock()
+        self.monitor_setup.credentials.org_id = 'test_org'
         
-        self.monitor_builder.monitor = MagicMock()
-        self.monitor_builder.monitor.actions = [
+        self.monitor_setup.monitor = MagicMock()
+        self.monitor_setup.monitor.actions = [
             SlackWebhook(id='slack1', destination='https://slack.com/webhook'),
             EmailRecipient(id='email1', destination='test@example.com'),
             GlobalAction(target="existing-pagerDuty")
@@ -65,7 +65,7 @@ class TestNotificationActions(TestCase):
         
         self.models_api = MagicMock()
 
-        self.monitor_manager = MonitorManager(builder = self.monitor_builder, notifications_api=self.notifications_api, models_api=self.models_api)
+        self.monitor_manager = MonitorManager(setup = self.monitor_setup, notifications_api=self.notifications_api, models_api=self.models_api)
         
 
     def test_notification_actions_are_updated(self) -> None:
@@ -92,7 +92,7 @@ class TestNotificationActions(TestCase):
     def test_global_actions_are_made(self) -> None:
         self.monitor_manager._update_notification_actions()
 
-        assert GlobalAction(target='existing-pagerDuty') in self.monitor_builder.monitor.actions 
+        assert GlobalAction(target='existing-pagerDuty') in self.monitor_setup.monitor.actions
 
     def test_existing_notification_actions_are_fetched(self) -> None:
         self.monitor_manager._update_notification_actions()
@@ -102,7 +102,7 @@ class TestNotificationActions(TestCase):
         )
 
     def test_error_is_raised_if_monitor_is_none(self) -> None:
-        self.monitor_builder.monitor = None
+        self.monitor_setup.monitor = None
 
         with self.assertRaises(ValueError):
             self.monitor_manager._update_notification_actions()
