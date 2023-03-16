@@ -1,5 +1,8 @@
 import logging
+import json
+from pathlib import Path
 
+from jsonschema import validate, ValidationError
 from whylabs_client.api.notification_settings_api import NotificationSettingsApi
 from whylabs_client.api.models_api import ModelsApi
 
@@ -23,10 +26,6 @@ class MonitorManager:
         self._setup = setup
         self.__notifications_api = notifications_api or get_notification_api()
         self.__models_api = models_api or get_models_api()
-
-    def deactivate(self) -> None:
-        # TODO implement
-        pass
 
     def get_granularity(self) -> Optional[Granularity]:
         model_meta = self.__models_api.get_model(
@@ -97,8 +96,14 @@ class MonitorManager:
         try:
             Monitor.validate(self._setup.monitor)
             Analyzer.validate(self._setup.analyzer)
-        finally:
+
+            with open(f"{Path(__file__).parent.parent.resolve()}/schema/schema.json", "r") as f:
+                schema = json.load(f)
+            document = self.dump()
+            validate(instance=json.loads(document), schema=schema)
             return True
+        except ValidationError as e:
+            raise e
 
     def save(self) -> None:
         if self.validate() is True:

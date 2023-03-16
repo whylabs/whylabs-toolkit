@@ -5,11 +5,12 @@ from unittest import TestCase
 from unittest.mock import call, MagicMock
 
 import pytest
+from jsonschema import ValidationError
 
 from whylabs_toolkit.monitor.manager import MonitorManager, MonitorSetup
 from whylabs_toolkit.monitor.models import *
 from tests.helpers.test_monitor_helpers import BaseTestMonitor
-from whylabs_toolkit.helpers.monitor_helpers import delete_monitor, get_monitor, get_analyzer_ids
+from whylabs_toolkit.helpers.monitor_helpers import get_monitor, get_analyzer_ids
 
 
 class TestModelManager(BaseTestMonitor):
@@ -26,8 +27,17 @@ class TestModelManager(BaseTestMonitor):
         assert isinstance(json.loads(document), Dict)
 
     def test_validate(self, manager: MonitorManager) -> None:
-        # TODO add json schema validation
-        assert manager.validate() is True
+        assert manager.validate()
+
+    def test_failing_validation(self, monitor_setup) -> None:
+        monitor_setup.actions = [EmailRecipient(id="some_long_id", destination="someemail@email.com")]
+        monitor_setup.config.mode = "weird_mode"
+        monitor_setup.apply()
+
+        manager = MonitorManager(setup=monitor_setup)
+        with pytest.raises(ValidationError):
+            manager.validate()
+
     def test_save(self, manager: MonitorManager) -> None:
         manager.save()
 

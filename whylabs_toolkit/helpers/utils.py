@@ -5,7 +5,7 @@ from whylabs_client.api.models_api import ModelsApi
 from whylabs_client.api.notification_settings_api import NotificationSettingsApi
 
 from whylabs_toolkit.helpers.client import create_client
-from whylabs_toolkit.monitor.models import SlackWebhook, EmailRecipient, GlobalAction
+from whylabs_toolkit.monitor.models import SlackWebhook, EmailRecipient
 
 
 def get_models_api() -> ModelsApi:
