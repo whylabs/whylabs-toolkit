@@ -9,7 +9,7 @@ from whylabs_client.api.models_api import ModelsApi
 from whylabs_toolkit.monitor.manager.monitor_setup import MonitorSetup
 from whylabs_toolkit.monitor.models import *
 from whylabs_toolkit.monitor.models.analyzer.algorithms import *
-from whylabs_toolkit.helpers.utils import get_models_api, get_notification_api, get_notification_request_payload
+from whylabs_toolkit.helpers.utils import get_models_api, get_notification_api
 
 
 logging.basicConfig(level=logging.INFO)
@@ -51,6 +51,15 @@ class MonitorManager:
             action_ids.append(action.get("id"))
         return action_ids
 
+    @staticmethod
+    def get_notification_request_payload(action: Union[SlackWebhook, EmailRecipient]) -> str:
+        if isinstance(action, SlackWebhook):
+            return "slackWebhook"
+        elif isinstance(action, EmailRecipient):
+            return "email"
+        else:
+            raise ValueError(f"Can't work with {action} type. Available options are SlackWebhook and EmailRecipient.")
+
     def _update_notification_actions(self) -> None:
         """
         Updates the notification actions to be passed to WhyLabs based on the actions defined in the MonitorBuilder object.
@@ -66,7 +75,7 @@ class MonitorManager:
 
             if action.id not in existing_actions:
                 logger.info(f"Didn't find a {action.type} action under the ID {action.id}, creating one now!")
-                payload_key = get_notification_request_payload(action=action)
+                payload_key = self.get_notification_request_payload(action=action)
                 self.__notifications_api.put_notification_action(
                     org_id=self._setup.credentials.org_id,
                     type=action.type.upper(),

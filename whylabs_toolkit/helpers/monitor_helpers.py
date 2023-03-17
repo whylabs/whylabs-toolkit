@@ -4,8 +4,8 @@ from typing import Any, List, Optional
 from whylabs_client.exceptions import ApiValueError
 from whylabs_client.exceptions import NotFoundException
 
-from whylabs_toolkit.helpers.utils import get_models_api
 from whylabs_toolkit.helpers.config import Config
+from whylabs_toolkit.helpers.utils import get_models_api
 
 BASE_ENDPOINT = "https://api.whylabsapp.com"
 logger = logging.getLogger(__name__)
