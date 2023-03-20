@@ -6,7 +6,7 @@ The configuration workflow will always be:
 
 1. Create a `MonitorSetup` object
 ```python
-monitor_setup = MonitorSetup(id=...)
+monitor_setup = MonitorSetup(monitor_id=...)
 ```
 2. Add a config
 ```python
