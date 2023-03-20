@@ -1,3 +1,5 @@
+import os
+
 import pytz
 from datetime import datetime
 
@@ -5,7 +7,7 @@ import pytest
 
 from whylabs_toolkit.monitor.models import *
 from tests.helpers.test_monitor_helpers import BaseTestMonitor
-
+from whylabs_toolkit.monitor.manager.credentials import MonitorCredentials
 
 def test_set_fixed_dates_baseline(monitor_setup):
     monitor_setup.set_fixed_dates_baseline(
@@ -78,6 +80,16 @@ class TestExistingMonitor(BaseTestMonitor):
     def test_existing_monitor_monitor_setup_with_id(self, existing_monitor_setup):
         assert isinstance(existing_monitor_setup.config, StddevConfig)
 
+    def test_create_monitor_from_existing_monitor_id(self, existing_monitor_setup):
+        assert existing_monitor_setup.monitor.id == os.environ["MONITOR_ID"]
+
+        new_credentials = MonitorCredentials(monitor_id="new_monitor_id")
+
+        existing_monitor_setup.credentials = new_credentials
+        existing_monitor_setup.apply()
+
+        assert existing_monitor_setup.monitor.id == "new_monitor_id"
+        assert existing_monitor_setup.analyzer.id == "new_monitor_id-analyzer"
 
 def test_validate_if_columns_exist_before_setting(existing_monitor_setup):
     with pytest.raises(ValueError) as e:
@@ -87,3 +99,5 @@ def test_validate_if_columns_exist_before_setting(existing_monitor_setup):
     with pytest.raises(ValueError) as e:
         existing_monitor_setup.set_target_columns(columns=["test_set_column"])
         assert e.value == f"test_set_column is not present on {existing_monitor_setup.credentials.dataset_id}"
+
+

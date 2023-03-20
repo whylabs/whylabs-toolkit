@@ -11,6 +11,7 @@ monitor_setup = MonitorSetup(monitor_id=...)
 2. Add a config
 ```python
 monitor_setup.config = DriftConfig(...)
+monitor_setup.apply()
 ```
 3. Save it to WhyLabs with `MonitorManager`
 ```python
