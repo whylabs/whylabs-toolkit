@@ -146,13 +146,12 @@ class ExpectedValue(NoExtrasBaseModel):
 
 class ComparisonOperator(str, Enum):
     """Operators for performing a comparison."""
-
     eq = "eq"
-    # Not Yet Implemented:
-    # gt = "gt"
-    # lt = "lt"
-    # ge = "ge"
-    # le = "le"
+# Not Yet Implemented:
+# gt = "gt"
+# lt = "lt"
+# ge = "ge"
+# le = "le"
 
 
 class ComparisonConfig(AlgorithmConfig):

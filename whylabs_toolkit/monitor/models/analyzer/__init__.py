@@ -21,6 +21,7 @@ __all__ = [
     "DriftConfig",
     "DiffConfig",
     "ComparisonConfig",
+    "ComparisonOperator",
     "ExperimentalConfig",
     "FixedThresholdsConfig",
     "ColumnListChangeConfig",
