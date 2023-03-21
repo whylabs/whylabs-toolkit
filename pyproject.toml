@@ -21,7 +21,7 @@ jsonschema = "^4.17.3"
 autoflake = "^2.0.1"
 pytest = "^7.2.0"
 black = "^22.10.0"
-mypy = "^1.0.1"
+mypy = "~1.0.1"
 jupyterlab = "^3.5.1"
 
 [tool.black]
