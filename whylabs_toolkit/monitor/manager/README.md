@@ -52,7 +52,7 @@ Now that you have a logic to which you will generate alerts, you need to define 
 
 ```python
 monitor_setup.actions = [
-        SendEmail(id="my-email", destination="some_mail@example.com"),
+        EmailRecipient(id="my-email", destination="some_mail@example.com"),
         SlackWebhook(id="my-slack-wh", destination="https://slack.web.hook.com")
 ]
 ```
@@ -260,7 +260,7 @@ monitor_setup.set_target_columns(columns=["group: discrete"])
 monitor_setup.exclude_target_columns(columns=["group:output"])
 
 # Instead of setting a new action, extend the existing ones
-monitor_setup.actions.extend([SendEmail(id="existing-email-id")])
+monitor_setup.actions.extend([EmailRecipient(id="existing-email-id")])
 
 ## Save your modifications
 monitor_setup.apply()

@@ -106,8 +106,5 @@ class TestDeleteMonitor(BaseTestMonitor):
         for monitor in monitor_config["monitors"]:
             assert MONITOR_ID not in monitor["id"]
 
-        assert not get_analyzer_ids(
-                org_id=ORG_ID,
-                dataset_id=DATASET_ID,
-                monitor_id=MONITOR_ID
-        )
+        for analyzer in monitor_config["analyzers"]:
+            assert ANALYZER_ID not in analyzer["id"]
