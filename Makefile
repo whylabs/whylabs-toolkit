@@ -42,11 +42,6 @@ bump-build: ## Bump the build number (_._._-____XX) everywhere it appears in the
 	@$(call i, Bumping the build number)
 	poetry run bumpversion build --allow-dirty
 
-publish: clean dist ## Clean the project, generate new distribution files and publish them to pypi
-	@$(call i, Publishing the currently built dist to pypi)
-	poetry publish
-
-
 format-fix:
 	poetry run black --line-length 120 ${SRC_DIR}
 	poetry run autoflake --in-place --remove-unused-variables $(PY_SOURCE)
