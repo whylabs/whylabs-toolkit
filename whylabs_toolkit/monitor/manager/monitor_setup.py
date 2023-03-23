@@ -205,10 +205,11 @@ class MonitorSetup:
     def apply(self) -> None:
         monitor_mode = self.monitor_mode or DigestMode()
         actions = self._monitor_actions or []
-        self._analyzer_schedule = self._analyzer_schedule or FixedCadenceSchedule(cadence=get_model_granularity(
-            org_id=self.credentials.org_id,
-            dataset_id=self.credentials.dataset_id
-        ))
+        self._analyzer_schedule = self._analyzer_schedule or FixedCadenceSchedule(
+            cadence=get_model_granularity(
+                org_id=self.credentials.org_id, dataset_id=self.credentials.dataset_id  # type: ignore
+            )
+        )
 
         self.__set_monitor(monitor_mode=monitor_mode, monitor_actions=actions)
 

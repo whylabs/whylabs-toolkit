@@ -56,9 +56,7 @@ def get_analyzers(monitor_id: str, org_id: Optional[str], dataset_id: Optional[s
 
 def get_model_granularity(org_id: str, dataset_id: str) -> Optional[Granularity]:
     api = get_models_api()
-    model_meta = api.get_model(
-        org_id=org_id, model_id=dataset_id
-    )
+    model_meta = api.get_model(org_id=org_id, model_id=dataset_id)
 
     time_period_to_gran = {
         "H": Granularity.hourly,
@@ -70,6 +68,7 @@ def get_model_granularity(org_id: str, dataset_id: str) -> Optional[Granularity]
     for key, value in time_period_to_gran.items():
         if key in model_meta["time_period"].value:
             return value
+    return None
 
 
 def delete_monitor(org_id: str, dataset_id: str, monitor_id: str) -> None:

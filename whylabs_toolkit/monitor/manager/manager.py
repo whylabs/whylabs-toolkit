@@ -80,8 +80,7 @@ class MonitorManager:
             orgId=self._setup.credentials.org_id,
             datasetId=self._setup.credentials.dataset_id,
             granularity=get_model_granularity(
-                org_id=self._setup.credentials.org_id,
-                dataset_id=self._setup.credentials.dataset_id
+                org_id=self._setup.credentials.org_id, dataset_id=self._setup.credentials.dataset_id  # type: ignore
             ),
             analyzers=[self._setup.analyzer],
             monitors=[self._setup.monitor],
