@@ -6,6 +6,7 @@ from whylabs_client.exceptions import NotFoundException
 
 from whylabs_toolkit.helpers.config import Config
 from whylabs_toolkit.helpers.utils import get_models_api
+from whylabs_toolkit.monitor.models import Granularity
 
 BASE_ENDPOINT = "https://api.whylabsapp.com"
 logger = logging.getLogger(__name__)
@@ -51,6 +52,23 @@ def get_analyzers(monitor_id: str, org_id: Optional[str], dataset_id: Optional[s
         return analyzers
     else:
         raise NotFoundException
+
+
+def get_model_granularity(org_id: str, dataset_id: str) -> Optional[Granularity]:
+    api = get_models_api()
+    model_meta = api.get_model(org_id=org_id, model_id=dataset_id)
+
+    time_period_to_gran = {
+        "H": Granularity.hourly,
+        "D": Granularity.daily,
+        "W": Granularity.weekly,
+        "M": Granularity.monthly,
+    }
+
+    for key, value in time_period_to_gran.items():
+        if key in model_meta["time_period"].value:
+            return value
+    return None
 
 
 def delete_monitor(org_id: str, dataset_id: str, monitor_id: str) -> None:

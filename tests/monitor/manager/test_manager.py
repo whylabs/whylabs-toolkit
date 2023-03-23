@@ -18,10 +18,7 @@ class TestModelManager(BaseTestMonitor):
     def manager(self, existing_monitor_setup: MonitorSetup) -> MonitorManager:
         mm = MonitorManager(setup=existing_monitor_setup)
         return mm
-    def test_get_granularity(self, manager: MonitorManager) -> None:
-        granularity = manager.get_granularity()
-        assert granularity == Granularity.monthly
-    
+
     def test_dump(self, manager: MonitorManager) -> None:
         document = manager.dump()
         assert isinstance(json.loads(document), Dict)

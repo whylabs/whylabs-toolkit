@@ -9,7 +9,7 @@ from whylabs_client.exceptions import NotFoundException
 from whylabs_toolkit.helpers.utils import get_models_api
 from whylabs_toolkit.monitor.models import *
 from whylabs_toolkit.monitor.manager.credentials import MonitorCredentials
-from whylabs_toolkit.helpers.monitor_helpers import get_analyzers, get_monitor
+from whylabs_toolkit.helpers.monitor_helpers import get_analyzers, get_monitor, get_model_granularity
 
 
 logging.basicConfig(level=logging.INFO)
@@ -205,7 +205,11 @@ class MonitorSetup:
     def apply(self) -> None:
         monitor_mode = self.monitor_mode or DigestMode()
         actions = self._monitor_actions or []
-        self._analyzer_schedule = self._analyzer_schedule or FixedCadenceSchedule(cadence=Cadence.daily)
+        self._analyzer_schedule = self._analyzer_schedule or FixedCadenceSchedule(
+            cadence=get_model_granularity(
+                org_id=self.credentials.org_id, dataset_id=self.credentials.dataset_id  # type: ignore
+            )
+        )
 
         self.__set_monitor(monitor_mode=monitor_mode, monitor_actions=actions)
 
