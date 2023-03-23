@@ -1,6 +1,7 @@
 import logging
 import json
 from pathlib import Path
+from typing import Optional, Union, Any, List
 
 from jsonschema import validate, ValidationError
 from whylabs_client.api.notification_settings_api import NotificationSettingsApi
@@ -8,7 +9,7 @@ from whylabs_client.api.models_api import ModelsApi
 
 from whylabs_toolkit.monitor.manager.monitor_setup import MonitorSetup
 from whylabs_toolkit.monitor.models import *
-from whylabs_toolkit.monitor.models.analyzer.algorithms import *
+from whylabs_toolkit.helpers.monitor_helpers import get_model_granularity
 from whylabs_toolkit.helpers.utils import get_models_api, get_notification_api
 
 
@@ -26,23 +27,6 @@ class MonitorManager:
         self._setup = setup
         self.__notifications_api = notifications_api or get_notification_api()
         self.__models_api = models_api or get_models_api()
-
-    def get_granularity(self) -> Optional[Granularity]:
-        model_meta = self.__models_api.get_model(
-            org_id=self._setup.credentials.org_id, model_id=self._setup.credentials.dataset_id
-        )
-
-        time_period_to_gran = {
-            "H": Granularity.hourly,
-            "D": Granularity.daily,
-            "W": Granularity.weekly,
-            "M": Granularity.monthly,
-        }
-
-        for key, value in time_period_to_gran.items():
-            if key in model_meta["time_period"].value:
-                return value
-        return None
 
     def _get_existing_notification_actions(self) -> List[str]:
         actions_dict_list = self.__notifications_api.list_notification_actions(org_id=self._setup.credentials.org_id)
@@ -95,7 +79,10 @@ class MonitorManager:
         doc = Document(
             orgId=self._setup.credentials.org_id,
             datasetId=self._setup.credentials.dataset_id,
-            granularity=self.get_granularity(),
+            granularity=get_model_granularity(
+                org_id=self._setup.credentials.org_id,
+                dataset_id=self._setup.credentials.dataset_id
+            ),
             analyzers=[self._setup.analyzer],
             monitors=[self._setup.monitor],
         )
