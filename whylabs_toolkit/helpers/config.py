@@ -10,21 +10,37 @@ class ConfigVars(Enum):
 
 
 class Config:
-    @staticmethod
-    def get_whylabs_api_key() -> str:
+    def get_whylabs_api_key(self) -> str:
         return Validations.require(ConfigVars.WHYLABS_API_KEY)
 
-    @staticmethod
-    def get_whylabs_host() -> str:
+    def get_whylabs_host(self) -> str:
         return Validations.get_or_default(ConfigVars.WHYLABS_HOST)
 
-    @staticmethod
-    def get_default_org_id() -> str:
+    def get_default_org_id(self) -> str:
         return Validations.require(ConfigVars.ORG_ID)
 
-    @staticmethod
-    def get_default_dataset_id() -> str:
+    def get_default_dataset_id(self) -> str:
         return Validations.require(ConfigVars.DATASET_ID)
+
+
+class UserConfig(Config):
+    def __init__(self, api_key: str, org_id: str, dataset_id: str, whylabs_host: str = ConfigVars.WHYLABS_HOST.value):
+        self.api_key = api_key
+        self.whylabs_host = whylabs_host
+        self.org_id = org_id
+        self.dataset_id = dataset_id
+
+    def get_whylabs_api_key(self) -> str:
+        return self.api_key
+
+    def get_whylabs_host(self) -> str:
+        return self.whylabs_host
+
+    def get_default_org_id(self) -> str:
+        return self.org_id
+
+    def get_default_dataset_id(self) -> str:
+        return self.dataset_id
 
 
 class Validations:

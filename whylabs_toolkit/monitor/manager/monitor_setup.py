@@ -1,7 +1,6 @@
 import pytz
 import logging
 from datetime import datetime
-from abc import abstractmethod
 from typing import Optional, List, Union, Any
 
 from whylabs_client.exceptions import NotFoundException
@@ -10,6 +9,7 @@ from whylabs_toolkit.helpers.utils import get_models_api
 from whylabs_toolkit.monitor.models import *
 from whylabs_toolkit.monitor.manager.credentials import MonitorCredentials
 from whylabs_toolkit.helpers.monitor_helpers import get_analyzers, get_monitor, get_model_granularity
+from whylabs_toolkit.helpers.config import Config
 
 
 logging.basicConfig(level=logging.INFO)
@@ -17,14 +17,16 @@ logger = logging.getLogger(__name__)
 
 
 class MonitorSetup:
-    def __init__(self, monitor_id: str, dataset_id: Optional[str] = None) -> None:
+    def __init__(self, monitor_id: str, dataset_id: Optional[str] = None, config: Config = Config()) -> None:
 
-        self.credentials = MonitorCredentials(monitor_id=monitor_id, dataset_id=dataset_id)
-
+        self.credentials = MonitorCredentials(monitor_id=monitor_id, dataset_id=dataset_id, config=config)
+        self._config = config
         self.monitor: Optional[Monitor] = self._check_if_monitor_exists()
         self.analyzer: Optional[Analyzer] = self._check_if_analyzer_exists()
 
-        self.monitor_mode: Optional[Union[EveryAnomalyMode, DigestMode]] = None
+        self._models_api = get_models_api(config=self._config)
+
+        self._monitor_mode: Optional[Union[EveryAnomalyMode, DigestMode]] = None
         self._monitor_actions: Optional[List[Union[GlobalAction, EmailRecipient, SlackWebhook]]] = None
         self._analyzer_schedule: Optional[FixedCadenceSchedule] = None
         self._target_matrix: Optional[Union[ColumnMatrix, DatasetMatrix]] = None
@@ -47,6 +49,7 @@ class MonitorSetup:
                 org_id=self.credentials.org_id,
                 dataset_id=self.credentials.dataset_id,
                 monitor_id=self.credentials.monitor_id,
+                config=self._config,
             )
             existing_monitor = Monitor.parse_obj(existing_monitor)
             logger.info(f"Got existing {self.credentials.monitor_id} from WhyLabs!")
@@ -61,6 +64,7 @@ class MonitorSetup:
                 org_id=self.credentials.org_id,
                 dataset_id=self.credentials.dataset_id,
                 monitor_id=self.credentials.monitor_id,
+                config=self._config,
             )
             existing_analyzer = Analyzer.parse_obj(existing_analyzers[0])  # enforcing 1:1 relationship
 
@@ -70,7 +74,7 @@ class MonitorSetup:
 
     def _prefill_properties(self) -> None:
         if self.monitor:
-            self.monitor_mode = self.monitor.mode
+            self._monitor_mode = self.monitor.mode
             self._monitor_actions = self.monitor.actions
         if self.analyzer:
             self._analyzer_schedule = self.analyzer.schedule
@@ -122,18 +126,19 @@ class MonitorSetup:
 
     @property
     def mode(self) -> Optional[Union[EveryAnomalyMode, DigestMode]]:
-        return self.monitor_mode
+        return self._monitor_mode
 
     @mode.setter
     def mode(self, mode: Union[EveryAnomalyMode, DigestMode]) -> None:
-        self.monitor_mode = mode
+        self._monitor_mode = mode
 
     def _validate_columns_input(self, columns: List[str]) -> bool:
         if type(columns) != list or not all(isinstance(column, str) for column in columns):
             raise ValueError("columns argument must be a List of strings")
 
-        api = get_models_api()
-        schema = api.get_entity_schema(org_id=self.credentials.org_id, dataset_id=self.credentials.dataset_id)
+        schema = self._models_api.get_entity_schema(
+            org_id=self.credentials.org_id, dataset_id=self.credentials.dataset_id
+        )
         columns_dict = schema["columns"]
 
         for col in columns:
@@ -169,7 +174,6 @@ class MonitorSetup:
             range=TimeRange(start=start_date, end=end_date)
         )
 
-    @abstractmethod
     def __set_analyzer(self) -> None:
         self.analyzer = Analyzer(
             id=self.credentials.analyzer_id,
@@ -203,7 +207,7 @@ class MonitorSetup:
                 self._target_matrix = DatasetMatrix()
 
     def apply(self) -> None:
-        monitor_mode = self.monitor_mode or DigestMode()
+        monitor_mode = self._monitor_mode or DigestMode()
         actions = self._monitor_actions or []
         self._analyzer_schedule = self._analyzer_schedule or FixedCadenceSchedule(
             cadence=get_model_granularity(
@@ -215,27 +219,3 @@ class MonitorSetup:
 
         self.__configure_target_matrix()
         self.__set_analyzer()
-
-
-class MissingDataMonitorSetup(MonitorSetup):
-    """
-    Use this preset MonitorOptions to monitor change on missing Data compared to a threshold
-
-    Args:
-         :percentage: The percentage change that should trigger an alert.
-         Value must be greater or equal to 0 and lesser or equal to 100.
-         :type percentage: int
-    """
-
-    def __set_analyzer(self) -> None:
-        pass
-
-
-class FixedCountsMonitorSetup(MonitorSetup):
-    def __set_analyzer(self) -> None:
-        pass
-
-
-class DynamicCountsMonitorSetup(MonitorSetup):
-    def __set_analyzer(self) -> None:
-        pass

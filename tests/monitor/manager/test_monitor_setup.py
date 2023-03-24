@@ -8,8 +8,11 @@ import pytest
 from whylabs_toolkit.monitor.models import *
 from tests.helpers.test_monitor_helpers import BaseTestMonitor
 from whylabs_toolkit.monitor.manager.credentials import MonitorCredentials
+from whylabs_toolkit.monitor import MonitorSetup
+from whylabs_toolkit.helpers.config import UserConfig
 
-def test_set_fixed_dates_baseline(monitor_setup):
+
+def test_set_fixed_dates_baseline(monitor_setup: MonitorSetup) -> None:
     monitor_setup.set_fixed_dates_baseline(
         start_date=datetime(2023,1,1),
         end_date=datetime(2023,1,2)
@@ -77,10 +80,10 @@ def test_set_and_exclude_columns_keep_state(monitor_setup):
 
 
 class TestExistingMonitor(BaseTestMonitor):
-    def test_existing_monitor_monitor_setup_with_id(self, existing_monitor_setup):
+    def test_existing_monitor_monitor_setup_with_id(self, existing_monitor_setup) -> None:
         assert isinstance(existing_monitor_setup.config, StddevConfig)
 
-    def test_create_monitor_from_existing_monitor_id(self, existing_monitor_setup):
+    def test_create_monitor_from_existing_monitor_id(self, existing_monitor_setup) -> None:
         assert existing_monitor_setup.monitor.id == os.environ["MONITOR_ID"]
 
         new_credentials = MonitorCredentials(monitor_id="new_monitor_id")
@@ -91,7 +94,7 @@ class TestExistingMonitor(BaseTestMonitor):
         assert existing_monitor_setup.monitor.id == "new_monitor_id"
         assert existing_monitor_setup.analyzer.id == "new_monitor_id-analyzer"
 
-def test_validate_if_columns_exist_before_setting(existing_monitor_setup):
+def test_validate_if_columns_exist_before_setting(existing_monitor_setup: MonitorSetup) -> None:
     with pytest.raises(ValueError) as e:
         existing_monitor_setup.exclude_target_columns(columns=["test_exclude_column"])
         assert e.value == f"test_exclude_column is not present on {existing_monitor_setup.credentials.dataset_id}"
@@ -101,3 +104,10 @@ def test_validate_if_columns_exist_before_setting(existing_monitor_setup):
         assert e.value == f"test_set_column is not present on {existing_monitor_setup.credentials.dataset_id}"
 
 
+def test_setup_with_passed_in_credentials(user_config: UserConfig) -> None:
+    monitor_setup = MonitorSetup(
+        monitor_id="different_id",
+        config=user_config
+    )
+    
+    assert monitor_setup.credentials.org_id == user_config.org_id

@@ -10,10 +10,10 @@ BASE_ENDPOINT = "https://api.whylabsapp.com"
 
 
 class UpdateEntity(ABC):
-    def __init__(self, dataset_id: str, org_id: Optional[str] = None):
+    def __init__(self, dataset_id: str, org_id: Optional[str] = None, config: Config = Config()):
         self.dataset_id = dataset_id
         self.org_id = org_id or Config().get_default_org_id()
-        self.api = get_models_api()
+        self.api = get_models_api(config=config)
 
     def _get_entity_schema(self) -> Any:
         entity_schema = self.api.get_entity_schema(org_id=self.org_id, dataset_id=self.dataset_id)

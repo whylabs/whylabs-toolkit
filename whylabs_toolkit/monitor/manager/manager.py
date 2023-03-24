@@ -10,6 +10,7 @@ from whylabs_client.api.models_api import ModelsApi
 from whylabs_toolkit.monitor.manager.monitor_setup import MonitorSetup
 from whylabs_toolkit.monitor.models import *
 from whylabs_toolkit.helpers.monitor_helpers import get_model_granularity
+from whylabs_toolkit.helpers.config import Config
 from whylabs_toolkit.helpers.utils import get_models_api, get_notification_api
 
 
@@ -23,10 +24,11 @@ class MonitorManager:
         setup: MonitorSetup,
         notifications_api: Optional[NotificationSettingsApi] = None,
         models_api: Optional[ModelsApi] = None,
+        config: Config = Config(),
     ) -> None:
         self._setup = setup
-        self.__notifications_api = notifications_api or get_notification_api()
-        self.__models_api = models_api or get_models_api()
+        self.__notifications_api = notifications_api or get_notification_api(config=config)
+        self.__models_api = models_api or get_models_api(config=config)
 
     def _get_existing_notification_actions(self) -> List[str]:
         actions_dict_list = self.__notifications_api.list_notification_actions(org_id=self._setup.credentials.org_id)
