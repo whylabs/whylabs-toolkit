@@ -1,5 +1,3 @@
-import os
-
 from whylabs_toolkit.helpers.config import UserConfig
 from whylabs_toolkit.helpers.utils import get_dataset_profile_api, get_models_api, get_notification_api
 
