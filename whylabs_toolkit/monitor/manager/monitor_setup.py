@@ -7,6 +7,7 @@ from whylabs_client.exceptions import NotFoundException
 
 from whylabs_toolkit.helpers.utils import get_models_api
 from whylabs_toolkit.monitor.models import *
+from whylabs_toolkit.monitor.models.analyzer.targets import ColumnGroups
 from whylabs_toolkit.monitor.manager.credentials import MonitorCredentials
 from whylabs_toolkit.helpers.monitor_helpers import get_analyzers, get_monitor, get_model_granularity
 from whylabs_toolkit.helpers.config import Config
@@ -135,6 +136,9 @@ class MonitorSetup:
     def _validate_columns_input(self, columns: List[str]) -> bool:
         if type(columns) != list or not all(isinstance(column, str) for column in columns):
             raise ValueError("columns argument must be a List of strings")
+
+        if "group:" in columns[0]:
+            return True
 
         schema = self._models_api.get_entity_schema(
             org_id=self.credentials.org_id, dataset_id=self.credentials.dataset_id

@@ -111,3 +111,10 @@ def test_setup_with_passed_in_credentials(user_config: UserConfig) -> None:
     )
     
     assert monitor_setup.credentials.org_id == user_config.org_id
+
+
+def test_setup_with_group_of_columns(monitor_setup) -> None:
+    monitor_setup.set_target_columns(columns=["group:discrete"])
+    monitor_setup.exclude_target_columns(columns=["group:outputs"])
+    monitor_setup.apply()
+
