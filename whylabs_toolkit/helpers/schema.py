@@ -2,6 +2,8 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 
+from whylabs_client.models import EntitySchema
+
 from whylabs_toolkit.helpers.config import Config
 from whylabs_toolkit.helpers.utils import get_models_api
 from whylabs_toolkit.monitor.models.column_schema import ColumnDataType
@@ -19,8 +21,8 @@ class UpdateEntity(ABC):
         entity_schema = self.api.get_entity_schema(org_id=self.org_id, dataset_id=self.dataset_id)
         return entity_schema
 
-    def _put_entity_schema(self, schema: Dict) -> None:
-        self.api.put_entity_schema(org_id=self.org_id, dataset_id=self.dataset_id, body=schema)
+    def _put_entity_schema(self, schema: EntitySchema) -> None:
+        self.api.put_entity_schema(org_id=self.org_id, dataset_id=self.dataset_id, entity_schema=schema)
 
     def _get_current_entity_schema(self) -> None:
         self.current_entity_schema = self._get_entity_schema()
@@ -36,7 +38,7 @@ class UpdateEntity(ABC):
 
     def _put_updated_entity_schema(self) -> None:
         metadata_dict = self.current_entity_schema["metadata"]
-        entity_schema_dict = {"columns": self.columns_dict, "metadata": metadata_dict}
+        entity_schema_dict = EntitySchema(columns=self.columns_dict, metadata=metadata_dict)
         self._put_entity_schema(schema=entity_schema_dict)
 
     def update(self) -> None:
@@ -73,9 +75,9 @@ class UpdateColumnClassifiers(UpdateEntity):
     def _update_entity_schema(self) -> Any:
         for key in self.columns_dict.keys():
             if key in self.classifiers.inputs and self.columns_dict[key]["classifier"] != "input":
-                self.columns_dict[key].update({"classifier": "input"})
+                self.columns_dict[key].classifier = "input"
             elif key in self.classifiers.outputs and self.columns_dict[key]["classifier"] != "output":
-                self.columns_dict[key].update({"classifier": "output"})
+                self.columns_dict[key].classifier = "output"
 
 
 class UpdateEntityDataTypes(UpdateEntity):
@@ -120,8 +122,8 @@ class UpdateEntityDataTypes(UpdateEntity):
 
     def _update_entity_schema(self) -> None:
         for column, data_type in self.columns_schema.items():
-            if column in self.columns_dict.keys() and self.columns_dict[column]["dataType"] != data_type.value:
-                self.columns_dict[column].update({"dataType": self.columns_schema[column].value})
+            if column in self.columns_dict.keys() and self.columns_dict[column]["data_type"] != data_type.value:
+                self.columns_dict[column].data_type = self.columns_schema[column].value
 
 
 @dataclass
@@ -152,6 +154,6 @@ class UpdateColumnsDiscreteness(UpdateEntity):
     def _update_entity_schema(self) -> Any:
         for key in self.columns_dict.keys():
             if key in self.columns.discrete and self.columns_dict[key]["discreteness"] != "discrete":
-                self.columns_dict[key].update({"discreteness": "discrete"})
+                self.columns_dict[key].discreteness = "discrete"
             elif key in self.columns.continuous and self.columns_dict[key]["discreteness"] != "continuous":
-                self.columns_dict[key].update({"discreteness": "continuous"})
+                self.columns_dict[key].discreteness = "continuous"

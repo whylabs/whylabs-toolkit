@@ -70,9 +70,13 @@ class TestNotificationActions(TestCase):
         self.notifications_api = MagicMock()
         self.notifications_api.list_notification_actions.return_value = []
         
-        self.models_api = MagicMock()
+        self.monitor_api = MagicMock()
 
-        self.monitor_manager = MonitorManager(setup = self.monitor_setup, notifications_api=self.notifications_api, models_api=self.models_api)
+        self.monitor_manager = MonitorManager(
+            setup = self.monitor_setup,
+            notifications_api=self.notifications_api,
+            monitor_api=self.monitor_api
+        )
         
 
     def test_notification_actions_are_updated(self) -> None:

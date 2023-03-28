@@ -118,7 +118,7 @@ def test_change_columns_schema():
 
     update_data_types.update()
 
-    assert update_data_types.current_entity_schema["columns"]["temperature"]["dataType"] == "bool"
+    assert update_data_types.current_entity_schema["columns"]["temperature"]["data_type"] == "bool"
 
     columns_schema = {"temperature": ColumnDataType.fractional}
 
@@ -130,7 +130,7 @@ def test_change_columns_schema():
 
     update_data_types.update()
 
-    assert update_data_types.current_entity_schema["columns"]["temperature"]["dataType"] == "fractional"
+    assert update_data_types.current_entity_schema["columns"]["temperature"]["data_type"] == "fractional"
 
 
 def test_wrong_configuration_on_data_types():

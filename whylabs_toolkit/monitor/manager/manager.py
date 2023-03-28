@@ -11,7 +11,7 @@ from whylabs_toolkit.monitor.manager.monitor_setup import MonitorSetup
 from whylabs_toolkit.monitor.models import *
 from whylabs_toolkit.helpers.monitor_helpers import get_model_granularity
 from whylabs_toolkit.helpers.config import Config
-from whylabs_toolkit.helpers.utils import get_models_api, get_notification_api
+from whylabs_toolkit.helpers.utils import get_monitor_api, get_notification_api
 
 
 logging.basicConfig(level=logging.INFO)
@@ -23,12 +23,12 @@ class MonitorManager:
         self,
         setup: MonitorSetup,
         notifications_api: Optional[NotificationSettingsApi] = None,
-        models_api: Optional[ModelsApi] = None,
+        monitor_api: Optional[ModelsApi] = None,
         config: Config = Config(),
     ) -> None:
         self._setup = setup
         self.__notifications_api = notifications_api or get_notification_api(config=config)
-        self.__models_api = models_api or get_models_api(config=config)
+        self.__monitor_api = monitor_api or get_monitor_api(config=config)
 
     def _get_existing_notification_actions(self) -> List[str]:
         actions_dict_list = self.__notifications_api.list_notification_actions(org_id=self._setup.credentials.org_id)
@@ -105,13 +105,13 @@ class MonitorManager:
     def save(self) -> None:
         if self.validate() is True:
 
-            self.__models_api.put_analyzer(
+            self.__monitor_api.put_analyzer(
                 org_id=self._setup.credentials.org_id,
                 dataset_id=self._setup.credentials.dataset_id,
                 analyzer_id=self._setup.credentials.analyzer_id,
                 body=self._setup.analyzer.dict(exclude_none=True),  # type: ignore
             )
-            self.__models_api.put_monitor(
+            self.__monitor_api.put_monitor(
                 org_id=self._setup.credentials.org_id,
                 dataset_id=self._setup.credentials.dataset_id,
                 monitor_id=self._setup.credentials.monitor_id,
