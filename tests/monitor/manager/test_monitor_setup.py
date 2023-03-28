@@ -118,3 +118,10 @@ def test_setup_with_group_of_columns(monitor_setup) -> None:
     monitor_setup.exclude_target_columns(columns=["group:outputs"])
     monitor_setup.apply()
 
+
+def test_setup_with_multi_columned_group_should_fail(monitor_setup) -> None:
+    with pytest.raises(ValueError):
+        monitor_setup.set_target_columns(columns=["group:int", "other_cols"])
+
+    with pytest.raises(ValueError):
+        monitor_setup.exclude_target_columns(columns=["group:inputs", "group:outputs"])

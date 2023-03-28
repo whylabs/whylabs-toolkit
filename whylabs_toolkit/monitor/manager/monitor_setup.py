@@ -138,6 +138,8 @@ class MonitorSetup:
             raise ValueError("columns argument must be a List of strings")
 
         if "group:" in columns[0]:
+            if len(columns) > 1:
+                raise ValueError("using group: should have one argument")
             return True
 
         schema = self._models_api.get_entity_schema(
