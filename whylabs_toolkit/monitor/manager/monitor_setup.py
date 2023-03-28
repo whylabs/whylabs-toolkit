@@ -139,15 +139,13 @@ class MonitorSetup:
 
         group_columns = ColumnGroups.__members__.values()
         allowed_groups = any(col in group_columns for col in columns)
-        
-        if allowed_groups: 
-            if len(columns) > 1:
-                raise ValueError("using columns=group:[group_type] should have one element")
+
+        if allowed_groups:
             return True
 
         if "group:" in columns and not allowed_groups:
             raise ValueError(f"group:[group_type] should be one of {group_columns}")
-        
+
         schema = self._models_api.get_entity_schema(
             org_id=self.credentials.org_id, dataset_id=self.credentials.dataset_id
         )
