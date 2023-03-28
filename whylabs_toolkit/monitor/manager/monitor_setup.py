@@ -137,11 +137,17 @@ class MonitorSetup:
         if type(columns) != list or not all(isinstance(column, str) for column in columns):
             raise ValueError("columns argument must be a List of strings")
 
-        if "group:" in columns[0]:
+        group_columns = ColumnGroups.__members__.values()
+        allowed_groups = any(col in group_columns for col in columns)
+        
+        if allowed_groups: 
             if len(columns) > 1:
-                raise ValueError("using group: should have one argument")
+                raise ValueError("using columns=group:[group_type] should have one element")
             return True
 
+        if "group:" in columns and not allowed_groups:
+            raise ValueError(f"group:[group_type] should be one of {group_columns}")
+        
         schema = self._models_api.get_entity_schema(
             org_id=self.credentials.org_id, dataset_id=self.credentials.dataset_id
         )
