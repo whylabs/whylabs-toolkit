@@ -42,4 +42,6 @@ jobs:
           WHYLABS_API_KEY : ${{ secrets.WHYLABS_API_KEY }}
           MONITOR_ID : ${{ secrets.MONITOR_ID }}
           ANALYZER_ID : ${{ secrets.ANALYZER_ID }}
-
+          DEV_WHYLABS_API_KEY: ${{secrets.DEV_WHYLABS_API_KEY}}
+          DEV_ORG_ID: ${{secrets.DEV_ORG_ID}}
+          DEV_DATASET_ID: ${{secrets.DEV_DATASET_ID}}

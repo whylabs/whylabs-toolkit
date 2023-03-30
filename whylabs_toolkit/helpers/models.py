@@ -6,17 +6,22 @@ from whylabs_client.model.model_type import ModelType
 from whylabs_client.model.time_period import TimePeriod
 
 from whylabs_toolkit.helpers.utils import get_models_api
+from whylabs_toolkit.helpers.config import Config
 
 logger = logging.getLogger(__name__)
 
 
 def update_model_metadata(
-    dataset_id: str, org_id: Optional[str] = None, time_period: Optional[str] = None, model_type: Optional[str] = None
+    dataset_id: str,
+    org_id: Optional[str] = None,
+    time_period: Optional[str] = None,
+    model_type: Optional[str] = None,
+    config: Config = Config(),
 ) -> None:
     """
     Update model attributes like model type and period.
     """
-    api = get_models_api()
+    api = get_models_api(config=config)
 
     model_metadata = api.get_model(org_id=org_id, model_id=dataset_id)
     logger.debug(f"Updating dataset with current metadata: \n {model_metadata}")

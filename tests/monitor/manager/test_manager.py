@@ -26,9 +26,9 @@ class TestModelManager(BaseTestMonitor):
     def test_validate(self, manager: MonitorManager) -> None:
         assert manager.validate()
 
-    def test_failing_validation(self, monitor_setup) -> None:
+    def test_failing_validation(self, monitor_setup: MonitorSetup) -> None:
         monitor_setup.actions = [EmailRecipient(id="some_long_id", destination="someemail@email.com")]
-        monitor_setup.config.mode = "weird_mode"
+        monitor_setup.config.mode = "weird_mode" # type: ignore
         monitor_setup.apply()
 
         manager = MonitorManager(setup=monitor_setup)
@@ -70,9 +70,13 @@ class TestNotificationActions(TestCase):
         self.notifications_api = MagicMock()
         self.notifications_api.list_notification_actions.return_value = []
         
-        self.models_api = MagicMock()
+        self.monitor_api = MagicMock()
 
-        self.monitor_manager = MonitorManager(setup = self.monitor_setup, notifications_api=self.notifications_api, models_api=self.models_api)
+        self.monitor_manager = MonitorManager(
+            setup = self.monitor_setup,
+            notifications_api=self.notifications_api,
+            monitor_api=self.monitor_api
+        )
         
 
     def test_notification_actions_are_updated(self) -> None:

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "whylabs-toolkit"
-version = "0.0.4"
+version = "0.0.5"
 description = "Whylabs CLI and Helpers package."
 authors = ["Anthony Naddeo <anthony.naddeo@gmail.com>", "Murilo Mendonca <murilommen@gmail.com>"]
 license = "Apache-2.0 license"
@@ -10,7 +10,7 @@ include = ["whylabs_toolkit/monitor/schema/schema.json"]
 
 [tool.poetry.dependencies]
 python = "^3.8"
-whylabs-client = "^0.4.2"
+whylabs-client = "^0.4.4"
 types-pytz = "^2022.7.1.0"
 pydantic = "^1.10.4"
 whylogs = "^1.1.26"

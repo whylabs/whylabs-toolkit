@@ -5,7 +5,7 @@ from whylabs_toolkit.helpers.monitor_helpers import (
     get_model_granularity,
     get_monitor_config
 )
-from whylabs_toolkit.helpers.utils import get_models_api
+from whylabs_toolkit.helpers.utils import get_monitor_api
 from whylabs_toolkit.monitor.models import Granularity
 
 
@@ -49,7 +49,7 @@ ANALYZER_BODY = {
 class BaseTestMonitor:
     @classmethod
     def setup_class(cls) -> None:
-        api = get_models_api()
+        api = get_monitor_api()
         api.put_monitor(
             org_id=ORG_ID,
             dataset_id=DATASET_ID,

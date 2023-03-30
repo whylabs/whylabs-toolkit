@@ -50,7 +50,7 @@
     },
     "allowPartialTargetBatches": {
       "title": "AllowPartialTargetBatches",
-      "description": "The standard \n        flow waits for a target batch as defined by the dataset granularity \n        setting to conclude before running analysis. For example, on monthly datasets datapoints in the \n        current month would be analyzed at midnight on the last day of the month anticipating additional \n        data may be profiled. With allowPartialTargetBatches enabled a target batch may be analyzed as \n        soon as the data is present and dataReadinessDuration/batchCooldownPeriod (if configured) \n        conditions have been met. This can be ideal for data pipelines that upload a single profile per \n        dataset granularity to reduce the waiting time for analysis.",
+      "description": "The standard\n        flow waits for a target batch as defined by the dataset granularity\n        setting to conclude before running analysis. For example, on monthly datasets datapoints in the\n        current month would be analyzed at midnight on the last day of the month anticipating additional\n        data may be profiled. With allowPartialTargetBatches enabled a target batch may be analyzed as\n        soon as the data is present and dataReadinessDuration/batchCooldownPeriod (if configured)\n        conditions have been met. This can be ideal for data pipelines that upload a single profile per\n        dataset granularity to reduce the waiting time for analysis.",
       "type": "boolean"
     },
     "entitySchema": {
@@ -487,6 +487,15 @@
             "$ref": "#/definitions/Segment"
           }
         },
+        "excludeSegments": {
+          "title": "Excludesegments",
+          "description": "List of segments to be excluded",
+          "maxItems": 1000,
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Segment"
+          }
+        },
         "type": {
           "title": "Type",
           "enum": [
@@ -542,6 +551,15 @@
         "segments": {
           "title": "Segments",
           "description": "List of targeted segments. If not set, default to the overall segment",
+          "maxItems": 1000,
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Segment"
+          }
+        },
+        "excludeSegments": {
+          "title": "Excludesegments",
+          "description": "List of segments to be excluded",
           "maxItems": 1000,
           "type": "array",
           "items": {
@@ -631,7 +649,7 @@
     },
     "ThresholdType": {
       "title": "ThresholdType",
-      "description": "By default an anomaly will be generated when the target is above or below the baseline\n    by the specified threshold.\n\n    If its only desirable to alert when the target is above the\n    baseline and not the other way around, specify upper for your ThresholdType.",
+      "description": "Threshold Type declaring the upper and lower bound.\n\n    By default an anomaly will be generated when the target is above or below the baseline\n    by the specified threshold.\n\n    If its only desirable to alert when the target is above the\n    baseline and not the other way around, specify upper for your ThresholdType.\n    ",
       "enum": [
         "lower",
         "upper"
@@ -805,7 +823,7 @@
       "properties": {
         "schemaVersion": {
           "title": "SchemaVersion",
-          "description": "The schema version of an algorithm. Typically this valueis not required.",
+          "description": "The schema version of an algorithm. Typically this value is not required.",
           "type": "integer"
         },
         "params": {
@@ -853,6 +871,16 @@
         },
         "baseline": {
           "title": "Baseline",
+          "description": "A baseline for running the analyzer.",
+          "discriminator": {
+            "propertyName": "type",
+            "mapping": {
+              "TrailingWindow": "#/definitions/TrailingWindowBaseline",
+              "Reference": "#/definitions/ReferenceProfileId",
+              "TimeRange": "#/definitions/TimeRangeBaseline",
+              "CurrentBatch": "#/definitions/SingleBatchBaseline"
+            }
+          },
           "oneOf": [
             {
               "$ref": "#/definitions/TrailingWindowBaseline"
@@ -913,12 +941,12 @@
     },
     "ComparisonConfig": {
       "title": "ComparisonConfig",
-      "description": "Compare whether the target against a value or against a baseline's metric.\n\nThis is useful to detect data type change, for instance.",
+      "description": "Compare whether the target against either an expect value or against the  baseline.\n\nThis is useful to detect data type change, for instance.",
       "type": "object",
       "properties": {
         "schemaVersion": {
           "title": "SchemaVersion",
-          "description": "The schema version of an algorithm. Typically this valueis not required.",
+          "description": "The schema version of an algorithm. Typically this value is not required.",
           "type": "integer"
         },
         "params": {
@@ -972,6 +1000,16 @@
         },
         "baseline": {
           "title": "Baseline",
+          "description": "A baseline for running the analyzer.",
+          "discriminator": {
+            "propertyName": "type",
+            "mapping": {
+              "TrailingWindow": "#/definitions/TrailingWindowBaseline",
+              "Reference": "#/definitions/ReferenceProfileId",
+              "TimeRange": "#/definitions/TimeRangeBaseline",
+              "CurrentBatch": "#/definitions/SingleBatchBaseline"
+            }
+          },
           "oneOf": [
             {
               "$ref": "#/definitions/TrailingWindowBaseline"
@@ -995,6 +1033,195 @@
       ],
       "additionalProperties": false
     },
+    "ListComparisonOperator": {
+      "title": "ListComparisonOperator",
+      "description": "Operators for performing a comparison.",
+      "enum": [
+        "in",
+        "not_in"
+      ],
+      "type": "string"
+    },
+    "ListComparisonConfig": {
+      "title": "ListComparisonConfig",
+      "description": "Compare a target list of values against a baseline list of values.",
+      "type": "object",
+      "properties": {
+        "schemaVersion": {
+          "title": "SchemaVersion",
+          "description": "The schema version of an algorithm. Typically this value is not required.",
+          "type": "integer"
+        },
+        "params": {
+          "title": "Params",
+          "description": "Extra parameters for the algorithm",
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "maxLength": 1000
+          }
+        },
+        "metric": {
+          "title": "Metric",
+          "description": "The target metric. This field cannot be change once the analyzer is created.",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/DatasetMetric"
+            },
+            {
+              "$ref": "#/definitions/SimpleColumnMetric"
+            },
+            {
+              "type": "string",
+              "maxLength": 100
+            }
+          ]
+        },
+        "type": {
+          "title": "Type",
+          "enum": [
+            "list_comparison"
+          ],
+          "type": "string"
+        },
+        "operator": {
+          "description": "The operator for the comparison. The right hand side is the target batch's metric. The left handside is the expected value or a baseline's metric.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/ListComparisonOperator"
+            }
+          ]
+        },
+        "expected": {
+          "title": "Expected",
+          "description": "The expected values of the equality. If the value is not set we will extract the corresponding metric from the baseline and perform the comparison",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ExpectedValue"
+          }
+        },
+        "baseline": {
+          "title": "Baseline",
+          "description": "A baseline for running the analyzer.",
+          "discriminator": {
+            "propertyName": "type",
+            "mapping": {
+              "TrailingWindow": "#/definitions/TrailingWindowBaseline",
+              "Reference": "#/definitions/ReferenceProfileId",
+              "TimeRange": "#/definitions/TimeRangeBaseline",
+              "CurrentBatch": "#/definitions/SingleBatchBaseline"
+            }
+          },
+          "oneOf": [
+            {
+              "$ref": "#/definitions/TrailingWindowBaseline"
+            },
+            {
+              "$ref": "#/definitions/ReferenceProfileId"
+            },
+            {
+              "$ref": "#/definitions/TimeRangeBaseline"
+            },
+            {
+              "$ref": "#/definitions/SingleBatchBaseline"
+            }
+          ]
+        }
+      },
+      "required": [
+        "metric",
+        "type",
+        "operator"
+      ],
+      "additionalProperties": false
+    },
+    "FrequentStringComparisonOperator": {
+      "title": "FrequentStringComparisonOperator",
+      "description": "Operators for performing a comparison.",
+      "enum": [
+        "eq",
+        "target_includes_all_baseline",
+        "baseline_includes_all_target"
+      ],
+      "type": "string"
+    },
+    "FrequentStringComparisonConfig": {
+      "title": "FrequentStringComparisonConfig",
+      "description": "Compare whether target against a list of values.",
+      "type": "object",
+      "properties": {
+        "schemaVersion": {
+          "title": "SchemaVersion",
+          "description": "The schema version of an algorithm. Typically this value is not required.",
+          "type": "integer"
+        },
+        "params": {
+          "title": "Params",
+          "description": "Extra parameters for the algorithm",
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "maxLength": 1000
+          }
+        },
+        "metric": {
+          "title": "Metric",
+          "enum": [
+            "frequent_items"
+          ],
+          "type": "string"
+        },
+        "type": {
+          "title": "Type",
+          "enum": [
+            "frequent_string_comparison"
+          ],
+          "type": "string"
+        },
+        "operator": {
+          "description": "The operator for the comparison.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/FrequentStringComparisonOperator"
+            }
+          ]
+        },
+        "baseline": {
+          "title": "Baseline",
+          "description": "A baseline for running the analyzer.",
+          "discriminator": {
+            "propertyName": "type",
+            "mapping": {
+              "TrailingWindow": "#/definitions/TrailingWindowBaseline",
+              "Reference": "#/definitions/ReferenceProfileId",
+              "TimeRange": "#/definitions/TimeRangeBaseline",
+              "CurrentBatch": "#/definitions/SingleBatchBaseline"
+            }
+          },
+          "oneOf": [
+            {
+              "$ref": "#/definitions/TrailingWindowBaseline"
+            },
+            {
+              "$ref": "#/definitions/ReferenceProfileId"
+            },
+            {
+              "$ref": "#/definitions/TimeRangeBaseline"
+            },
+            {
+              "$ref": "#/definitions/SingleBatchBaseline"
+            }
+          ]
+        }
+      },
+      "required": [
+        "metric",
+        "type",
+        "operator",
+        "baseline"
+      ],
+      "additionalProperties": false
+    },
     "ColumnListChangeConfig": {
       "title": "ColumnListChangeConfig",
       "description": "Compare whether the target is equal to a value or not.\n\nThis is useful to detect data type change, for instance.",
@@ -1002,7 +1229,7 @@
       "properties": {
         "schemaVersion": {
           "title": "SchemaVersion",
-          "description": "The schema version of an algorithm. Typically this valueis not required.",
+          "description": "The schema version of an algorithm. Typically this value is not required.",
           "type": "integer"
         },
         "params": {
@@ -1050,6 +1277,16 @@
         },
         "baseline": {
           "title": "Baseline",
+          "description": "A baseline for running the analyzer.",
+          "discriminator": {
+            "propertyName": "type",
+            "mapping": {
+              "TrailingWindow": "#/definitions/TrailingWindowBaseline",
+              "Reference": "#/definitions/ReferenceProfileId",
+              "TimeRange": "#/definitions/TimeRangeBaseline",
+              "CurrentBatch": "#/definitions/SingleBatchBaseline"
+            }
+          },
           "oneOf": [
             {
               "$ref": "#/definitions/TrailingWindowBaseline"
@@ -1080,7 +1317,7 @@
       "properties": {
         "schemaVersion": {
           "title": "SchemaVersion",
-          "description": "The schema version of an algorithm. Typically this valueis not required.",
+          "description": "The schema version of an algorithm. Typically this value is not required.",
           "type": "integer"
         },
         "params": {
@@ -1139,7 +1376,7 @@
       "properties": {
         "schemaVersion": {
           "title": "SchemaVersion",
-          "description": "The schema version of an algorithm. Typically this valueis not required.",
+          "description": "The schema version of an algorithm. Typically this value is not required.",
           "type": "integer"
         },
         "params": {
@@ -1199,6 +1436,15 @@
         },
         "baseline": {
           "title": "Baseline",
+          "description": "A baseline for running the analyzer.",
+          "discriminator": {
+            "propertyName": "type",
+            "mapping": {
+              "TrailingWindow": "#/definitions/TrailingWindowBaseline",
+              "TimeRange": "#/definitions/TimeRangeBaseline",
+              "Reference": "#/definitions/ReferenceProfileId"
+            }
+          },
           "oneOf": [
             {
               "$ref": "#/definitions/TrailingWindowBaseline"
@@ -1226,7 +1472,7 @@
       "properties": {
         "schemaVersion": {
           "title": "SchemaVersion",
-          "description": "The schema version of an algorithm. Typically this valueis not required.",
+          "description": "The schema version of an algorithm. Typically this value is not required.",
           "type": "integer"
         },
         "params": {
@@ -1280,6 +1526,16 @@
         },
         "baseline": {
           "title": "Baseline",
+          "description": "A baseline for running the analyzer.",
+          "discriminator": {
+            "propertyName": "type",
+            "mapping": {
+              "TrailingWindow": "#/definitions/TrailingWindowBaseline",
+              "Reference": "#/definitions/ReferenceProfileId",
+              "TimeRange": "#/definitions/TimeRangeBaseline",
+              "CurrentBatch": "#/definitions/SingleBatchBaseline"
+            }
+          },
           "oneOf": [
             {
               "$ref": "#/definitions/TrailingWindowBaseline"
@@ -1310,6 +1566,8 @@
         "expected",
         "column_list",
         "comparison",
+        "list_comparison",
+        "frequent_string_comparison",
         "diff",
         "drift",
         "stddev",
@@ -1326,7 +1584,7 @@
       "properties": {
         "schemaVersion": {
           "title": "SchemaVersion",
-          "description": "The schema version of an algorithm. Typically this valueis not required.",
+          "description": "The schema version of an algorithm. Typically this value is not required.",
           "type": "integer"
         },
         "params": {
@@ -1369,6 +1627,16 @@
         },
         "baseline": {
           "title": "Baseline",
+          "description": "A baseline for running the analyzer.",
+          "discriminator": {
+            "propertyName": "type",
+            "mapping": {
+              "TrailingWindow": "#/definitions/TrailingWindowBaseline",
+              "Reference": "#/definitions/ReferenceProfileId",
+              "TimeRange": "#/definitions/TimeRangeBaseline",
+              "CurrentBatch": "#/definitions/SingleBatchBaseline"
+            }
+          },
           "oneOf": [
             {
               "$ref": "#/definitions/TrailingWindowBaseline"
@@ -1408,7 +1676,7 @@
       "properties": {
         "schemaVersion": {
           "title": "SchemaVersion",
-          "description": "The schema version of an algorithm. Typically this valueis not required.",
+          "description": "The schema version of an algorithm. Typically this value is not required.",
           "type": "integer"
         },
         "params": {
@@ -1620,6 +1888,8 @@
             "mapping": {
               "diff": "#/definitions/DiffConfig",
               "comparison": "#/definitions/ComparisonConfig",
+              "list_comparison": "#/definitions/ListComparisonConfig",
+              "frequent_string_comparison": "#/definitions/FrequentStringComparisonConfig",
               "column_list": "#/definitions/ColumnListChangeConfig",
               "fixed": "#/definitions/FixedThresholdsConfig",
               "stddev": "#/definitions/StddevConfig",
@@ -1634,6 +1904,12 @@
             },
             {
               "$ref": "#/definitions/ComparisonConfig"
+            },
+            {
+              "$ref": "#/definitions/ListComparisonConfig"
+            },
+            {
+              "$ref": "#/definitions/FrequentStringComparisonConfig"
             },
             {
               "$ref": "#/definitions/ColumnListChangeConfig"
@@ -2005,6 +2281,14 @@
         "schedule": {
           "title": "Schedule",
           "description": "Schedule of the monitor. We only support hourly monitor at the finest granularity",
+          "discriminator": {
+            "propertyName": "type",
+            "mapping": {
+              "fixed": "#/definitions/FixedCadenceSchedule",
+              "cron": "#/definitions/CronSchedule",
+              "immediate": "#/definitions/ImmediateSchedule"
+            }
+          },
           "oneOf": [
             {
               "$ref": "#/definitions/FixedCadenceSchedule"
@@ -2079,5 +2363,6 @@
       "additionalProperties": false
     }
   },
+  "$id": "https://gitlab.com/whylabs/core/montor-schema/-/blob/main/schema/schema.json",
   "$version": "1.0"
 }

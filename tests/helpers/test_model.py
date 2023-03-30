@@ -19,21 +19,21 @@ def test_update_model_time_period(models_api: ModelsApi) -> None:
     update_model_metadata(dataset_id=DATASET_ID, org_id=ORG_ID, time_period="P1D")
     model_meta = models_api.get_model(model_id=DATASET_ID, org_id=ORG_ID)
     
-    assert model_meta["time_period"].value == "P1D"
+    assert model_meta["time_period"] == "P1D"
     
     update_model_metadata(dataset_id=DATASET_ID, org_id=ORG_ID, time_period="P1M")
     model_meta = models_api.get_model(model_id=DATASET_ID, org_id=ORG_ID)
     
-    assert model_meta["time_period"].value == "P1M"
+    assert model_meta["time_period"] == "P1M"
 
 
 def test_update_model_type(models_api: ModelsApi) -> None:
     update_model_metadata(dataset_id=DATASET_ID, org_id=ORG_ID, model_type="REGRESSION")
     model_meta = models_api.get_model(model_id=DATASET_ID, org_id=ORG_ID)
     
-    assert model_meta["model_type"].value == "REGRESSION"
+    assert model_meta["model_type"] == "REGRESSION"
     
     update_model_metadata(dataset_id=DATASET_ID, org_id=ORG_ID, model_type="CLASSIFICATION")
     model_meta = models_api.get_model(model_id=DATASET_ID, org_id=ORG_ID)
     
-    assert model_meta["model_type"].value == "CLASSIFICATION"
+    assert model_meta["model_type"] == "CLASSIFICATION"
