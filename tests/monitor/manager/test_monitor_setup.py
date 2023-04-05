@@ -121,3 +121,24 @@ def test_setup_with_group_of_columns(monitor_setup) -> None:
 def test_setup_with_wrong_group_column_type(monitor_setup) -> None:
     with pytest.raises(ValueError):
         monitor_setup.set_target_columns(columns=["group:inputs"])
+
+
+def test_dataset_matrix_is_auto_setup_if_model_metrics(monitor_setup):
+    monitor_setup.config = FixedThresholdsConfig(
+        metric=DatasetMetric.classification_accuracy,
+        lower=0.75
+    )
+    monitor_setup.apply()
+    
+    assert monitor_setup.target_matrix == DatasetMatrix()
+    
+    monitor_setup.config = FixedThresholdsConfig(
+        metric=SimpleColumnMetric.count_bool,
+        lower=0.75
+    )
+    monitor_setup.apply()
+    
+    assert isinstance(
+        monitor_setup.target_matrix,
+        ColumnMatrix
+    )

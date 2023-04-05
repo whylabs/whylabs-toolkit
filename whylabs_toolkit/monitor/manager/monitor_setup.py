@@ -212,9 +212,14 @@ class MonitorSetup:
         self._target_matrix = self._target_matrix or ColumnMatrix(
             include=self._target_columns or ["*"], exclude=self._exclude_columns, segments=[]
         )
-        if self.analyzer:
-            if isinstance(self.analyzer.config.metric, DatasetMetric):
-                self._target_matrix = DatasetMatrix()
+
+    def __set_dataset_matrix_for_dataset_metric(self) -> None:
+        if isinstance(self.analyzer.config.metric, DatasetMetric):
+            self._target_matrix = DatasetMatrix()
+
+        elif self._target_matrix == DatasetMatrix() and not isinstance(self.analyzer.config.metric, DatasetMetric):
+            self._target_matrix = None
+            self.__configure_target_matrix()
 
     def apply(self) -> None:
         monitor_mode = self._monitor_mode or DigestMode()
@@ -229,3 +234,4 @@ class MonitorSetup:
 
         self.__configure_target_matrix()
         self.__set_analyzer()
+        self.__set_dataset_matrix_for_dataset_metric()
