@@ -185,6 +185,9 @@ class MonitorSetup:
         )
 
     def __set_analyzer(self) -> None:
+        self.__configure_target_matrix()
+        self.__set_dataset_matrix_for_dataset_metric()
+
         self.analyzer = Analyzer(
             id=self.credentials.analyzer_id,
             displayName=self.credentials.analyzer_id,
@@ -214,12 +217,16 @@ class MonitorSetup:
         )
 
     def __set_dataset_matrix_for_dataset_metric(self) -> None:
-        if isinstance(self.analyzer.config.metric, DatasetMetric):
-            self._target_matrix = DatasetMatrix()
+        if isinstance(self._analyzer_config.metric, DatasetMetric):
+            self._target_matrix = DatasetMatrix(segments=[])
+            return None
 
-        elif self._target_matrix == DatasetMatrix() and not isinstance(self.analyzer.config.metric, DatasetMetric):
+        elif isinstance(self._target_matrix, DatasetMatrix) and not isinstance(
+            self._analyzer_config.metric, DatasetMetric
+        ):
             self._target_matrix = None
             self.__configure_target_matrix()
+            return None
 
     def apply(self) -> None:
         monitor_mode = self._monitor_mode or DigestMode()
@@ -232,6 +239,4 @@ class MonitorSetup:
 
         self.__set_monitor(monitor_mode=monitor_mode, monitor_actions=actions)
 
-        self.__configure_target_matrix()
         self.__set_analyzer()
-        self.__set_dataset_matrix_for_dataset_metric()

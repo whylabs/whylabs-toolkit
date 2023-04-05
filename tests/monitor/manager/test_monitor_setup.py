@@ -130,7 +130,8 @@ def test_dataset_matrix_is_auto_setup_if_model_metrics(monitor_setup):
     )
     monitor_setup.apply()
     
-    assert monitor_setup.target_matrix == DatasetMatrix()
+    assert monitor_setup.target_matrix == DatasetMatrix(segments=[])
+    assert monitor_setup.analyzer.targetMatrix == DatasetMatrix(segments=[])
     
     monitor_setup.config = FixedThresholdsConfig(
         metric=SimpleColumnMetric.count_bool,
@@ -142,3 +143,9 @@ def test_dataset_matrix_is_auto_setup_if_model_metrics(monitor_setup):
         monitor_setup.target_matrix,
         ColumnMatrix
     )
+    
+    assert isinstance(
+        monitor_setup.analyzer.targetMatrix,
+        ColumnMatrix
+    )
+    
