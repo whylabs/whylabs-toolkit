@@ -186,7 +186,7 @@ class MonitorSetup:
 
     def __set_analyzer(self) -> None:
         self.__configure_target_matrix()
-        
+
         self.__set_dataset_matrix_for_dataset_metric()
 
         self.analyzer = Analyzer(
@@ -218,16 +218,19 @@ class MonitorSetup:
         )
 
     def __set_dataset_matrix_for_dataset_metric(self) -> None:
-        if isinstance(self._analyzer_config.metric, DatasetMetric) and isinstance(self._target_matrix, ColumnMatrix):
-            self._target_matrix = DatasetMatrix(segments=[])
-            return None
+        if self._analyzer_config:
+            if isinstance(self._analyzer_config.metric, DatasetMetric) and isinstance(
+                self._target_matrix, ColumnMatrix
+            ):
+                self._target_matrix = DatasetMatrix(segments=[])
+                return None
 
-        elif isinstance(self._target_matrix, DatasetMatrix) and not isinstance(
-            self._analyzer_config.metric, DatasetMetric
-        ):
-            self._target_matrix = None
-            self.__configure_target_matrix()
-            return None
+            elif isinstance(self._target_matrix, DatasetMatrix) and not isinstance(
+                self._analyzer_config.metric, DatasetMetric
+            ):
+                self._target_matrix = None
+                self.__configure_target_matrix()
+                return None
 
     def apply(self) -> None:
         monitor_mode = self._monitor_mode or DigestMode()
