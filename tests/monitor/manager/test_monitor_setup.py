@@ -52,10 +52,11 @@ def test_setup(monitor_setup):
 
 
 def test_set_target_matrix(monitor_setup):
-    monitor_setup.target_matrix = DatasetMatrix()
+    monitor_setup.target_matrix = ColumnMatrix(include=["some_specific_column"], segments=[])
     monitor_setup.apply()
 
-    assert not isinstance(monitor_setup.target_matrix, ColumnMatrix)
+    assert isinstance(monitor_setup.target_matrix, ColumnMatrix)
+    assert monitor_setup.analyzer.targetMatrix == ColumnMatrix(include=["some_specific_column"], segments=[])
 
 
 def test_set_and_exclude_columns_keep_state(monitor_setup):
