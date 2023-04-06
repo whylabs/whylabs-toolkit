@@ -148,4 +148,21 @@ def test_dataset_matrix_is_auto_setup_if_model_metrics(monitor_setup):
         monitor_setup.analyzer.targetMatrix,
         ColumnMatrix
     )
+
+def test_apply_wont_change_monitor_columns(monitor_setup):
+    monitor_setup.set_target_columns(columns=["prediction_temperature", "temperature"])
+    monitor_setup.apply()
     
+    assert monitor_setup.analyzer.targetMatrix != ColumnMatrix(include=["*"] , exclude=[], segments=[])
+
+
+def test_apply_wont_erase_existing_preconfig(monitor_setup):
+    monitor_setup.config = FixedThresholdsConfig(
+        metric=DatasetMetric.classification_accuracy,
+        lower=0.75
+    )
+    
+    monitor_setup.target_matrix = DatasetMatrix(segments=[Segment(tags=[SegmentTag(key="segment_a", value="value_a")])])
+    
+    monitor_setup.apply()
+    assert monitor_setup.analyzer.targetMatrix == DatasetMatrix(segments=[Segment(tags=[SegmentTag(key="segment_a", value="value_a")])])

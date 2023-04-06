@@ -186,6 +186,7 @@ class MonitorSetup:
 
     def __set_analyzer(self) -> None:
         self.__configure_target_matrix()
+        
         self.__set_dataset_matrix_for_dataset_metric()
 
         self.analyzer = Analyzer(
@@ -217,7 +218,7 @@ class MonitorSetup:
         )
 
     def __set_dataset_matrix_for_dataset_metric(self) -> None:
-        if isinstance(self._analyzer_config.metric, DatasetMetric):
+        if isinstance(self._analyzer_config.metric, DatasetMetric) and isinstance(self._target_matrix, ColumnMatrix):
             self._target_matrix = DatasetMatrix(segments=[])
             return None
 
