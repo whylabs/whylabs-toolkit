@@ -22,6 +22,7 @@ class MonitorManager:
     def __init__(
         self,
         setup: MonitorSetup,
+        eager: Optional[bool] = None,
         notifications_api: Optional[NotificationSettingsApi] = None,
         monitor_api: Optional[ModelsApi] = None,
         config: Config = Config(),
@@ -29,6 +30,7 @@ class MonitorManager:
         self._setup = setup
         self.__notifications_api = notifications_api or get_notification_api(config=config)
         self.__monitor_api = monitor_api or get_monitor_api(config=config)
+        self.__eager = eager
 
     def _get_existing_notification_actions(self) -> List[str]:
         actions_dict_list = self.__notifications_api.list_notification_actions(org_id=self._setup.credentials.org_id)
@@ -75,6 +77,12 @@ class MonitorManager:
                 for action in self._setup.monitor.actions
             ]
 
+    def _get_current_monitor_config(self) -> Optional[Any]:
+        monitor_config = self.__monitor_api.get_monitor_config_v3(
+            org_id=self._setup.credentials.org_id, dataset_id=self._setup.credentials.dataset_id
+        )
+        return monitor_config
+
     def dump(self) -> Any:
         self._update_notification_actions()
 
@@ -86,6 +94,7 @@ class MonitorManager:
             ),
             analyzers=[self._setup.analyzer],
             monitors=[self._setup.monitor],
+            allowPartialTargetBatches=self.__eager,
         )
         return doc.json(indent=2, exclude_none=True)
 
@@ -104,7 +113,6 @@ class MonitorManager:
 
     def save(self) -> None:
         if self.validate() is True:
-
             self.__monitor_api.put_analyzer(
                 org_id=self._setup.credentials.org_id,
                 dataset_id=self._setup.credentials.dataset_id,
@@ -117,3 +125,13 @@ class MonitorManager:
                 monitor_id=self._setup.credentials.monitor_id,
                 body=self._setup.monitor.dict(exclude_none=True),  # type: ignore
             )
+        if self.__eager is not None:
+            current_config = self._get_current_monitor_config()
+
+            if self.__eager != current_config.get("allowPartialTargetBatches"):  # type: ignore
+                current_config["allowPartialTargetBatches"] = self.__eager  # type: ignore
+                self.__monitor_api.put_monitor_config_v3(
+                    org_id=self._setup.credentials.org_id,
+                    dataset_id=self._setup.credentials.dataset_id,
+                    body=current_config,
+                )
