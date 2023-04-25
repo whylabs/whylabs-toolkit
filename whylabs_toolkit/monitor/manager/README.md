@@ -269,12 +269,3 @@ manager = MonitorManager(monitor_setup=monitor_setup)
 manager.save()
 
 ```
-
-## Other configurations
-
-Use Songbird's DEV endpoint. Default is PROD. 
-```python
-import os
-
-os.environ["WHYLABS_HOST"] = "https://songbird.development.whylabsdev.com"
-```
