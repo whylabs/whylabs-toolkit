@@ -1,7 +1,6 @@
 import os
 
-import pytz
-from datetime import datetime
+from datetime import datetime, timezone
 
 import pytest
 
@@ -20,8 +19,8 @@ def test_set_fixed_dates_baseline(monitor_setup: MonitorSetup) -> None:
 
     assert monitor_setup.config.baseline == TimeRangeBaseline(
         range=TimeRange(
-            start=datetime(2023,1,1, tzinfo=pytz.utc),
-            end=datetime(2023,1,2, tzinfo=pytz.utc)
+            start=datetime(2023,1,1, tzinfo=timezone.utc),
+            end=datetime(2023,1,2, tzinfo=timezone.utc)
         )
     )
 
