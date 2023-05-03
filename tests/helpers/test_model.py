@@ -37,11 +37,3 @@ def test_update_model_type(models_api: ModelsApi) -> None:
     model_meta = models_api.get_model(model_id=DATASET_ID, org_id=ORG_ID)
     
     assert model_meta["model_type"] == "CLASSIFICATION"
-
-
-def test_update_model_works_with_argument_org_id():
-    pass
-
-
-def test_create_custom_metric():
-    pass

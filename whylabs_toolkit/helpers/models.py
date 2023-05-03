@@ -1,11 +1,9 @@
-import os
 import logging
 from typing import Optional
 
-from whylabs_client.exceptions import ApiValueError, ApiException
+from whylabs_client.exceptions import ApiValueError
 from whylabs_client.model.model_type import ModelType
 from whylabs_client.model.time_period import TimePeriod
-from whylabs_client.model.metric_schema import MetricSchema
 
 from whylabs_toolkit.helpers.utils import get_models_api
 from whylabs_toolkit.helpers.config import Config
@@ -38,28 +36,4 @@ def update_model_metadata(
         )
         logger.debug(f"Updated sucessfully! Resp: {resp}")
     except ApiValueError as e:
-        raise e
-
-
-def add_custom_metric(
-    dataset_id: str,
-    label: str,
-    column: str,
-    default_metric: str,
-    org_id: Optional[str] = None,
-    config: Config = Config()):
-    
-    api = get_models_api(config=config)
-    metric_schema = MetricSchema(
-        label=label,
-        column=column,
-        default_metric=default_metric
-    )
-    
-    try:
-        api_response = api.put_entity_schema_metric(org_id, dataset_id, metric_schema)
-        logger.info(f"Updated entity schema metric! Response status: {api_response.status_code}")
-        return api_response
-    except ApiException as e:
-        logger.error("Exception when calling ModelsApi -> put_entity_schema_metric\n")
         raise e
