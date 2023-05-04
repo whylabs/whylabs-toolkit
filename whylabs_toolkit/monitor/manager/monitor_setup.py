@@ -1,6 +1,5 @@
-import pytz
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional, List, Union, Any
 
 from whylabs_client.exceptions import NotFoundException
@@ -176,9 +175,9 @@ class MonitorSetup:
 
     def set_fixed_dates_baseline(self, start_date: datetime, end_date: datetime) -> None:
         if not start_date.tzinfo:
-            start_date = start_date.replace(tzinfo=pytz.UTC)
+            start_date = start_date.replace(tzinfo=timezone.utc)
         if not end_date.tzinfo:
-            end_date = end_date.replace(tzinfo=pytz.UTC)
+            end_date = end_date.replace(tzinfo=timezone.utc)
         # TODO make baseline nullable and default baseline to be TrailingWindowBaseline(size=14)
         self._analyzer_config.baseline = TimeRangeBaseline(  # type: ignore
             range=TimeRange(start=start_date, end=end_date)

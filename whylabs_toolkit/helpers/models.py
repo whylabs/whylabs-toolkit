@@ -37,10 +37,3 @@ def update_model_metadata(
         logger.debug(f"Updated sucessfully! Resp: {resp}")
     except ApiValueError as e:
         raise e
-
-
-if __name__ == "__main__":
-    logging.basicConfig()
-    logger.setLevel(logging.DEBUG)
-
-    update_model_metadata(dataset_id="model-7", org_id="org-fjx9Rz", time_period="P1M")
