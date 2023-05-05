@@ -21,7 +21,9 @@ def get_monitor_config(org_id: str, dataset_id: str, config: Config = Config()) 
     return monitor_config
 
 
-def get_monitor(monitor_id: str, org_id: Optional[str], dataset_id: Optional[str], config: Config = Config()) -> Any:
+def get_monitor(
+    monitor_id: str, org_id: Optional[str] = None, dataset_id: Optional[str] = None, config: Config = Config()
+) -> Any:
     if not org_id:
         org_id = config.get_default_org_id()
     if not dataset_id:

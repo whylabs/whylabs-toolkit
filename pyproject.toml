@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "whylabs-toolkit"
-version = "0.0.6"
+version = "0.0.7"
 description = "Whylabs CLI and Helpers package."
 authors = ["Anthony Naddeo <anthony.naddeo@gmail.com>", "Murilo Mendonca <murilommen@gmail.com>"]
 license = "Apache-2.0 license"
@@ -10,11 +10,9 @@ include = ["whylabs_toolkit/monitor/schema/schema.json"]
 
 [tool.poetry.dependencies]
 python = "^3.8"
-whylabs-client = "^0.4.6"
-types-pytz = "^2022.7.1.0"
+whylabs-client = "^0.5"
 pydantic = "^1.10.4"
 whylogs = "^1.1.26"
-pytz = "^2022.7.1"
 jsonschema = "^4.17.3"
 
 [tool.poetry.group.dev.dependencies]
@@ -22,7 +20,6 @@ autoflake = "^2.0.1"
 pytest = "^7.2.0"
 black = "^22.10.0"
 mypy = "~1.0.1"
-jupyterlab = "^3.5.1"
 bumpversion = "^0.6.0"
 
 [tool.black]
