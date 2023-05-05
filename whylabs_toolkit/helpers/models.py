@@ -49,6 +49,8 @@ def add_custom_metric(
     org_id: Optional[str] = None,
     config: Config = Config()):
     
+    if not org_id:
+        org_id = config.get_default_org_id()
     api = get_models_api(config=config)
     metric_schema = MetricSchema(
         label=label,
@@ -58,7 +60,7 @@ def add_custom_metric(
     
     try:
         api_response = api.put_entity_schema_metric(org_id, dataset_id, metric_schema)
-        logger.info(f"Updated entity schema metric! Response status: {api_response.status_code}")
+        logger.info(f"Updated entity schema metric!")
         return api_response
     except ApiException as e:
         logger.error("Exception when calling ModelsApi -> put_entity_schema_metric\n")

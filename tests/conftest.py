@@ -31,6 +31,6 @@ def user_config() -> UserConfig:
         api_key=os.environ["DEV_WHYLABS_API_KEY"],
         org_id=os.environ["DEV_ORG_ID"],
         dataset_id=os.environ["DEV_DATASET_ID"],
-        whylabs_host="https://songbird.development.whylabsdev.com/"
+        whylabs_host="https://songbird.development.whylabsdev.com"
     )
     return config

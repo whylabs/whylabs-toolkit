@@ -3,8 +3,9 @@ import os
 import pytest
 from whylabs_client.api.models_api import ModelsApi
 
-from whylabs_toolkit.helpers.models import update_model_metadata
+from whylabs_toolkit.helpers.models import update_model_metadata, add_custom_metric
 from whylabs_toolkit.helpers.utils import get_models_api
+from whylabs_toolkit.helpers.config import Config
 
 ORG_ID = os.environ["ORG_ID"]
 DATASET_ID = os.environ["DATASET_ID"]
@@ -39,9 +40,18 @@ def test_update_model_type(models_api: ModelsApi) -> None:
     assert model_meta["model_type"] == "CLASSIFICATION"
 
 
-def test_update_model_works_with_argument_org_id():
-    pass
-
-
-def test_create_custom_metric():
-    pass
+def test_create_custom_metric(models_api: ModelsApi) -> None:
+    add_custom_metric(
+        dataset_id="model-7",
+        label="temperature.median",
+        column="temperature",
+        default_metric="median",
+    )
+    
+    org_id = Config().get_default_org_id()
+    
+    entity = models_api.get_entity_schema(dataset_id="model-7", org_id=org_id)
+    
+    assert entity["metrics"]["temperature.median"].to_dict() == {'column': 'temperature', 'default_metric': 'median','label': 'temperature.median'}
+    
+    models_api.delete_entity_schema_metric(org_id=org_id, dataset_id="model-7", metric_label="temperature.median")
