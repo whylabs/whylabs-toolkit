@@ -6,7 +6,6 @@ from whylabs_toolkit.helpers.monitor_helpers import (
     get_monitor_config
 )
 from whylabs_toolkit.helpers.utils import get_monitor_api
-from whylabs_toolkit.monitor.models import Granularity
 
 
 ORG_ID = os.environ["ORG_ID"]
@@ -92,7 +91,7 @@ class TestDeleteMonitor(BaseTestMonitor):
 
     def test_get_granularity(self) -> None:
         granularity = get_model_granularity(org_id=ORG_ID, dataset_id=DATASET_ID)
-        assert granularity == Granularity.monthly
+        assert granularity == "monthly"
 
 
     def test_delete_monitor(self) -> None:
