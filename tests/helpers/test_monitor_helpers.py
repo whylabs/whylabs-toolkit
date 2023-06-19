@@ -6,7 +6,7 @@ from whylabs_toolkit.helpers.monitor_helpers import (
     get_monitor_config
 )
 from whylabs_toolkit.helpers.utils import get_monitor_api
-from whylabs_toolkit.monitor.models import Granularity
+from whylabs_toolkit.utils.granularity import Granularity
 
 
 ORG_ID = os.environ["ORG_ID"]

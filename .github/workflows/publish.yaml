@@ -20,7 +20,7 @@ jobs:
         with:
           python-version: "3.8.15"
 
-      - uses: Gr1N/setup-poetry@v7
+      - uses: Gr1N/setup-poetry@v8
         name: Install poetry
         with:
           poetry-version: 1.2.2

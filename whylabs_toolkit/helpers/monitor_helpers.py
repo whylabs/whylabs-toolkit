@@ -6,7 +6,8 @@ from whylabs_client.exceptions import NotFoundException
 
 from whylabs_toolkit.helpers.config import Config
 from whylabs_toolkit.helpers.utils import get_monitor_api, get_models_api
-from whylabs_toolkit.monitor.models import Granularity
+from whylabs_toolkit.utils.granularity import Granularity
+
 
 BASE_ENDPOINT = "https://api.whylabsapp.com"
 logger = logging.getLogger(__name__)

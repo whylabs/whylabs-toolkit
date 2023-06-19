@@ -1,6 +1,5 @@
 """The overall document for monitor."""
 import uuid
-from enum import Enum
 from typing import List, Literal, Optional
 
 from pydantic import Field
@@ -11,15 +10,7 @@ from .analyzer import Analyzer
 from .column_schema import EntitySchema, EntityWeights
 from .commons import DATASET_ID_DEF, Metadata
 from .monitor import Monitor
-
-
-class Granularity(str, Enum):
-    """Supported granularity."""
-
-    hourly = "hourly"
-    daily = "daily"
-    weekly = "weekly"
-    monthly = "monthly"
+from ...utils.granularity import Granularity
 
 
 class Document(NoExtrasBaseModel):
