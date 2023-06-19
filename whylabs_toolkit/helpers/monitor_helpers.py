@@ -6,6 +6,7 @@ from whylabs_client.exceptions import NotFoundException
 
 from whylabs_toolkit.helpers.config import Config
 from whylabs_toolkit.helpers.utils import get_monitor_api, get_models_api
+from whylabs_toolkit.utils.granularity import Granularity
 
 
 BASE_ENDPOINT = "https://api.whylabsapp.com"
@@ -58,15 +59,15 @@ def get_analyzers(
         raise NotFoundException
 
 
-def get_model_granularity(org_id: str, dataset_id: str, config: Config = Config()) -> Optional[str]:
+def get_model_granularity(org_id: str, dataset_id: str, config: Config = Config()) -> Optional[Granularity]:
     api = get_models_api(config=config)
     model_meta = api.get_model(org_id=org_id, model_id=dataset_id)
 
     time_period_to_gran = {
-        "H": "hourly",
-        "D": "daily",
-        "W": "weekly",
-        "M": "monthly",
+        "H": Granularity.hourly,
+        "D": Granularity.daily,
+        "W": Granularity.weekly,
+        "M": Granularity.monthly,
     }
 
     for key, value in time_period_to_gran.items():

@@ -6,6 +6,7 @@ from .commons import *
 from .document import *
 from .monitor import *
 from .segments import *
+from ...utils.granularity import Granularity
 
 # TODO add all algorithms
 

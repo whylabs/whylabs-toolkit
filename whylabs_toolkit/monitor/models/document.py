@@ -11,15 +11,8 @@ from .analyzer import Analyzer
 from .column_schema import EntitySchema, EntityWeights
 from .commons import DATASET_ID_DEF, Metadata
 from .monitor import Monitor
+from ...utils.granularity import Granularity
 
-
-class Granularity(str, Enum):
-    """Supported granularity."""
-
-    hourly = "hourly"
-    daily = "daily"
-    weekly = "weekly"
-    monthly = "monthly"
 
 
 class Document(NoExtrasBaseModel):
