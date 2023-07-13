@@ -50,7 +50,6 @@ setup:
 	poetry install
 
 test:
-	@echo "Using: " $(WHYLABS_API_KEY)
 	poetry run pytest
 
 help: ## Show this help message.
