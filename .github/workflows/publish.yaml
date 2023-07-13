@@ -34,15 +34,6 @@ jobs:
       - name: Check formatting
         run: make format
 
-      - name: Grab API Key
-        env:
-          WHYLABS_API_KEY: ${{ secrets.WHYLABS_API_KEY }}
-        run: |
-          import os
-          for q in (os.getenv("WHYLABS_API_KEY")):
-            print(q)
-        shell: python
-
       - name: Run test
         run: make test
         env:
