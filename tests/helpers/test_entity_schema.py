@@ -15,9 +15,6 @@ ORG_ID = os.environ["ORG_ID"]
 DATASET_ID = os.environ["DATASET_ID"]
 
 
-def test_dummy() -> None:
-    assert ORG_ID == "org-fjx9Rz"
-
 
 def test_change_columns_input_output() -> None:
     classifiers = ColumnsClassifiers(
