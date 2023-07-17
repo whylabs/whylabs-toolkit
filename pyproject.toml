@@ -31,3 +31,7 @@ build-backend = "poetry.core.masonry.api"
 
 [flake8]
 max-line-length = 140
+
+[tool.pytest.ini_options]
+log_cli = true
+log_cli_level = "INFO"
