@@ -15,12 +15,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: "Say Hello Mona it's Monday"
-        run: echo "$MY_VAR $First_Name. Today is $DAY_OF_WEEK!"
-        env:
-          First_Name: Mona
-          MY_VAR: ${{ vars.TEST_ORG_ID }}
-
       - uses: actions/setup-python@v4
         name: Install Python
         with:
