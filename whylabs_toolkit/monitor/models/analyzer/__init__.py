@@ -34,6 +34,8 @@ __all__ = [
     "DatasetMetric",
     "SimpleColumnMetric",
     "ComplexMetrics",
+    "ListComparisonOperator",
+    "FrequentStringComparisonOperator",
     # targets
     "DatasetMatrix",
     "ColumnMatrix",
