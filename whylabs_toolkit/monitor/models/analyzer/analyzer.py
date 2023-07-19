@@ -99,7 +99,6 @@ class Analyzer(NoExtrasBaseModel):
     config: Union[
         DiffConfig,
         FixedThresholdsConfig,
-        ComparisonConfig,
         ListComparisonConfig,
         FrequentStringComparisonConfig,
         StddevConfig,

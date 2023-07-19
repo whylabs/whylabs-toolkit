@@ -37,6 +37,8 @@ class MonitorSetup:
                 StddevConfig,
                 DriftConfig,
                 SeasonalConfig,
+                FrequentStringComparisonConfig,
+                ListComparisonConfig,
             ]
         ] = None
         self._target_columns: Optional[List[str]] = []
