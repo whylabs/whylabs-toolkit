@@ -26,6 +26,8 @@ __all__ = [
     "FixedThresholdsConfig",
     "ColumnListChangeConfig",
     "SeasonalConfig",
+    "ListComparisonConfig",
+    "FrequentStringComparisonConfig",
     "StddevConfig",
     # enums
     "DiffMode",
@@ -40,4 +42,5 @@ __all__ = [
     "DatasetMatrix",
     "ColumnMatrix",
     "TargetLevel",
+    "ExpectedValue",
 ]

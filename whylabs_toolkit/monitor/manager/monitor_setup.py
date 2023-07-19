@@ -100,7 +100,17 @@ class MonitorSetup:
     @property
     def config(
         self,
-    ) -> Optional[Union[DiffConfig, FixedThresholdsConfig, StddevConfig, DriftConfig, SeasonalConfig,]]:
+    ) -> Optional[
+        Union[
+            DiffConfig,
+            FixedThresholdsConfig,
+            StddevConfig,
+            DriftConfig,
+            SeasonalConfig,
+            FrequentStringComparisonConfig,
+            ListComparisonConfig,
+        ]
+    ]:
         return self._analyzer_config
 
     @config.setter
@@ -112,6 +122,8 @@ class MonitorSetup:
             StddevConfig,
             DriftConfig,
             SeasonalConfig,
+            FrequentStringComparisonConfig,
+            ListComparisonConfig,
         ],
     ) -> None:
         self._analyzer_config = config

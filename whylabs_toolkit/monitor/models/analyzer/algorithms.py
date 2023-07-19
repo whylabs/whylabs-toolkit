@@ -159,16 +159,17 @@ class ComparisonOperator(str, Enum):
 
 class ListComparisonOperator(str, Enum):
     """Operators for performing a comparison."""
-    in_list = 'in'
-    not_in_list = 'not_in'
+
+    in_list = "in"
+    not_in_list = "not_in"
 
 
 class FrequentStringComparisonOperator(str, Enum):
     """Operators for performing a comparison."""
-    eq = 'eq'
-    target_includes_all_baseline = 'target_includes_all_baseline'
-    baseline_includes_all_target = 'baseline_includes_all_target'
 
+    eq = "eq"
+    target_includes_all_baseline = "target_includes_all_baseline"
+    baseline_includes_all_target = "baseline_includes_all_target"
 
 
 class ComparisonConfig(AlgorithmConfig):
@@ -205,10 +206,8 @@ class ColumnListChangeConfig(AlgorithmConfig):
         max_items=1000,
     )
 
-    baseline: Union[TrailingWindowBaseline, ReferenceProfileId, TimeRangeBaseline, SingleBatchBaseline] = Field(
-        description="A baseline for running the analyzer.",
-        discriminator="type",
-    )
+    baseline: Union[TrailingWindowBaseline, ReferenceProfileId, TimeRangeBaseline, SingleBatchBaseline]
+
 
 class FixedThresholdsConfig(AlgorithmConfig):
     """Fixed threshold analysis.
@@ -252,10 +251,8 @@ class StddevConfig(_ThresholdBaseConfig):
     minBatchSize: Optional[int] = Field(
         1, title="MinBatchSize", ge=1, description="Minimum number of batches that is required"
     )
-    baseline: Union[TrailingWindowBaseline, TimeRangeBaseline, ReferenceProfileId] = Field(
-        description="A baseline for running the analyzer.",
-        discriminator="type",
-    )
+    baseline: Union[TrailingWindowBaseline, TimeRangeBaseline, ReferenceProfileId]
+
 
 class SeasonalConfig(_ThresholdBaseConfig):
     """An analyzer using stddev for a window of time range.
@@ -266,9 +263,7 @@ class SeasonalConfig(_ThresholdBaseConfig):
     """
 
     type: Literal[AlgorithmType.seasonal] = AlgorithmType.seasonal
-    algorithm: Literal["arima"] = Field(
-        "arima", description="The algorithm implementation for seasonal analysis"
-    )
+    algorithm: Literal["arima"] = Field("arima", description="The algorithm implementation for seasonal analysis")
     minBatchSize: Optional[int] = Field(
         30,
         title="MinBatchSize",
@@ -305,7 +300,7 @@ class DriftConfig(AlgorithmConfig):
     """
 
     type: Literal[AlgorithmType.drift] = AlgorithmType.drift
-    algorithm: Literal['hellinger', 'jensenshannon', 'kl_divergence', 'psi'] = Field(
+    algorithm: Literal["hellinger", "jensenshannon", "kl_divergence", "psi"] = Field(
         "hellinger", description="The algorithm to use when calculating drift."
     )
     metric: Literal[ComplexMetrics.histogram, ComplexMetrics.frequent_items]
@@ -345,11 +340,7 @@ class ListComparisonConfig(AlgorithmConfig):
         description="The expected values of the equality. If the value is not set we will extract the corresponding "
         "metric from the baseline and perform the comparison",
     )
-    baseline: Optional[Union[TrailingWindowBaseline, ReferenceProfileId, TimeRangeBaseline, SingleBatchBaseline]] = Field(
-        None,
-        description="A baseline for running the analyzer.",
-        discriminator="type",
-    )
+    baseline: Optional[Union[TrailingWindowBaseline, ReferenceProfileId, TimeRangeBaseline, SingleBatchBaseline]]
 
 
 class FrequentStringComparisonConfig(AlgorithmConfig):
@@ -358,10 +349,7 @@ class FrequentStringComparisonConfig(AlgorithmConfig):
     type: Literal[AlgorithmType.frequent_string_comparison] = AlgorithmType.frequent_string_comparison
     metric: Literal[ComplexMetrics.frequent_items] = ComplexMetrics.frequent_items
     operator: FrequentStringComparisonOperator = Field(description="The operator for the comparison.")
-    baseline: Union[TrailingWindowBaseline, ReferenceProfileId, TimeRangeBaseline, SingleBatchBaseline] = Field(
-        description="A baseline for running the analyzer.",
-        discriminator="type",
-    )
+    baseline: Union[TrailingWindowBaseline, ReferenceProfileId, TimeRangeBaseline, SingleBatchBaseline]
 
 
 class DiffMode(str, Enum):

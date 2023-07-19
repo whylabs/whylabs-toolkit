@@ -122,6 +122,49 @@ manager = MonitorManager(setup=monitor_setup)
 manager.save()
 ```
 
+### List Comparison
+
+```python
+from whylabs_toolkit.monitor import MonitorSetup, MonitorManager
+from whylabs_toolkit.monitor.models import *
+
+setup = MonitorSetup(monitor_id="monitor_list_comparison")
+setup.config = ListComparisonConfig(
+    operator=ListComparisonOperator.in_list,
+    expected=[
+        ExpectedValue(
+            str="expected"
+        ),
+        ExpectedValue(
+            int=123229
+        )
+    ],
+    baseline=TrailingWindowBaseline(size=7),
+    metric=SimpleColumnMetric.count_bool
+)
+setup.apply()
+
+mm = MonitorManager(setup=setup)
+mm.save()
+```
+
+### Frequent Items
+```python
+from whylabs_toolkit.monitor import MonitorSetup, MonitorManager
+from whylabs_toolkit.monitor.models import *
+
+
+setup = MonitorSetup(monitor_id="frequent_items")
+setup.config = FrequentStringComparisonConfig(
+    operator=FrequentStringComparisonOperator.eq,
+    baseline=TrailingWindowBaseline(size=7)
+)
+setup.apply()
+
+mm = MonitorManager(setup=setup)
+mm.save()
+```
+
 ## Model Performance
 
 ### F1 Score

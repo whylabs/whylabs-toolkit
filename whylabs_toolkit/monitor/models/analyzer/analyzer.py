@@ -10,6 +10,8 @@ from ..utils import anyOf_to_oneOf, duration_field
 from .algorithms import (
     ColumnListChangeConfig,
     ComparisonConfig,
+    ListComparisonConfig,
+    FrequentStringComparisonConfig,
     DiffConfig,
     DriftConfig,
     ExperimentalConfig,
@@ -97,6 +99,9 @@ class Analyzer(NoExtrasBaseModel):
     config: Union[
         DiffConfig,
         FixedThresholdsConfig,
+        ComparisonConfig,
+        ListComparisonConfig,
+        FrequentStringComparisonConfig,
         StddevConfig,
         DriftConfig,
         SeasonalConfig,
