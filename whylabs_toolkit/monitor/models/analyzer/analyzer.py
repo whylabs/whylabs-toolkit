@@ -10,6 +10,8 @@ from ..utils import anyOf_to_oneOf, duration_field
 from .algorithms import (
     ColumnListChangeConfig,
     ComparisonConfig,
+    ListComparisonConfig,
+    FrequentStringComparisonConfig,
     DiffConfig,
     DriftConfig,
     ExperimentalConfig,
@@ -90,15 +92,17 @@ class Analyzer(NoExtrasBaseModel):
     )
 
     # NOT YET IMPLEMENTED:
-    # ComparisonConfig,
     # ExperimentalConfig,
     # ColumnListChangeConfig,
 
     config: Union[
         DiffConfig,
         FixedThresholdsConfig,
+        ListComparisonConfig,
+        FrequentStringComparisonConfig,
         StddevConfig,
         DriftConfig,
+        ComparisonConfig,
         SeasonalConfig,
     ] = Field(description="The configuration map of the analyzer", discriminator="type")
 

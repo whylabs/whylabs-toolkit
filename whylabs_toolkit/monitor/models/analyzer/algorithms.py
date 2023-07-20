@@ -20,6 +20,8 @@ class AlgorithmType(str, Enum):
     expected = "expected"
     column_list = "column_list"
     comparison = "comparison"
+    list_comparison = "list_comparison"
+    frequent_string_comparison = "frequent_string_comparison"
     diff = "diff"
     drift = "drift"
     stddev = "stddev"
@@ -148,13 +150,26 @@ class ComparisonOperator(str, Enum):
     """Operators for performing a comparison."""
 
     eq = "eq"
+    # Not Yet Implemented:
+    # gt = "gt"
+    # lt = "lt"
+    # ge = "ge"
+    # le = "le"
 
 
-# Not Yet Implemented:
-# gt = "gt"
-# lt = "lt"
-# ge = "ge"
-# le = "le"
+class ListComparisonOperator(str, Enum):
+    """Operators for performing a comparison."""
+
+    in_list = "in"
+    not_in_list = "not_in"
+
+
+class FrequentStringComparisonOperator(str, Enum):
+    """Operators for performing a comparison."""
+
+    eq = "eq"
+    target_includes_all_baseline = "target_includes_all_baseline"
+    baseline_includes_all_target = "baseline_includes_all_target"
 
 
 class ComparisonConfig(AlgorithmConfig):
@@ -248,9 +263,7 @@ class SeasonalConfig(_ThresholdBaseConfig):
     """
 
     type: Literal[AlgorithmType.seasonal] = AlgorithmType.seasonal
-    algorithm: Literal["arima", "rego", "stastforecast"] = Field(
-        "arima", description="The algorithm implementation for seasonal analysis"
-    )
+    algorithm: Literal["arima"] = Field("arima", description="The algorithm implementation for seasonal analysis")
     minBatchSize: Optional[int] = Field(
         30,
         title="MinBatchSize",
@@ -287,7 +300,7 @@ class DriftConfig(AlgorithmConfig):
     """
 
     type: Literal[AlgorithmType.drift] = AlgorithmType.drift
-    algorithm: Literal["hellinger", "ks_test", "kl_divergence", "variation_distance"] = Field(
+    algorithm: Literal["hellinger", "jensenshannon", "kl_divergence", "psi"] = Field(
         "hellinger", description="The algorithm to use when calculating drift."
     )
     metric: Literal[ComplexMetrics.histogram, ComplexMetrics.frequent_items]
@@ -312,6 +325,31 @@ class ExperimentalConfig(AlgorithmConfig):
     implementation: str = Field(description="The implementation of an experimental config", max_length=100)
     baseline: Union[TrailingWindowBaseline, ReferenceProfileId, TimeRangeBaseline, SingleBatchBaseline]
     stub: Optional[AlgorithmType] = Field(description="Stub field to flow algoirthm type into the schema. Do not use.")
+
+
+class ListComparisonConfig(AlgorithmConfig):
+    """Compare a target list of values against a baseline list of values."""
+
+    type: Literal[AlgorithmType.list_comparison] = AlgorithmType.list_comparison
+    operator: ListComparisonOperator = Field(
+        description="The operator for the comparison. The right hand side is the target batch's metric. The left hand"
+        "side is the expected value or a baseline's metric."
+    )
+    expected: Optional[List[ExpectedValue]] = Field(
+        None,
+        description="The expected values of the equality. If the value is not set we will extract the corresponding "
+        "metric from the baseline and perform the comparison",
+    )
+    baseline: Optional[Union[TrailingWindowBaseline, ReferenceProfileId, TimeRangeBaseline, SingleBatchBaseline]]
+
+
+class FrequentStringComparisonConfig(AlgorithmConfig):
+    """Compare whether target against a list of values."""
+
+    type: Literal[AlgorithmType.frequent_string_comparison] = AlgorithmType.frequent_string_comparison
+    metric: Literal[ComplexMetrics.frequent_items] = ComplexMetrics.frequent_items
+    operator: FrequentStringComparisonOperator = Field(description="The operator for the comparison.")
+    baseline: Union[TrailingWindowBaseline, ReferenceProfileId, TimeRangeBaseline, SingleBatchBaseline]
 
 
 class DiffMode(str, Enum):

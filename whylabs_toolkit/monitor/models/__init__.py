@@ -30,6 +30,10 @@ __all__ = [
     "DriftConfig",
     "ComparisonConfig",
     "ComparisonOperator",
+    "FrequentStringComparisonConfig",
+    "FrequentStringComparisonOperator",
+    "ListComparisonOperator",
+    "ListComparisonConfig",
     "ExperimentalConfig",
     "FixedThresholdsConfig",
     "ColumnListChangeConfig",
@@ -73,4 +77,5 @@ __all__ = [
     "DatasetMetric",
     "SimpleColumnMetric",
     "ComplexMetrics",
+    "ExpectedValue",
 ]
