@@ -92,7 +92,6 @@ class Analyzer(NoExtrasBaseModel):
     )
 
     # NOT YET IMPLEMENTED:
-    # ComparisonConfig,
     # ExperimentalConfig,
     # ColumnListChangeConfig,
 
@@ -103,6 +102,7 @@ class Analyzer(NoExtrasBaseModel):
         FrequentStringComparisonConfig,
         StddevConfig,
         DriftConfig,
+        ComparisonConfig,
         SeasonalConfig,
     ] = Field(description="The configuration map of the analyzer", discriminator="type")
 
