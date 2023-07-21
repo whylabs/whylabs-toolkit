@@ -1,7 +1,6 @@
 import os
 import logging
 from enum import Enum
-from urllib.parse import urlparse
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -20,12 +19,12 @@ class Config:
         return Validations.require(ConfigVars.WHYLABS_API_KEY)
 
     def get_whylabs_host(self) -> str:
-        _private_api_endpoint = Validations.get_or_default(ConfigVars.WHYLABS_PRIVATE_API_ENDPOINT) 
+        _private_api_endpoint = Validations.get_or_default(ConfigVars.WHYLABS_PRIVATE_API_ENDPOINT)
         logger.debug(f"Using private API endpoint: {_private_api_endpoint}")
         _public_api_endpoint = Validations.get_or_default(ConfigVars.WHYLABS_HOST)
 
         return _private_api_endpoint or _public_api_endpoint
-        
+
     def get_default_org_id(self) -> str:
         return Validations.require(ConfigVars.ORG_ID)
 
