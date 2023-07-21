@@ -14,3 +14,5 @@ def test_setup_with_private_endpoint():
     models_api = get_models_api()
     
     assert models_api.api_client.configuration.host == "http://private.com"
+    
+    del os.environ["WHYLABS_PRIVATE_API_ENDPOINT"]

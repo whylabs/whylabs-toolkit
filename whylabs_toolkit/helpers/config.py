@@ -20,10 +20,10 @@ class Config:
 
     def get_whylabs_host(self) -> str:
         _private_api_endpoint = Validations.get_or_default(ConfigVars.WHYLABS_PRIVATE_API_ENDPOINT)
-        logger.debug(f"Using private API endpoint: {_private_api_endpoint}")
-        _public_api_endpoint = Validations.get_or_default(ConfigVars.WHYLABS_HOST)
-
-        return _private_api_endpoint or _public_api_endpoint
+        if _private_api_endpoint and isinstance(_private_api_endpoint, str):
+            logger.debug(f"Using private API endpoint: {_private_api_endpoint}")
+            return _private_api_endpoint
+        return Validations.get_or_default(ConfigVars.WHYLABS_HOST)
 
     def get_default_org_id(self) -> str:
         return Validations.require(ConfigVars.ORG_ID)
