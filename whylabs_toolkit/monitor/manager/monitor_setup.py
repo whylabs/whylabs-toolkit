@@ -185,7 +185,8 @@ class MonitorSetup:
             self._target_matrix = self._target_matrix or ColumnMatrix(
                 include=self._target_columns, exclude=self._exclude_columns, segments=[]
             )
-            self._target_matrix.include = self._target_columns
+            if isinstance(self._target_matrix, ColumnMatrix):
+                self._target_matrix.include = self._target_columns
 
     def exclude_target_columns(self, columns: List[str]) -> None:
         if self._validate_columns_input(columns=columns):
@@ -193,7 +194,8 @@ class MonitorSetup:
             self._target_matrix = self._target_matrix or ColumnMatrix(
                 include=self._target_columns, exclude=self._exclude_columns, segments=[]
             )
-            self._target_matrix.exclude = self._exclude_columns
+            if isinstance(self._target_matrix, ColumnMatrix):
+                self._target_matrix.exclude = self._target_columns
 
     def set_fixed_dates_baseline(self, start_date: datetime, end_date: datetime) -> None:
         if not start_date.tzinfo:
