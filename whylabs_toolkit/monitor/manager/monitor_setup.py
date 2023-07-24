@@ -195,7 +195,7 @@ class MonitorSetup:
                 include=self._target_columns, exclude=self._exclude_columns, segments=[]
             )
             if isinstance(self._target_matrix, ColumnMatrix):
-                self._target_matrix.exclude = self._target_columns
+                self._target_matrix.exclude = self._exclude_columns
 
     def set_fixed_dates_baseline(self, start_date: datetime, end_date: datetime) -> None:
         if not start_date.tzinfo:
