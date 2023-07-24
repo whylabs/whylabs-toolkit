@@ -11,6 +11,30 @@ from whylabs_toolkit.monitor.models.column_schema import ColumnDataType
 BASE_ENDPOINT = "https://api.whylabsapp.com"
 
 
+@dataclass
+class ColumnsClassifiers:
+    inputs: List[str] = field(default=None)  # type: ignore
+    outputs: List[str] = field(default=None)  # type: ignore
+
+    def __post_init__(self) -> None:
+        if self.inputs is None:
+            self.inputs = []
+        if self.outputs is None:
+            self.outputs = []
+
+
+@dataclass
+class ColumnsDiscreteness:
+    discrete: List[str] = field(default=None)  # type: ignore
+    continuous: List[str] = field(default=None)  # type: ignore
+
+    def __post_init__(self) -> None:
+        if self.discrete is None:
+            self.discrete = []
+        if self.continuous is None:
+            self.continuous = []
+
+
 class UpdateEntity(ABC):
     def __init__(self, dataset_id: str, org_id: Optional[str] = None, config: Config = Config()):
         self.dataset_id = dataset_id
@@ -46,18 +70,6 @@ class UpdateEntity(ABC):
         self._get_current_entity_schema()
         self._update_entity_schema()
         self._put_updated_entity_schema()
-
-
-@dataclass
-class ColumnsClassifiers:
-    inputs: List[str] = field(default=None)  # type: ignore
-    outputs: List[str] = field(default=None)  # type: ignore
-
-    def __post_init__(self) -> None:
-        if self.inputs is None:
-            self.inputs = []
-        if self.outputs is None:
-            self.outputs = []
 
 
 class UpdateColumnClassifiers(UpdateEntity):
@@ -124,18 +136,6 @@ class UpdateEntityDataTypes(UpdateEntity):
         for column, data_type in self.columns_schema.items():
             if column in self.columns_dict.keys() and self.columns_dict[column]["data_type"] != data_type.value:
                 self.columns_dict[column].data_type = self.columns_schema[column].value
-
-
-@dataclass
-class ColumnsDiscreteness:
-    discrete: List[str] = field(default=None)  # type: ignore
-    continuous: List[str] = field(default=None)  # type: ignore
-
-    def __post_init__(self) -> None:
-        if self.discrete is None:
-            self.discrete = []
-        if self.continuous is None:
-            self.continuous = []
 
 
 class UpdateColumnsDiscreteness(UpdateEntity):

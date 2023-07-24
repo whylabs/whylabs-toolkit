@@ -78,8 +78,6 @@ class TestModelManager(BaseTestMonitor):
         
         assert new_expected_result["allowPartialTargetBatches"] == False
         
-    
-        
 
 class TestNotificationActions(TestCase):
     def setUp(self) -> None:
@@ -103,7 +101,6 @@ class TestNotificationActions(TestCase):
             notifications_api=self.notifications_api,
             monitor_api=self.monitor_api
         )
-        
 
     def test_notification_actions_are_updated(self) -> None:
         self.monitor_manager._update_notification_actions()

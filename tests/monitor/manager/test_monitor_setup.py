@@ -23,6 +23,15 @@ def test_set_fixed_dates_baseline(monitor_setup: MonitorSetup) -> None:
             end=datetime(2023,1,2, tzinfo=timezone.utc)
         )
     )
+    
+    monitor_setup.apply()
+    
+    assert monitor_setup.config.baseline == TimeRangeBaseline(
+        range=TimeRange(
+            start=datetime(2023,1,1, tzinfo=timezone.utc),
+            end=datetime(2023,1,2, tzinfo=timezone.utc)
+        )
+    )
 
 def test_exclude_target_columns(monitor_setup):
     monitor_setup.exclude_target_columns(
@@ -30,6 +39,11 @@ def test_exclude_target_columns(monitor_setup):
     )
 
     assert monitor_setup._exclude_columns == ["prediction_temperature"]
+    
+    monitor_setup.apply()
+    
+    assert isinstance(monitor_setup.config.target_matrix, ColumnMatrix)
+    assert monitor_setup.config.target_matrix.exclude == ["prediction_temperature"]
 
 
 def test_set_target_columns(monitor_setup):
@@ -38,9 +52,14 @@ def test_set_target_columns(monitor_setup):
     )
 
     assert monitor_setup._target_columns == ["prediction_temperature"]
+    
+    monitor_setup.apply()
+    
+    assert isinstance(monitor_setup.config.target_matrix, ColumnMatrix)
+    assert monitor_setup.config.target_matrix.include == ["prediction_temperature"]
 
 
-def test_setup(monitor_setup):
+def test_setup_apply(monitor_setup):
     assert not monitor_setup.monitor
     assert not monitor_setup.analyzer
 
@@ -154,7 +173,9 @@ def test_apply_wont_change_monitor_columns(monitor_setup):
     monitor_setup.apply()
     
     assert monitor_setup.analyzer.targetMatrix != ColumnMatrix(include=["*"] , exclude=[], segments=[])
-
+    
+    assert monitor_setup.target_matrix == ColumnMatrix(include=["prediction_temperature", "temperature"] , exclude=[], segments=[])
+    assert monitor_setup.analyzer.targetMatrix == ColumnMatrix(include=["prediction_temperature", "temperature"] , exclude=[], segments=[])
 
 def test_apply_wont_erase_existing_preconfig(monitor_setup):
     monitor_setup.config = FixedThresholdsConfig(

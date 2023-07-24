@@ -46,6 +46,9 @@ ANALYZER_BODY = {
     }
 }
 
+
+# TODO make all helper methods able to work with env vars only
+
 class BaseTestMonitor:
     @classmethod
     def setup_class(cls) -> None:
@@ -79,15 +82,19 @@ class TestDeleteMonitor(BaseTestMonitor):
         pass
 
     def test_get_analyzer_id(self) -> None:
+        # TODO
         pass
 
     def test_get_analyzer_ids(self) -> None:
+        # TODO
         pass
 
     def test_get_monitor_config(self) -> None:
+        # TODO
         pass
 
     def test_get_monitor(self) -> None:
+        # TODO
         pass
 
     def test_get_granularity(self) -> None:
