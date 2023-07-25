@@ -9,15 +9,12 @@ from whylabs_toolkit.helpers.utils import get_dataset_profile_api
 date_or_millis = Union[datetime, int]
 
 
-# TODO test and make sure it's working
-
-
 def delete_all_profiles_for_period(
     start: date_or_millis,
     end: date_or_millis,
     dataset_id: str,
     org_id: Optional[str],
-) -> None:
+) -> DeleteDatasetProfilesResponse:
     api = get_dataset_profile_api()
 
     profile_start_timestamp = start if isinstance(start, int) else int(start.timestamp() * 1000.0)
@@ -30,4 +27,4 @@ def delete_all_profiles_for_period(
         profile_end_timestamp=profile_end_timestamp,
     )
 
-    print(result)
+    return result
