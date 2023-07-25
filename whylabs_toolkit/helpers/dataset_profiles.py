@@ -9,6 +9,30 @@ from whylabs_toolkit.helpers.utils import get_dataset_profile_api
 date_or_millis = Union[datetime, int]
 
 
+def validate_timestamp_in_millis(epoch_milliseconds: int) -> bool:
+    if not isinstance(epoch_milliseconds, int):
+        return False
+    try:
+        epoch_seconds = epoch_milliseconds / 1000
+        dt = datetime.fromtimestamp(epoch_seconds)
+        return dt >= datetime(1970, 1, 1)
+    except (ValueError, OverflowError):
+        return False
+
+
+def process_date_input(date_input: date_or_millis) -> int:
+    if isinstance(date_input, int):
+        try:
+            assert validate_timestamp_in_millis(epoch_milliseconds=date_input)
+            return date_input
+        except AssertionError:
+            raise ValueError("You must provide a valid date input")
+    elif isinstance(date_input, datetime):
+        return int(date_input.timestamp() * 1000.0)
+    else:
+        raise ValueError(f"The date object {date_input} input must be a datetime or an integer Epoch!")
+
+
 def delete_all_profiles_for_period(
     start: date_or_millis,
     end: date_or_millis,
@@ -17,8 +41,8 @@ def delete_all_profiles_for_period(
 ) -> DeleteDatasetProfilesResponse:
     api = get_dataset_profile_api()
 
-    profile_start_timestamp = start if isinstance(start, int) else int(start.timestamp() * 1000.0)
-    profile_end_timestamp = end if isinstance(end, int) else int(end.timestamp() * 1000.0)
+    profile_start_timestamp = process_date_input(date_input=start)
+    profile_end_timestamp = process_date_input(date_input=end)
 
     result: DeleteDatasetProfilesResponse = api.delete_dataset_profiles(
         org_id=org_id,
