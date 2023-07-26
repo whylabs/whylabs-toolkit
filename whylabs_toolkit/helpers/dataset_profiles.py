@@ -5,6 +5,7 @@ from typing import Optional, Union
 from whylabs_client.api.dataset_profile_api import DeleteDatasetProfilesResponse
 
 from whylabs_toolkit.helpers.utils import get_dataset_profile_api
+from whylabs_toolkit.helpers.config import Config
 
 date_or_millis = Union[datetime, int]
 
@@ -36,13 +37,17 @@ def process_date_input(date_input: date_or_millis) -> int:
 def delete_all_profiles_for_period(
     start: date_or_millis,
     end: date_or_millis,
-    dataset_id: str,
-    org_id: Optional[str],
+    config: Config = Config(),
+    org_id: Optional[str] = None,
+    dataset_id: Optional[str] = None,
 ) -> DeleteDatasetProfilesResponse:
     api = get_dataset_profile_api()
 
     profile_start_timestamp = process_date_input(date_input=start)
     profile_end_timestamp = process_date_input(date_input=end)
+
+    org_id = org_id or config.get_default_org_id()
+    dataset_id = dataset_id or config.get_default_dataset_id()
 
     result: DeleteDatasetProfilesResponse = api.delete_dataset_profiles(
         org_id=org_id,

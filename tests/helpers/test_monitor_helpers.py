@@ -50,8 +50,6 @@ ANALYZER_BODY = {
 }
 
 
-# TODO make all helper methods able to work with env vars only
-
 class BaseTestMonitor:
     @classmethod
     def setup_class(cls) -> None:

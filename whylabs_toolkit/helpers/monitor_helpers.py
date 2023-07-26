@@ -19,32 +19,37 @@ logger = logging.getLogger(__name__)
 
 def get_monitor_config(org_id: str, dataset_id: str, config: Config = Config()) -> Any:
     api = get_monitor_api(config=config)
-    try: 
+    try:
         monitor_config = api.get_monitor_config_v3(org_id=org_id, dataset_id=dataset_id)
         return monitor_config
     except NotFoundException:
         logger.warning(f"Could not find a monitor config for {dataset_id}")
         return None
 
+
 def get_monitor(
     monitor_id: str, org_id: Optional[str] = None, dataset_id: Optional[str] = None, config: Config = Config()
 ) -> Any:
-    if not org_id:
-        org_id = config.get_default_org_id()
-    if not dataset_id:
-        dataset_id = config.get_default_dataset_id()
+    org_id = org_id or config.get_default_org_id()
+    dataset_id = dataset_id or config.get_default_dataset_id()
+
     api = get_monitor_api(config=config)
     try:
         monitor = api.get_monitor(org_id=org_id, dataset_id=dataset_id, monitor_id=monitor_id)
         return monitor
     except (NotFoundException, ForbiddenException):
-        logger.warning(f"Could not find a monitor with id {monitor_id} for {dataset_id}."
-                       "Did you set a correct WHYLABS_API_KEY?")
+        logger.warning(
+            f"Could not find a monitor with id {monitor_id} for {dataset_id}." "Did you set a correct WHYLABS_API_KEY?"
+        )
         return None
 
 
-def get_analyzer_ids(org_id: str, dataset_id: str, monitor_id: str, config: Config = Config()) -> Any:
-    try: 
+def get_analyzer_ids(
+    monitor_id: str, org_id: Optional[str] = None, dataset_id: Optional[str] = None, config: Config = Config()
+) -> Any:
+    org_id = org_id or config.get_default_org_id()
+    dataset_id = dataset_id or config.get_default_dataset_id()
+    try:
         monitor_config = get_monitor_config(org_id=org_id, dataset_id=dataset_id, config=config)
         for item in monitor_config["monitors"]:
             if item["id"] == monitor_id:
@@ -52,15 +57,14 @@ def get_analyzer_ids(org_id: str, dataset_id: str, monitor_id: str, config: Conf
                 return resp
     except (ForbiddenException, NotFoundException):
         logger.warning(f"Could not find analyzer IDs for {org_id}, {dataset_id}, {monitor_id}")
-        return None 
+        return None
+
 
 def get_analyzers(
-    monitor_id: str, org_id: Optional[str], dataset_id: Optional[str], config: Config = Config()
+    monitor_id: str, org_id: Optional[str] = None, dataset_id: Optional[str] = None, config: Config = Config()
 ) -> List[Any]:
-    if not org_id:
-        org_id = config.get_default_org_id()
-    if not dataset_id:
-        dataset_id = config.get_default_dataset_id()
+    org_id = org_id or config.get_default_org_id()
+    dataset_id = dataset_id or config.get_default_dataset_id()
     api = get_monitor_api(config=config)
     analyzers = []
     analyzer_ids = get_analyzer_ids(org_id=org_id, dataset_id=dataset_id, monitor_id=monitor_id, config=config)
@@ -72,7 +76,12 @@ def get_analyzers(
         raise NotFoundException
 
 
-def get_model_granularity(org_id: str, dataset_id: str, config: Config = Config()) -> Optional[Granularity]:
+def get_model_granularity(
+    org_id: Optional[str] = None, dataset_id: Optional[str] = None, config: Config = Config()
+) -> Optional[Granularity]:
+    org_id = org_id or config.get_default_org_id()
+    dataset_id = dataset_id or config.get_default_dataset_id()
+
     api = get_models_api(config=config)
     model_meta = api.get_model(org_id=org_id, model_id=dataset_id)
 
@@ -89,7 +98,12 @@ def get_model_granularity(org_id: str, dataset_id: str, config: Config = Config(
     return None
 
 
-def delete_monitor(org_id: str, dataset_id: str, monitor_id: str, config: Config = Config()) -> None:
+def delete_monitor(
+    monitor_id: str, org_id: Optional[str] = None, dataset_id: Optional[str] = None, config: Config = Config()
+) -> None:
+    org_id = org_id or config.get_default_org_id()
+    dataset_id = dataset_id or config.get_default_dataset_id()
+
     api = get_monitor_api(config=config)
     try:
         analyzer_ids = get_analyzer_ids(org_id=org_id, dataset_id=dataset_id, monitor_id=monitor_id, config=config)
