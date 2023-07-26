@@ -70,7 +70,7 @@ def test_delete_profiles_raises_if_other_format_is_passed():
         )
     with pytest.raises(ValueError):
         delete_all_profiles_for_period(
-            start="Nonasdkn", 
+            start="string_example", 
             end=int(datetime(2023,7,6).timestamp()*1000.0), 
             dataset_id = os.environ["DATASET_ID"], 
             org_id=os.environ["ORG_ID"]

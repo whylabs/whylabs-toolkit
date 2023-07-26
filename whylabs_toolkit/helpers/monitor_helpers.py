@@ -2,7 +2,7 @@ import logging
 from typing import Any, List, Optional
 
 from whylabs_client.exceptions import ApiValueError
-from whylabs_client.exceptions import NotFoundException
+from whylabs_client.exceptions import NotFoundException, ForbiddenException
 
 from whylabs_toolkit.helpers.config import Config
 from whylabs_toolkit.helpers.utils import get_monitor_api, get_models_api
@@ -10,6 +10,7 @@ from whylabs_toolkit.utils.granularity import Granularity
 
 
 BASE_ENDPOINT = "https://api.whylabsapp.com"
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
@@ -18,9 +19,12 @@ logger = logging.getLogger(__name__)
 
 def get_monitor_config(org_id: str, dataset_id: str, config: Config = Config()) -> Any:
     api = get_monitor_api(config=config)
-    monitor_config = api.get_monitor_config_v3(org_id=org_id, dataset_id=dataset_id)
-    return monitor_config
-
+    try: 
+        monitor_config = api.get_monitor_config_v3(org_id=org_id, dataset_id=dataset_id)
+        return monitor_config
+    except NotFoundException:
+        logger.warning(f"Could not find a monitor config for {dataset_id}")
+        return None
 
 def get_monitor(
     monitor_id: str, org_id: Optional[str] = None, dataset_id: Optional[str] = None, config: Config = Config()
@@ -30,16 +34,25 @@ def get_monitor(
     if not dataset_id:
         dataset_id = config.get_default_dataset_id()
     api = get_monitor_api(config=config)
-    return api.get_monitor(org_id=org_id, dataset_id=dataset_id, monitor_id=monitor_id)
+    try:
+        monitor = api.get_monitor(org_id=org_id, dataset_id=dataset_id, monitor_id=monitor_id)
+        return monitor
+    except (NotFoundException, ForbiddenException):
+        logger.warning(f"Could not find a monitor with id {monitor_id} for {dataset_id}."
+                       "Did you set a correct WHYLABS_API_KEY?")
+        return None
 
 
 def get_analyzer_ids(org_id: str, dataset_id: str, monitor_id: str, config: Config = Config()) -> Any:
-    monitor_config = get_monitor_config(org_id=org_id, dataset_id=dataset_id, config=config)
-    for item in monitor_config["monitors"]:
-        if item["id"] == monitor_id:
-            resp = item["analyzerIds"]
-            return resp
-
+    try: 
+        monitor_config = get_monitor_config(org_id=org_id, dataset_id=dataset_id, config=config)
+        for item in monitor_config["monitors"]:
+            if item["id"] == monitor_id:
+                resp = item["analyzerIds"]
+                return resp
+    except (ForbiddenException, NotFoundException):
+        logger.warning(f"Could not find analyzer IDs for {org_id}, {dataset_id}, {monitor_id}")
+        return None 
 
 def get_analyzers(
     monitor_id: str, org_id: Optional[str], dataset_id: Optional[str], config: Config = Config()
