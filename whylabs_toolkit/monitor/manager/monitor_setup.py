@@ -47,31 +47,31 @@ class MonitorSetup:
         self._prefill_properties()
 
     def _check_if_monitor_exists(self) -> Any:
-        try:
-            existing_monitor = get_monitor(
-                org_id=self.credentials.org_id,
-                dataset_id=self.credentials.dataset_id,
-                monitor_id=self.credentials.monitor_id,
-                config=self._config,
-            )
+        existing_monitor = get_monitor(
+            org_id=self.credentials.org_id,
+            dataset_id=self.credentials.dataset_id,
+            monitor_id=self.credentials.monitor_id,
+            config=self._config,
+        )
+        if existing_monitor:
             existing_monitor = Monitor.parse_obj(existing_monitor)
             logger.info(f"Got existing {self.credentials.monitor_id} from WhyLabs!")
-        except NotFoundException:
+        else:
             logger.info(f"Did not find a monitor with {self.credentials.monitor_id}, creating a new one.")
             existing_monitor = None
         return existing_monitor
 
     def _check_if_analyzer_exists(self) -> Any:
-        try:
-            existing_analyzers = get_analyzers(
-                org_id=self.credentials.org_id,
-                dataset_id=self.credentials.dataset_id,
-                monitor_id=self.credentials.monitor_id,
-                config=self._config,
-            )
+        existing_analyzers = get_analyzers(
+            org_id=self.credentials.org_id,
+            dataset_id=self.credentials.dataset_id,
+            monitor_id=self.credentials.monitor_id,
+            config=self._config,
+        )
+        if existing_analyzers:
             existing_analyzer = Analyzer.parse_obj(existing_analyzers[0])  # enforcing 1:1 relationship
 
-        except NotFoundException:
+        else:
             existing_analyzer = None
         return existing_analyzer
 

@@ -37,7 +37,7 @@ def get_monitor(
     try:
         monitor = api.get_monitor(org_id=org_id, dataset_id=dataset_id, monitor_id=monitor_id)
         return monitor
-    except (NotFoundException, ForbiddenException):
+    except (ForbiddenException, NotFoundException):
         logger.warning(
             f"Could not find a monitor with id {monitor_id} for {dataset_id}." "Did you set a correct WHYLABS_API_KEY?"
         )
@@ -51,18 +51,20 @@ def get_analyzer_ids(
     dataset_id = dataset_id or config.get_default_dataset_id()
     try:
         monitor_config = get_monitor_config(org_id=org_id, dataset_id=dataset_id, config=config)
-        for item in monitor_config["monitors"]:
-            if item["id"] == monitor_id:
-                resp = item["analyzerIds"]
-                return resp
-    except (ForbiddenException, NotFoundException):
+
+        if monitor_config:
+            for item in monitor_config.get("monitors"):
+                if item["id"] == monitor_id:
+                    resp = item["analyzerIds"]
+                    return resp
+    except ForbiddenException:
         logger.warning(f"Could not find analyzer IDs for {org_id}, {dataset_id}, {monitor_id}")
         return None
 
 
 def get_analyzers(
     monitor_id: str, org_id: Optional[str] = None, dataset_id: Optional[str] = None, config: Config = Config()
-) -> List[Any]:
+) -> Optional[List[Any]]:
     org_id = org_id or config.get_default_org_id()
     dataset_id = dataset_id or config.get_default_dataset_id()
     api = get_monitor_api(config=config)
@@ -73,7 +75,7 @@ def get_analyzers(
             analyzers.append(api.get_analyzer(org_id=org_id, dataset_id=dataset_id, analyzer_id=analyzer))
         return analyzers
     else:
-        raise NotFoundException
+        return None
 
 
 def get_model_granularity(
@@ -91,10 +93,10 @@ def get_model_granularity(
         "W": Granularity.weekly,
         "M": Granularity.monthly,
     }
-
-    for key, value in time_period_to_gran.items():
-        if key in model_meta["time_period"]:
-            return value
+    if model_meta:
+        for key, value in time_period_to_gran.items():
+            if key in model_meta["time_period"]:
+                return value
     return None
 
 
@@ -115,4 +117,5 @@ def delete_monitor(
         resp_monitor = api.delete_monitor(org_id=org_id, dataset_id=dataset_id, monitor_id=monitor_id)
         logger.debug(f"Deleted monitor with Resp:{resp_monitor}")
     except ApiValueError as e:
+        logger.error(f"Error deleting monitor {monitor_id}: {e.msg}")
         raise e

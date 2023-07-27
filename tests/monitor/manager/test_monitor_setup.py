@@ -42,8 +42,11 @@ def test_exclude_target_columns(monitor_setup):
     
     monitor_setup.apply()
     
-    assert isinstance(monitor_setup.config.target_matrix, ColumnMatrix)
-    assert monitor_setup.config.target_matrix.exclude == ["prediction_temperature"]
+    assert isinstance(monitor_setup.target_matrix, ColumnMatrix)
+    assert monitor_setup.target_matrix.exclude == ["prediction_temperature"]
+    
+    assert isinstance(monitor_setup.analyzer.targetMatrix, ColumnMatrix)
+    assert monitor_setup.analyzer.targetMatrix.exclude == ["prediction_temperature"]
 
 
 def test_set_target_columns(monitor_setup):
@@ -55,9 +58,10 @@ def test_set_target_columns(monitor_setup):
     
     monitor_setup.apply()
     
-    assert isinstance(monitor_setup.config.target_matrix, ColumnMatrix)
-    assert monitor_setup.config.target_matrix.include == ["prediction_temperature"]
-
+    assert isinstance(monitor_setup.target_matrix, ColumnMatrix)
+    assert monitor_setup.target_matrix.include == ["prediction_temperature"]
+    assert isinstance(monitor_setup.analyzer.targetMatrix, ColumnMatrix)
+    assert monitor_setup.analyzer.targetMatrix.include == ["prediction_temperature"]
 
 def test_setup_apply(monitor_setup):
     assert not monitor_setup.monitor

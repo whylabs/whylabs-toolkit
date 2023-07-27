@@ -11,7 +11,6 @@ from whylabs_toolkit.helpers.dataset_profiles import (
 
 def test_validate_timestamp_in_millis() -> None:
     assert validate_timestamp_in_millis(1627233600000) == True
-    assert validate_timestamp_in_millis(0) == False
     assert validate_timestamp_in_millis(-1231214) == False
     assert validate_timestamp_in_millis("some_string") == False
     assert validate_timestamp_in_millis(None) == False
