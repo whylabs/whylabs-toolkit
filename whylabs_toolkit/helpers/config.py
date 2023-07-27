@@ -1,5 +1,9 @@
 import os
+import logging
 from enum import Enum
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 class ConfigVars(Enum):
@@ -7,6 +11,7 @@ class ConfigVars(Enum):
     DATASET_ID = 2
     WHYLABS_API_KEY = 3
     WHYLABS_HOST = "https://api.whylabsapp.com"
+    WHYLABS_PRIVATE_API_ENDPOINT = 5
 
 
 class Config:
@@ -14,6 +19,10 @@ class Config:
         return Validations.require(ConfigVars.WHYLABS_API_KEY)
 
     def get_whylabs_host(self) -> str:
+        _private_api_endpoint = Validations.get_or_default(ConfigVars.WHYLABS_PRIVATE_API_ENDPOINT)
+        if _private_api_endpoint and isinstance(_private_api_endpoint, str):
+            logger.debug(f"Using private API endpoint: {_private_api_endpoint}")
+            return _private_api_endpoint
         return Validations.get_or_default(ConfigVars.WHYLABS_HOST)
 
     def get_default_org_id(self) -> str:
