@@ -13,26 +13,14 @@ BASE_ENDPOINT = "https://api.whylabsapp.com"
 
 @dataclass
 class ColumnsClassifiers:
-    inputs: List[str] = field(default=None)  # type: ignore
-    outputs: List[str] = field(default=None)  # type: ignore
-
-    def __post_init__(self) -> None:
-        if self.inputs is None:
-            self.inputs = []
-        if self.outputs is None:
-            self.outputs = []
+    inputs: List[str] = field(default_factory=list)  # type: ignore
+    outputs: List[str] = field(default_factory=list)  # type: ignore
 
 
 @dataclass
 class ColumnsDiscreteness:
-    discrete: List[str] = field(default=None)  # type: ignore
-    continuous: List[str] = field(default=None)  # type: ignore
-
-    def __post_init__(self) -> None:
-        if self.discrete is None:
-            self.discrete = []
-        if self.continuous is None:
-            self.continuous = []
+    discrete: List[str] = field(default_factory=list)  # type: ignore
+    continuous: List[str] = field(default_factory=list)  # type: ignore
 
 
 class UpdateEntity(ABC):
