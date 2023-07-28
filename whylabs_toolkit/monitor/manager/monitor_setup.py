@@ -246,8 +246,7 @@ class MonitorSetup:
                 self._target_matrix, ColumnMatrix
             ):
                 logger.warning(
-                    "ColumnMatrix is not configurable with a DatasetMetric."
-                    "Changing it to DatasetMatrix instead"
+                    "ColumnMatrix is not configurable with a DatasetMetric." "Changing it to DatasetMatrix instead"
                 )
                 self._target_matrix = DatasetMatrix(segments=self._target_matrix.segments)
                 return None
