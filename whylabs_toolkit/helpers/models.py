@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 def update_model_metadata(
-    dataset_id: str,
+    dataset_id: Optional[str] = None,
     org_id: Optional[str] = None,
     time_period: Optional[str] = None,
     model_type: Optional[str] = None,
@@ -22,6 +22,9 @@ def update_model_metadata(
     """
     Update model attributes like model type and period.
     """
+    org_id = org_id or config.get_default_org_id()
+    dataset_id = dataset_id or config.get_default_dataset_id()
+
     api = get_models_api(config=config)
 
     model_metadata = api.get_model(org_id=org_id, model_id=dataset_id)
@@ -41,16 +44,17 @@ def update_model_metadata(
 
 
 def add_custom_metric(
-    dataset_id: str,
     label: str,
     column: str,
     default_metric: str,
     org_id: Optional[str] = None,
+    dataset_id: Optional[str] = None,
     config: Config = Config(),
 ) -> None:
 
-    if not org_id:
-        org_id = config.get_default_org_id()
+    org_id = org_id or config.get_default_org_id()
+    dataset_id = dataset_id or config.get_default_dataset_id()
+
     api = get_models_api(config=config)
     metric_schema = MetricSchema(label=label, column=column, default_metric=default_metric)
 

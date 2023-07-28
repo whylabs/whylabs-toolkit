@@ -80,6 +80,7 @@ def test_change_columns_discreteness() -> None:
     assert update_discreteness.current_entity_schema["columns"]["prediction_temperature"][
                "discreteness"] == "continuous"
 
+
 def test_same_column_on_both_parameters_should_raise():
     columns = ColumnsDiscreteness(
         discrete=["temperature"],
@@ -106,6 +107,7 @@ def test_same_column_on_both_parameters_should_raise():
     )
     with pytest.raises(ValueError):
         update_entity.update()
+
 
 def test_change_columns_schema():
     columns_schema = {"temperature": ColumnDataType.boolean}

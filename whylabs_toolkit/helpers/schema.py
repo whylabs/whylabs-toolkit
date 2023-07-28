@@ -11,9 +11,21 @@ from whylabs_toolkit.monitor.models.column_schema import ColumnDataType
 BASE_ENDPOINT = "https://api.whylabsapp.com"
 
 
+@dataclass
+class ColumnsClassifiers:
+    inputs: List[str] = field(default_factory=list)  # type: ignore
+    outputs: List[str] = field(default_factory=list)  # type: ignore
+
+
+@dataclass
+class ColumnsDiscreteness:
+    discrete: List[str] = field(default_factory=list)  # type: ignore
+    continuous: List[str] = field(default_factory=list)  # type: ignore
+
+
 class UpdateEntity(ABC):
-    def __init__(self, dataset_id: str, org_id: Optional[str] = None, config: Config = Config()):
-        self.dataset_id = dataset_id
+    def __init__(self, dataset_id: Optional[str] = None, org_id: Optional[str] = None, config: Config = Config()):
+        self.dataset_id = dataset_id or Config().get_default_dataset_id()
         self.org_id = org_id or Config().get_default_org_id()
         self.api = get_models_api(config=config)
 
@@ -48,20 +60,8 @@ class UpdateEntity(ABC):
         self._put_updated_entity_schema()
 
 
-@dataclass
-class ColumnsClassifiers:
-    inputs: List[str] = field(default=None)  # type: ignore
-    outputs: List[str] = field(default=None)  # type: ignore
-
-    def __post_init__(self) -> None:
-        if self.inputs is None:
-            self.inputs = []
-        if self.outputs is None:
-            self.outputs = []
-
-
 class UpdateColumnClassifiers(UpdateEntity):
-    def __init__(self, dataset_id: str, classifiers: ColumnsClassifiers, org_id: Optional[str] = None):
+    def __init__(self, classifiers: ColumnsClassifiers, org_id: Optional[str] = None, dataset_id: Optional[str] = None):
         super().__init__(dataset_id, org_id)
         self.classifiers = classifiers
 
@@ -109,7 +109,9 @@ class UpdateEntityDataTypes(UpdateEntity):
     ---
     """
 
-    def __init__(self, dataset_id: str, columns_schema: Dict[str, ColumnDataType], org_id: Optional[str] = None):
+    def __init__(
+        self, columns_schema: Dict[str, ColumnDataType], org_id: Optional[str] = None, dataset_id: Optional[str] = None
+    ):
         super().__init__(dataset_id, org_id)
         self.columns_schema = columns_schema
 
@@ -126,20 +128,13 @@ class UpdateEntityDataTypes(UpdateEntity):
                 self.columns_dict[column].data_type = self.columns_schema[column].value
 
 
-@dataclass
-class ColumnsDiscreteness:
-    discrete: List[str] = field(default=None)  # type: ignore
-    continuous: List[str] = field(default=None)  # type: ignore
-
-    def __post_init__(self) -> None:
-        if self.discrete is None:
-            self.discrete = []
-        if self.continuous is None:
-            self.continuous = []
-
-
 class UpdateColumnsDiscreteness(UpdateEntity):
-    def __init__(self, dataset_id: str, columns: ColumnsDiscreteness, org_id: Optional[str] = None):
+    def __init__(
+        self,
+        columns: ColumnsDiscreteness,
+        org_id: Optional[str] = None,
+        dataset_id: Optional[str] = None,
+    ):
         super().__init__(dataset_id, org_id)
         self.columns = columns
 
