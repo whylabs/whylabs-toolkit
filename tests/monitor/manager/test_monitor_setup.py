@@ -191,3 +191,53 @@ def test_apply_wont_erase_existing_preconfig(monitor_setup):
     
     monitor_setup.apply()
     assert monitor_setup.analyzer.targetMatrix == DatasetMatrix(segments=[Segment(tags=[SegmentTag(key="segment_a", value="value_a")])])
+
+
+def test_target_matrix_is_warned_on_setup(caplog):
+    with caplog.at_level(level="WARNING"):
+        monitor_setup = MonitorSetup(
+            monitor_id='test-target-matrix'
+        )
+
+        monitor_setup.config = DriftConfig(
+            metric=ComplexMetrics.frequent_items,
+            threshold=0.7,
+            baseline=TrailingWindowBaseline(size=7),
+        )
+
+        # Set wrong matrix with segments
+        monitor_setup.target_matrix = DatasetMatrix(
+            segments=[Segment(tags=[SegmentTag(key="Segment_Dataset", value="Training_PCS_tags")])])
+
+        monitor_setup.apply()
+
+
+        assert isinstance(monitor_setup.target_matrix, ColumnMatrix)
+        assert monitor_setup.target_matrix.segments == [Segment(tags=[
+            SegmentTag(key="Segment_Dataset", value="Training_PCS_tags")
+        ])]
+        assert "Setting a DatasetMatrix requires a DatasetMetric to be used" in caplog.text
+
+def test_dataset_metrics_are_warned_on_setup(caplog):
+    with caplog.at_level(level="WARNING"):
+        monitor_setup = MonitorSetup(
+            monitor_id='test-target-matrix'
+        )
+
+        monitor_setup.config = StddevConfig(
+            metric=DatasetMetric.classification_accuracy,
+            maxUpperThreshold=7,
+            baseline=TrailingWindowBaseline(size=7),
+        )
+
+        # Set wrong matrix with segments
+        monitor_setup.target_matrix = ColumnMatrix(
+            segments=[Segment(tags=[SegmentTag(key="Segment_Dataset", value="Training_PCS_tags")])])
+
+        monitor_setup.apply()
+        
+        assert isinstance(monitor_setup.target_matrix, DatasetMatrix)
+        assert monitor_setup.target_matrix.segments == [Segment(tags=[
+            SegmentTag(key="Segment_Dataset", value="Training_PCS_tags")
+        ])]
+        assert "ColumnMatrix is not configurable with a DatasetMetric" in caplog.text

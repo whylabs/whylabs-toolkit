@@ -182,12 +182,20 @@ class MonitorSetup:
         """
         if self._validate_columns_input(columns=columns):
             self._target_columns = columns
-            self._target_matrix = ColumnMatrix(include=self._target_columns, exclude=self._exclude_columns, segments=[])
+            self._target_matrix = self._target_matrix or ColumnMatrix(
+                include=self._target_columns, exclude=self._exclude_columns, segments=[]
+            )
+            if isinstance(self._target_matrix, ColumnMatrix):
+                self._target_matrix.include = self._target_columns
 
     def exclude_target_columns(self, columns: List[str]) -> None:
         if self._validate_columns_input(columns=columns):
             self._exclude_columns = columns
-            self._target_matrix = ColumnMatrix(include=self._target_columns, exclude=self._exclude_columns, segments=[])
+            self._target_matrix = self._target_matrix or ColumnMatrix(
+                include=self._target_columns, exclude=self._exclude_columns, segments=[]
+            )
+            if isinstance(self._target_matrix, ColumnMatrix):
+                self._target_matrix.exclude = self._exclude_columns
 
     def set_fixed_dates_baseline(self, start_date: datetime, end_date: datetime) -> None:
         if not start_date.tzinfo:
@@ -237,14 +245,24 @@ class MonitorSetup:
             if isinstance(self._analyzer_config.metric, DatasetMetric) and isinstance(
                 self._target_matrix, ColumnMatrix
             ):
-                self._target_matrix = DatasetMatrix(segments=[])
+                logger.warning(
+                    "ColumnMatrix is not configurable with a DatasetMetric." "Changing it to DatasetMatrix instead"
+                )
+                self._target_matrix = DatasetMatrix(segments=self._target_matrix.segments)
                 return None
 
             elif isinstance(self._target_matrix, DatasetMatrix) and not isinstance(
                 self._analyzer_config.metric, DatasetMetric
             ):
-                self._target_matrix = None
-                self.__configure_target_matrix()
+                logger.warning(
+                    "Setting a DatasetMatrix requires a DatasetMetric to be used"
+                    "Changing it to an empty ColumnMatrix instead"
+                )
+                self._target_matrix = ColumnMatrix(
+                    include=self._target_columns or ["*"],
+                    exclude=self._exclude_columns,
+                    segments=self._target_matrix.segments,
+                )
                 return None
 
     def apply(self) -> None:
