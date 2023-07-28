@@ -215,4 +215,4 @@ def test_dataset_metrics_are_warned_on_setup(caplog):
         assert monitor_setup.target_matrix.segments == [Segment(tags=[
             SegmentTag(key="Segment_Dataset", value="Training_PCS_tags")
         ])]
-        assert "ColumnMatrix is not fit for a config metric that is a DatasetMetric." in caplog.text
+        assert "ColumnMatrix is not configurable with a DatasetMetric" in caplog.text
