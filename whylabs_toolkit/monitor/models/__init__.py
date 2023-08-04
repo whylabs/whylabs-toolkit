@@ -59,6 +59,7 @@ __all__ = [
     # "RawWebhook",
     "SlackWebhook",
     "EmailRecipient",
+    "PagerDuty",
     "GlobalAction",
     # big document
     "Document",

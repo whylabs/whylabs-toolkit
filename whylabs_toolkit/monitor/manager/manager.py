@@ -40,13 +40,15 @@ class MonitorManager:
         return action_ids
 
     @staticmethod
-    def get_notification_request_payload(action: Union[SlackWebhook, EmailRecipient]) -> str:
+    def get_notification_request_payload(action: Union[SlackWebhook, EmailRecipient, PagerDuty]) -> str:
         if isinstance(action, SlackWebhook):
             return "slackWebhook"
         elif isinstance(action, EmailRecipient):
             return "email"
+        elif isinstance(action, PagerDuty):
+            return "pagerDutyKey"
         else:
-            raise ValueError(f"Can't work with {action} type. Available options are SlackWebhook and EmailRecipient.")
+            raise ValueError(f"Can't work with {action} type. Available options are SlackWebhook, PagerDuty and EmailRecipient.")
 
     def _update_notification_actions(self) -> None:
         """

@@ -47,12 +47,22 @@ class SlackWebhook(NoExtrasBaseModel):
 
 
 class RawWebhook(NoExtrasBaseModel):
-    """Action to send a Slack webhook."""
+    """Action to send a Raw webhook."""
 
     type: Literal["raw"] = "raw"
     id: str = Field(description="The endpoint ID to which you wish to send notifications to")
     destination: Optional[str] = Field(
         default=None, description="Sending raw unformatted message in JSON format to a webhook"
+    )
+    
+class PagerDuty(NoExtrasBaseModel):
+    """Action to send a PagerDuty notification."""
+    
+    type: Literal["pager_duty"] = "pager_duty"
+    id: str = Field(description="The PagerDuty endpoint ID to send notifications to")
+    destination: Optional[str] = Field(
+        default=None, 
+        description="The secret key to access the PagerDuty endpoint. Required when the ID was not created"
     )
 
 
@@ -223,7 +233,7 @@ class Monitor(NoExtrasBaseModel):
         description="Notification mode and how we might handle different analysis",
         discriminator="type",
     )
-    actions: List[Union[GlobalAction, EmailRecipient, SlackWebhook]] = Field(
+    actions: List[Union[GlobalAction, EmailRecipient, SlackWebhook, PagerDuty]] = Field(
         description="List of destination for the outgoing messages",
         max_items=100,
     )

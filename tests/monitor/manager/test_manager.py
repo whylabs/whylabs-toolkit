@@ -54,7 +54,7 @@ class TestModelManager(BaseTestMonitor):
             monitor_id=os.environ["MONITOR_ID"]
         )
     
-    def test_monitor_running_eagerly(self, existing_monitor_setup: MonitorSetup):
+    def test_monitor_running_eagerly(self, existing_monitor_setup: MonitorSetup) -> None:
         mm = MonitorManager(setup=existing_monitor_setup, eager=True)
         actual_doc = mm.dump()
         assert json.loads(actual_doc)["allowPartialTargetBatches"] == True
