@@ -27,7 +27,7 @@ class MonitorSetup:
         self._models_api = get_models_api(config=self._config)
 
         self._monitor_mode: Optional[Union[EveryAnomalyMode, DigestMode]] = None
-        self._monitor_actions: Optional[List[Union[GlobalAction, EmailRecipient, SlackWebhook]]] = None
+        self._monitor_actions: Optional[List[Union[GlobalAction, EmailRecipient, SlackWebhook, PagerDuty]]] = None
         self._analyzer_schedule: Optional[FixedCadenceSchedule] = None
         self._target_matrix: Optional[Union[ColumnMatrix, DatasetMatrix]] = None
         self._analyzer_config: Optional[
@@ -133,11 +133,11 @@ class MonitorSetup:
         self._analyzer_config = config
 
     @property
-    def actions(self) -> Optional[List[Union[GlobalAction, EmailRecipient, SlackWebhook]]]:
+    def actions(self) -> Optional[List[Union[GlobalAction, EmailRecipient, SlackWebhook, PagerDuty]]]:
         return self._monitor_actions
 
     @actions.setter
-    def actions(self, actions: List[Union[GlobalAction, EmailRecipient, SlackWebhook]]) -> None:
+    def actions(self, actions: List[Union[GlobalAction, EmailRecipient, SlackWebhook, PagerDuty]]) -> None:
         self._monitor_actions = actions
 
     @property
