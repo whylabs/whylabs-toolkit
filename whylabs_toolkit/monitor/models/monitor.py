@@ -54,15 +54,16 @@ class RawWebhook(NoExtrasBaseModel):
     destination: Optional[str] = Field(
         default=None, description="Sending raw unformatted message in JSON format to a webhook"
     )
-    
+
+
 class PagerDuty(NoExtrasBaseModel):
     """Action to send a PagerDuty notification."""
-    
+
     type: Literal["pager_duty"] = "pager_duty"
     id: str = Field(description="The PagerDuty endpoint ID to send notifications to")
     destination: Optional[str] = Field(
-        default=None, 
-        description="The secret key to access the PagerDuty endpoint. Required when the ID was not created"
+        default=None,
+        description="The secret key to access the PagerDuty endpoint. Required when the ID was not created",
     )
 
 

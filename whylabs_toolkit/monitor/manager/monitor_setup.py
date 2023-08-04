@@ -133,11 +133,11 @@ class MonitorSetup:
         self._analyzer_config = config
 
     @property
-    def actions(self) -> Optional[List[Union[GlobalAction, EmailRecipient, SlackWebhook]]]:
+    def actions(self) -> Optional[List[Union[GlobalAction, EmailRecipient, SlackWebhook, PagerDuty]]]:
         return self._monitor_actions
 
     @actions.setter
-    def actions(self, actions: List[Union[GlobalAction, EmailRecipient, SlackWebhook]]) -> None:
+    def actions(self, actions: List[Union[GlobalAction, EmailRecipient, SlackWebhook, PagerDuty]]) -> None:
         self._monitor_actions = actions
 
     @property

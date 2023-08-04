@@ -48,7 +48,9 @@ class MonitorManager:
         elif isinstance(action, PagerDuty):
             return "pagerDutyKey"
         else:
-            raise ValueError(f"Can't work with {action} type. Available options are SlackWebhook, PagerDuty and EmailRecipient.")
+            raise ValueError(
+                f"Can't work with {action} type. Available options are SlackWebhook, PagerDuty and EmailRecipient."
+            )
 
     def _update_notification_actions(self) -> None:
         """
