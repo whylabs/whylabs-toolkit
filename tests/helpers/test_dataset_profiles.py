@@ -1,5 +1,6 @@
 import os
 from datetime import datetime
+from unittest.mock import patch, Mock
 
 import pytest
 
@@ -74,4 +75,33 @@ def test_delete_profiles_raises_if_other_format_is_passed():
             dataset_id = os.environ["DATASET_ID"], 
             org_id=os.environ["ORG_ID"]
         )
+
+@patch('whylabs_toolkit.helpers.dataset_profiles.get_dataset_profile_api')
+def test_delete_profiles_calls_delete_analyzer_results(mock_get_api):
+    mock_call = Mock()
+    mock_get_api.return_value = mock_call
+    mock_call.delete_dataset_profiles = Mock()
+    mock_call.delete_analyzer_results = Mock()
     
+    
+    
+    delete_all_profiles_for_period(
+        start=int(datetime(2023,7,5).timestamp()*1000.0), 
+        end=int(datetime(2023,7,6).timestamp()*1000.0), 
+        dataset_id = os.environ["DATASET_ID"], 
+        org_id=os.environ["ORG_ID"]
+    )
+    
+    mock_call.delete_dataset_profiles.assert_called_with(
+        org_id=os.environ["ORG_ID"], 
+        dataset_id=os.environ["DATASET_ID"], 
+        profile_start_timestamp=int(datetime(2023,7,5).timestamp()*1000.0), 
+        profile_end_timestamp=int(datetime(2023,7,6).timestamp()*1000.0)
+    )
+    
+    mock_call.delete_analyzer_results.assert_called_with(
+        org_id=os.environ["ORG_ID"], 
+        dataset_id=os.environ["DATASET_ID"], 
+        start_timestamp=int(datetime(2023,7,5).timestamp()*1000.0), 
+        end_timestamp=int(datetime(2023,7,6).timestamp()*1000.0)
+    )
