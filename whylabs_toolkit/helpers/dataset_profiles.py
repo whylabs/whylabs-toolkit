@@ -1,13 +1,14 @@
-# from whylabs_client.api.
+import logging
 from datetime import datetime
 from typing import Optional, Union
 
-from whylabs_client.api.dataset_profile_api import DeleteDatasetProfilesResponse
+from whylabs_client.api.dataset_profile_api import DeleteDatasetProfilesResponse, DeleteAnalyzerResultsResponse
 
 from whylabs_toolkit.helpers.utils import get_dataset_profile_api
 from whylabs_toolkit.helpers.config import Config
 
 date_or_millis = Union[datetime, int]
+logger = logging.getLogger(__name__)
 
 
 def validate_timestamp_in_millis(epoch_milliseconds: int) -> bool:
@@ -49,11 +50,22 @@ def delete_all_profiles_for_period(
     org_id = org_id or config.get_default_org_id()
     dataset_id = dataset_id or config.get_default_dataset_id()
 
-    result: DeleteDatasetProfilesResponse = api.delete_dataset_profiles(
+    result_profiles: DeleteDatasetProfilesResponse = api.delete_dataset_profiles(
         org_id=org_id,
         dataset_id=dataset_id,
         profile_start_timestamp=profile_start_timestamp,
         profile_end_timestamp=profile_end_timestamp,
     )
+    logger.info(f"Scheduled deletion for profiles on {dataset_id} for {org_id}")
 
-    return result
+    api.delete_analyzer_results(
+        org_id=org_id,
+        dataset_id=dataset_id,
+        start_timestamp=profile_start_timestamp,
+        end_timestamp=profile_end_timestamp,
+    )
+
+    logger.info("Deleted analyzer results for the same timestamps as the profiles")
+    logger.info(f"NOTE: Profile deletion happens every full hour on WhyLabs")
+
+    return result_profiles
