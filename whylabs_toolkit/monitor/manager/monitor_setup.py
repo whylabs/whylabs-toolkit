@@ -46,7 +46,7 @@ class MonitorSetup:
         self._target_columns: Optional[List[str]] = []
         self._exclude_columns: Optional[List[str]] = []
         self._data_readiness_duration: Optional[str] = None
-        
+
         self._prefill_properties()
 
     def _check_if_monitor_exists(self) -> Any:
@@ -150,22 +150,20 @@ class MonitorSetup:
     @mode.setter
     def mode(self, mode: Union[EveryAnomalyMode, DigestMode]) -> None:
         self._monitor_mode = mode
-    
+
     @property
     def data_readiness_duration(self) -> Optional[str]:
         return self._data_readiness_duration
-        
+
     @data_readiness_duration.setter
     def data_readiness_duration(self, delay_duration: str) -> None:
         if self._validate_delay_duration(delay_duration) is False:
             raise ValueError(f"{delay_duration} does not respect ISO 8601 format")
         self._data_readiness_duration = delay_duration
 
-
     def _validate_delay_duration(self, delay: str) -> bool:
-        pattern = r'^P(\d+Y)?(\d+M)?(\d+D)?(T(\d+H)?(\d+M)?(\d+(\.\d+)?S)?)?$'
+        pattern = r"^P(\d+Y)?(\d+M)?(\d+D)?(T(\d+H)?(\d+M)?(\d+(\.\d+)?S)?)?$"
         return bool(re.match(pattern, delay))
-
 
     def _validate_columns_input(self, columns: List[str]) -> bool:
         if type(columns) != list or not all(isinstance(column, str) for column in columns):
@@ -267,12 +265,11 @@ class MonitorSetup:
                 self._target_matrix, ColumnMatrix
             ):
                 logger.warning(
-                    "ColumnMatrix is not configurable with a DatasetMetric." 
-                    "Changing it to DatasetMatrix instead"
+                    "ColumnMatrix is not configurable with a DatasetMetric." "Changing it to DatasetMatrix instead"
                 )
                 self._target_matrix = DatasetMatrix(segments=self._target_matrix.segments)
                 return None
-            
+
             elif isinstance(self._target_matrix, DatasetMatrix) and not isinstance(
                 self._analyzer_config.metric, DatasetMetric
             ):
@@ -288,17 +285,19 @@ class MonitorSetup:
                 return None
 
     def __set_dataset_matrix_for_missing_data_metric(self) -> None:
-        if isinstance(self._analyzer_config, FixedThresholdsConfig) \
-            and self._analyzer_config.metric == "missingDataPoint" \
-            and isinstance(self._target_matrix, ColumnMatrix):
-            
+        if (
+            isinstance(self._analyzer_config, FixedThresholdsConfig)
+            and self._analyzer_config.metric == "missingDataPoint"
+            and isinstance(self._target_matrix, ColumnMatrix)
+        ):
+
             logger.warning(
                 "Missing data point needs to be set with target_matrix of type DatasetMatrix"
                 "Changing to DatasetMatrix now."
             )
             self._target_matrix = DatasetMatrix(segments=self._target_matrix.segments)
             return None
-    
+
     def apply(self) -> None:
         monitor_mode = self._monitor_mode or DigestMode()
         actions = self._monitor_actions or []
