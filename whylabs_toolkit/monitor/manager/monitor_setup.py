@@ -45,6 +45,8 @@ class MonitorSetup:
         ] = None
         self._target_columns: Optional[List[str]] = []
         self._exclude_columns: Optional[List[str]] = []
+        self._data_readiness_duration: Optional[str] = None
+        
         self._prefill_properties()
 
     def _check_if_monitor_exists(self) -> Any:
@@ -155,12 +157,12 @@ class MonitorSetup:
         
     @data_readiness_duration.setter
     def data_readiness_duration(self, delay_duration: str) -> None:
-        if self._validate_delay_duration(delay=delay_duration) is False:
+        if self._validate_delay_duration(delay_duration) is False:
             raise ValueError(f"{delay_duration} does not respect ISO 8601 format")
         self._data_readiness_duration = delay_duration
 
 
-    def _validate_delay_duration(delay: str) -> bool:
+    def _validate_delay_duration(self, delay: str) -> bool:
         pattern = r'^P(\d+Y)?(\d+M)?(\d+D)?(T(\d+H)?(\d+M)?(\d+(\.\d+)?S)?)?$'
         return bool(re.match(pattern, delay))
 
@@ -228,6 +230,7 @@ class MonitorSetup:
         self.__configure_target_matrix()
 
         self.__set_dataset_matrix_for_dataset_metric()
+        self.__set_dataset_matrix_for_missing_data_metric()
 
         self.analyzer = Analyzer(
             id=self.credentials.analyzer_id,
@@ -264,11 +267,12 @@ class MonitorSetup:
                 self._target_matrix, ColumnMatrix
             ):
                 logger.warning(
-                    "ColumnMatrix is not configurable with a DatasetMetric." "Changing it to DatasetMatrix instead"
+                    "ColumnMatrix is not configurable with a DatasetMetric." 
+                    "Changing it to DatasetMatrix instead"
                 )
                 self._target_matrix = DatasetMatrix(segments=self._target_matrix.segments)
                 return None
-
+            
             elif isinstance(self._target_matrix, DatasetMatrix) and not isinstance(
                 self._analyzer_config.metric, DatasetMetric
             ):
@@ -283,6 +287,18 @@ class MonitorSetup:
                 )
                 return None
 
+    def __set_dataset_matrix_for_missing_data_metric(self) -> None:
+        if isinstance(self._analyzer_config, FixedThresholdsConfig) \
+            and self._analyzer_config.metric == "missingDataPoint" \
+            and isinstance(self._target_matrix, ColumnMatrix):
+            
+            logger.warning(
+                "Missing data point needs to be set with target_matrix of type DatasetMatrix"
+                "Changing to DatasetMatrix now."
+            )
+            self._target_matrix = DatasetMatrix(segments=self._target_matrix.segments)
+            return None
+    
     def apply(self) -> None:
         monitor_mode = self._monitor_mode or DigestMode()
         actions = self._monitor_actions or []

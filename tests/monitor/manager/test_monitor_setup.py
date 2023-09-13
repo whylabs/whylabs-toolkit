@@ -241,3 +241,25 @@ def test_dataset_metrics_are_warned_on_setup(caplog):
             SegmentTag(key="Segment_Dataset", value="Training_PCS_tags")
         ])]
         assert "ColumnMatrix is not configurable with a DatasetMetric" in caplog.text
+
+
+def test_dataset_matrix_if_metric_is_missing_datapoint(monitor_setup) -> None:
+    monitor_setup.config = FixedThresholdsConfig(
+        upper=0,
+        metric="missingDataPoint"
+    )
+    monitor_setup.data_readiness_duration = "P1DT18H"
+    monitor_setup.apply()
+    
+    assert monitor_setup.analyzer.config.metric == "missingDataPoint"
+    assert monitor_setup.analyzer.dataReadinessDuration == "P1DT18H"
+    assert isinstance(monitor_setup.analyzer.targetMatrix, DatasetMatrix)
+
+
+def test_set_non_iso_data_readiness_raises(monitor_setup) -> None:
+    monitor_setup.data_readiness_duration = "P1DT18H"
+    monitor_setup.apply()
+    
+    with pytest.raises(ValueError):
+        monitor_setup.data_readiness_duration = "Some non-conformant string"
+    
