@@ -256,6 +256,17 @@ def test_dataset_matrix_if_metric_is_missing_datapoint(monitor_setup) -> None:
     assert isinstance(monitor_setup.analyzer.targetMatrix, DatasetMatrix)
 
 
+def test_dataset_matrix_if_metric_is_secondsSinceLastUpload(monitor_setup) -> None:
+    monitor_setup.config = FixedThresholdsConfig(
+        upper=0,
+        metric="secondsSinceLastUpload"
+    )
+    monitor_setup.apply()
+    
+    assert monitor_setup.analyzer.config.metric == "secondsSinceLastUpload"
+    assert isinstance(monitor_setup.analyzer.targetMatrix, DatasetMatrix)
+
+
 def test_set_non_iso_data_readiness_raises(monitor_setup) -> None:
     monitor_setup.data_readiness_duration = "P1DT18H"
     monitor_setup.apply()

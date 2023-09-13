@@ -298,6 +298,18 @@ class MonitorSetup:
             self._target_matrix = DatasetMatrix(segments=self._target_matrix.segments)
             return None
 
+        if (
+            isinstance(self._analyzer_config, FixedThresholdsConfig)
+            and self._analyzer_config.metric == "secondsSinceLastUpload"
+            and isinstance(self._target_matrix, ColumnMatrix)
+        ):
+            logger.warning(
+                "secondsSinceLastUpload needs to be set with target_matrix of type DatasetMatrix"
+                "Changing to DatasetMatrix now."
+            )
+            self._target_matrix = DatasetMatrix(segments=self._target_matrix.segments)
+            return None
+
     def apply(self) -> None:
         monitor_mode = self._monitor_mode or DigestMode()
         actions = self._monitor_actions or []
