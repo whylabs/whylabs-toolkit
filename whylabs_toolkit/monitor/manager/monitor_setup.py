@@ -1,3 +1,4 @@
+import re
 import logging
 from datetime import datetime, timezone
 from typing import Optional, List, Union, Any
@@ -147,6 +148,22 @@ class MonitorSetup:
     @mode.setter
     def mode(self, mode: Union[EveryAnomalyMode, DigestMode]) -> None:
         self._monitor_mode = mode
+    
+    @property
+    def data_readiness_duration(self) -> Optional[str]:
+        return self._data_readiness_duration
+        
+    @data_readiness_duration.setter
+    def data_readiness_duration(self, delay_duration: str) -> None:
+        if self._validate_delay_duration(delay=delay_duration) is False:
+            raise ValueError(f"{delay_duration} does not respect ISO 8601 format")
+        self._data_readiness_duration = delay_duration
+
+
+    def _validate_delay_duration(delay: str) -> bool:
+        pattern = r'^P(\d+Y)?(\d+M)?(\d+D)?(T(\d+H)?(\d+M)?(\d+(\.\d+)?S)?)?$'
+        return bool(re.match(pattern, delay))
+
 
     def _validate_columns_input(self, columns: List[str]) -> bool:
         if type(columns) != list or not all(isinstance(column, str) for column in columns):
@@ -216,6 +233,7 @@ class MonitorSetup:
             id=self.credentials.analyzer_id,
             displayName=self.credentials.analyzer_id,
             targetMatrix=self._target_matrix,
+            dataReadinessDuration=self._data_readiness_duration,
             tags=[],
             schedule=self._analyzer_schedule,
             config=self._analyzer_config,
