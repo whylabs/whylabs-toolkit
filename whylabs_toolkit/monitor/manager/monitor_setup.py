@@ -1,3 +1,4 @@
+import re
 import logging
 from datetime import datetime, timezone
 from typing import Optional, List, Union, Any
@@ -44,6 +45,8 @@ class MonitorSetup:
         ] = None
         self._target_columns: Optional[List[str]] = []
         self._exclude_columns: Optional[List[str]] = []
+        self._data_readiness_duration: Optional[str] = None
+
         self._prefill_properties()
 
     def _check_if_monitor_exists(self) -> Any:
@@ -148,6 +151,20 @@ class MonitorSetup:
     def mode(self, mode: Union[EveryAnomalyMode, DigestMode]) -> None:
         self._monitor_mode = mode
 
+    @property
+    def data_readiness_duration(self) -> Optional[str]:
+        return self._data_readiness_duration
+
+    @data_readiness_duration.setter
+    def data_readiness_duration(self, delay_duration: str) -> None:
+        if self._validate_delay_duration(delay_duration) is False:
+            raise ValueError(f"{delay_duration} does not respect ISO 8601 format")
+        self._data_readiness_duration = delay_duration
+
+    def _validate_delay_duration(self, delay: str) -> bool:
+        pattern = r"^P(\d+Y)?(\d+M)?(\d+D)?(T(\d+H)?(\d+M)?(\d+(\.\d+)?S)?)?$"
+        return bool(re.match(pattern, delay))
+
     def _validate_columns_input(self, columns: List[str]) -> bool:
         if type(columns) != list or not all(isinstance(column, str) for column in columns):
             raise ValueError("columns argument must be a List of strings")
@@ -211,11 +228,13 @@ class MonitorSetup:
         self.__configure_target_matrix()
 
         self.__set_dataset_matrix_for_dataset_metric()
+        self.__set_dataset_matrix_for_missing_data_metric()
 
         self.analyzer = Analyzer(
             id=self.credentials.analyzer_id,
             displayName=self.credentials.analyzer_id,
             targetMatrix=self._target_matrix,
+            dataReadinessDuration=self._data_readiness_duration,
             tags=[],
             schedule=self._analyzer_schedule,
             config=self._analyzer_config,
@@ -264,6 +283,32 @@ class MonitorSetup:
                     segments=self._target_matrix.segments,
                 )
                 return None
+
+    def __set_dataset_matrix_for_missing_data_metric(self) -> None:
+        if (
+            isinstance(self._analyzer_config, FixedThresholdsConfig)
+            and self._analyzer_config.metric == "missingDataPoint"
+            and isinstance(self._target_matrix, ColumnMatrix)
+        ):
+
+            logger.warning(
+                "Missing data point needs to be set with target_matrix of type DatasetMatrix"
+                "Changing to DatasetMatrix now."
+            )
+            self._target_matrix = DatasetMatrix(segments=self._target_matrix.segments)
+            return None
+
+        if (
+            isinstance(self._analyzer_config, FixedThresholdsConfig)
+            and self._analyzer_config.metric == "secondsSinceLastUpload"
+            and isinstance(self._target_matrix, ColumnMatrix)
+        ):
+            logger.warning(
+                "secondsSinceLastUpload needs to be set with target_matrix of type DatasetMatrix"
+                "Changing to DatasetMatrix now."
+            )
+            self._target_matrix = DatasetMatrix(segments=self._target_matrix.segments)
+            return None
 
     def apply(self) -> None:
         monitor_mode = self._monitor_mode or DigestMode()
