@@ -16,6 +16,8 @@ from whylabs_toolkit.helpers.config import Config
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+TAG_ANALYZER_CONSTRAINT = "whylabs.constraint"
+
 
 class MonitorSetup:
     def __init__(self, monitor_id: str, dataset_id: Optional[str] = None, config: Config = Config()) -> None:
@@ -45,6 +47,8 @@ class MonitorSetup:
         ] = None
         self._target_columns: Optional[List[str]] = []
         self._exclude_columns: Optional[List[str]] = []
+        self._monitor_tags: Optional[List[str]] = []
+        self._analyzer_tags: Optional[List[str]] = []
         self._data_readiness_duration: Optional[str] = None
 
         self._prefill_properties()
@@ -82,10 +86,12 @@ class MonitorSetup:
         if self.monitor:
             self._monitor_mode = self.monitor.mode
             self._monitor_actions = self.monitor.actions
+            self._monitor_tags = self.monitor.tags
         if self.analyzer:
             self._analyzer_schedule = self.analyzer.schedule
             self._target_matrix = self.analyzer.targetMatrix
             self._analyzer_config = self.analyzer.config
+            self._analyzer_tags = self.analyzer.tags
 
     @property
     def schedule(self) -> Optional[Union[CronSchedule, FixedCadenceSchedule]]:
@@ -150,6 +156,23 @@ class MonitorSetup:
     @mode.setter
     def mode(self, mode: Union[EveryAnomalyMode, DigestMode]) -> None:
         self._monitor_mode = mode
+
+    @property
+    def is_constraint(self) -> Optional[bool]:
+        return self._analyzer_tags is not None and TAG_ANALYZER_CONSTRAINT in self._analyzer_tags
+
+    @is_constraint.setter
+    def is_constraint(self, is_constraint: bool) -> None:
+        if self._analyzer_config is None:
+            raise ValueError("Config must first be set")
+        tags = set(self._analyzer_tags or [])
+        if is_constraint:
+            if not isinstance(self._analyzer_config, (FixedThresholdsConfig)):
+                raise ValueError("Constraint can only be set with FixedThresholdsConfig")
+            tags.add(TAG_ANALYZER_CONSTRAINT)
+        else:
+            tags.discard(TAG_ANALYZER_CONSTRAINT)
+        self._analyzer_tags = list(tags)
 
     @property
     def data_readiness_duration(self) -> Optional[str]:
@@ -235,7 +258,7 @@ class MonitorSetup:
             displayName=self.credentials.analyzer_id,
             targetMatrix=self._target_matrix,
             dataReadinessDuration=self._data_readiness_duration,
-            tags=[],
+            tags=self._analyzer_tags,
             schedule=self._analyzer_schedule,
             config=self._analyzer_config,
         )
@@ -247,7 +270,7 @@ class MonitorSetup:
             id=self.credentials.monitor_id,
             disabled=False,
             displayName=self.credentials.monitor_id,
-            tags=[],
+            tags=self._monitor_tags,
             analyzerIds=[self.credentials.analyzer_id],
             schedule=ImmediateSchedule(),
             mode=monitor_mode,
