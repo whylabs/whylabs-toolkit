@@ -18,6 +18,7 @@ logger = logging.getLogger(__name__)
 
 TAG_ANALYZER_CONSTRAINT = "whylabs.constraint"
 
+
 class MonitorSetup:
     def __init__(self, monitor_id: str, dataset_id: Optional[str] = None, config: Config = Config()) -> None:
 
@@ -162,11 +163,11 @@ class MonitorSetup:
 
     @is_constraint.setter
     def is_constraint(self, is_constraint: bool) -> None:
-        if (self._analyzer_config is None):
+        if self._analyzer_config is None:
             raise ValueError("Config must first be set")
         tags = set(self._analyzer_tags or [])
-        if (is_constraint):
-            if (not isinstance(self._analyzer_config, (FixedThresholdsConfig))):
+        if is_constraint:
+            if not isinstance(self._analyzer_config, (FixedThresholdsConfig)):
                 raise ValueError("Constraint can only be set with FixedThresholdsConfig")
             tags.add(TAG_ANALYZER_CONSTRAINT)
         else:
