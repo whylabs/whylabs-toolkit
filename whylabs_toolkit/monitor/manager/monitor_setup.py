@@ -159,7 +159,7 @@ class MonitorSetup:
 
     @property
     def is_constraint(self) -> Optional[bool]:
-        return not (self._analyzer_tags is None) and TAG_ANALYZER_CONSTRAINT in self._analyzer_tags
+        return self._analyzer_tags is not None and TAG_ANALYZER_CONSTRAINT in self._analyzer_tags
 
     @is_constraint.setter
     def is_constraint(self, is_constraint: bool) -> None:
