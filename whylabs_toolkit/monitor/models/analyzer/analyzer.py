@@ -21,7 +21,6 @@ from .algorithms import (
 )
 from .targets import ColumnMatrix, DatasetMatrix
 
-
 class Analyzer(NoExtrasBaseModel):
     """Configuration for running an analysis.
 
