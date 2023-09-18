@@ -57,7 +57,7 @@ class DatasetMetric(str, Enum):
     regression_mse = "regression.mse"
     regression_mae = "regression.mae"
     regression_rmse = "regression.rmse"
-    
+
     # other metrics
     missingDataPoint = "missingDatapoint"
 
