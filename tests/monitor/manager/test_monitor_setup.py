@@ -246,12 +246,12 @@ def test_dataset_metrics_are_warned_on_setup(caplog):
 def test_dataset_matrix_if_metric_is_missing_datapoint(monitor_setup) -> None:
     monitor_setup.config = FixedThresholdsConfig(
         upper=0,
-        metric="missingDataPoint"
+        metric=DatasetMetric.missing_data_point
     )
     monitor_setup.data_readiness_duration = "P1DT18H"
     monitor_setup.apply()
     
-    assert monitor_setup.analyzer.config.metric == "missingDataPoint"
+    assert monitor_setup.analyzer.config.metric == DatasetMetric.missing_data_point
     assert monitor_setup.analyzer.dataReadinessDuration == "P1DT18H"
     assert isinstance(monitor_setup.analyzer.targetMatrix, DatasetMatrix)
 

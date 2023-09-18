@@ -58,6 +58,9 @@ class DatasetMetric(str, Enum):
     regression_mae = "regression.mae"
     regression_rmse = "regression.rmse"
 
+    # other metrics
+    missing_data_point = "missingDatapoint"
+
 
 class SimpleColumnMetric(str, Enum):
     """Simple column metrics that are basically just a single number."""
