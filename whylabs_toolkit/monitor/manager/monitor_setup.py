@@ -49,6 +49,7 @@ class MonitorSetup:
         self._exclude_columns: Optional[List[str]] = []
         self._monitor_tags: Optional[List[str]] = []
         self._analyzer_tags: Optional[List[str]] = []
+        self._analyzer_disable_target_rollup: Optional[bool] = None
         self._data_readiness_duration: Optional[str] = None
 
         self._prefill_properties()
@@ -92,6 +93,7 @@ class MonitorSetup:
             self._target_matrix = self.analyzer.targetMatrix
             self._analyzer_config = self.analyzer.config
             self._analyzer_tags = self.analyzer.tags
+            self._analyzer_disable_target_rollup = self.analyzer.disableTargetRollup
 
     @property
     def schedule(self) -> Optional[Union[CronSchedule, FixedCadenceSchedule]]:
@@ -175,6 +177,14 @@ class MonitorSetup:
         self._analyzer_tags = list(tags)
 
     @property
+    def disable_target_rollup(self) -> Optional[bool]:
+        return self._analyzer_disable_target_rollup == True
+
+    @disable_target_rollup.setter
+    def disable_target_rollup(self, disable_target_rollup: bool) -> None:
+        self._analyzer_disable_target_rollup = disable_target_rollup
+
+    @property
     def data_readiness_duration(self) -> Optional[str]:
         return self._data_readiness_duration
 
@@ -256,6 +266,7 @@ class MonitorSetup:
         self.analyzer = Analyzer(
             id=self.credentials.analyzer_id,
             displayName=self.credentials.analyzer_id,
+            disableTargetRollup=self._analyzer_disable_target_rollup,
             targetMatrix=self._target_matrix,
             dataReadinessDuration=self._data_readiness_duration,
             tags=self._analyzer_tags,

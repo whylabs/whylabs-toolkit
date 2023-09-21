@@ -536,6 +536,12 @@
               }
             ]
           }
+        },
+        "profileId": {
+          "title": "ProfileId",
+          "description": "The unique profile ID for the reference profile",
+          "maxLength": 100,
+          "type": "string"
         }
       },
       "required": [
@@ -594,7 +600,8 @@
         "classification.precision",
         "classification.recall",
         "classification.accuracy",
-        "classification.auc",
+        "classification.fpr",
+        "classification.auroc",
         "regression.mse",
         "regression.mae",
         "regression.rmse"
@@ -649,7 +656,7 @@
     },
     "ThresholdType": {
       "title": "ThresholdType",
-      "description": "Threshold Type declaring the upper and lower bound.\n\n    By default an anomaly will be generated when the target is above or below the baseline\n    by the specified threshold.\n\n    If its only desirable to alert when the target is above the\n    baseline and not the other way around, specify upper for your ThresholdType.\n    ",
+      "description": "Threshold Type declaring the upper and lower bound.\n\nBy default an anomaly will be generated when the target is above or below the baseline\nby the specified threshold.\n\nIf its only desirable to alert when the target is above the\nbaseline and not the other way around, specify upper for your ThresholdType.",
       "enum": [
         "lower",
         "upper"
@@ -1414,6 +1421,9 @@
           "description": "Capping the minimum threshold by this value. This value only becomes effective if the calculated lower threshold from the calculation is lesser than this value",
           "type": "number"
         },
+        "thresholdType": {
+          "$ref": "#/definitions/ThresholdType"
+        },
         "type": {
           "title": "Type",
           "enum": [
@@ -1505,9 +1515,9 @@
           "default": "hellinger",
           "enum": [
             "hellinger",
-            "ks_test",
+            "jensenshannon",
             "kl_divergence",
-            "variation_distance"
+            "psi"
           ],
           "type": "string"
         },
@@ -1714,6 +1724,9 @@
           "description": "Capping the minimum threshold by this value. This value only becomes effective if the calculated lower threshold from the calculation is lesser than this value",
           "type": "number"
         },
+        "thresholdType": {
+          "$ref": "#/definitions/ThresholdType"
+        },
         "type": {
           "title": "Type",
           "enum": [
@@ -1726,9 +1739,7 @@
           "description": "The algorithm implementation for seasonal analysis",
           "default": "arima",
           "enum": [
-            "arima",
-            "rego",
-            "stastforecast"
+            "arima"
           ],
           "type": "string"
         },
@@ -1838,6 +1849,11 @@
         "disabled": {
           "title": "Disabled",
           "description": "Whether the analyzer is disabled. This allows user to keep the configurationaround without having to delete the analyzer config",
+          "type": "boolean"
+        },
+        "disableTargetRollup": {
+          "title": "Disabletargetrollup",
+          "description": "For customers with individual profile storage enabled on their account (contact us), this allows a user to monitor individual profiles without rolling them up. When enabled, analysis will be timestamped 1:1 with the profile's dataset timestamp rather than being truncated to the dataset granularity. ",
           "type": "boolean"
         },
         "targetMatrix": {

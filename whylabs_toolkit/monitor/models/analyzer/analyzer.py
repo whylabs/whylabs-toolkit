@@ -66,6 +66,13 @@ class Analyzer(NoExtrasBaseModel):
         "This allows user to keep the configuration"
         "around without having to delete the analyzer config",
     )
+    disableTargetRollup: Optional[bool] = Field(
+        None,
+        description="For customers with individual profile storage enabled on their account (contact us), this "
+        "allows a user to monitor individual profiles without rolling them up. When enabled, analysis "
+        "will be timestamped 1:1 with the profile's dataset timestamp rather than being truncated "
+        "to the dataset granularity. ",
+    )
     targetMatrix: Union[ColumnMatrix, DatasetMatrix] = Field(
         description="A matrix for possible locations of the target",
         discriminator="type",
