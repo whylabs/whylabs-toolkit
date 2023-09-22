@@ -68,3 +68,8 @@ class ColumnMatrix(_BaseMatrix):
         "evaluated AFTER the 'include' field and thus should be used with caution.",
         max_items=1000,
     )
+    profileId: Optional[str] = Field(
+        default=None,
+        description="The unique profile ID for the reference profile",
+        max_length=100,
+    )
