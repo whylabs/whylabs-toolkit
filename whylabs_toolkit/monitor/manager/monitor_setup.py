@@ -301,6 +301,10 @@ class MonitorSetup:
 
     def __set_dataset_matrix_for_dataset_metric(self) -> None:
         if self._analyzer_config:
+            if isinstance(self._analyzer_config, ConjunctionConfig) or isinstance(
+                self._analyzer_config, DisjunctionConfig
+            ):
+                return None
             if isinstance(self._analyzer_config.metric, DatasetMetric) and isinstance(
                 self._target_matrix, ColumnMatrix
             ):
