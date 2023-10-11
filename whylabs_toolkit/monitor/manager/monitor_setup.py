@@ -43,6 +43,8 @@ class MonitorSetup:
                 SeasonalConfig,
                 FrequentStringComparisonConfig,
                 ListComparisonConfig,
+                ConjunctionConfig,
+                DisjunctionConfig,
             ]
         ] = None
         self._target_columns: Optional[List[str]] = []
@@ -124,6 +126,8 @@ class MonitorSetup:
             SeasonalConfig,
             FrequentStringComparisonConfig,
             ListComparisonConfig,
+            ConjunctionConfig,
+            DisjunctionConfig,
         ]
     ]:
         return self._analyzer_config
@@ -139,6 +143,8 @@ class MonitorSetup:
             SeasonalConfig,
             FrequentStringComparisonConfig,
             ListComparisonConfig,
+            ConjunctionConfig,
+            DisjunctionConfig,
         ],
     ) -> None:
         self._analyzer_config = config

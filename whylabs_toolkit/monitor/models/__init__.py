@@ -39,6 +39,8 @@ __all__ = [
     "ColumnListChangeConfig",
     "SeasonalConfig",
     "StddevConfig",
+    "ConjunctionConfig",
+    "DisjunctionConfig",
     # targets
     "DatasetMatrix",
     "ColumnMatrix",

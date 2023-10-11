@@ -29,6 +29,8 @@ __all__ = [
     "ListComparisonConfig",
     "FrequentStringComparisonConfig",
     "StddevConfig",
+    "ConjunctionConfig",
+    "DisjunctionConfig",
     # enums
     "DiffMode",
     "ThresholdType",
