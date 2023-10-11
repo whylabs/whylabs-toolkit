@@ -19,7 +19,7 @@ from .algorithms import (
     SeasonalConfig,
     StddevConfig,
     ConjunctionConfig,
-    DisjunctionConfig
+    DisjunctionConfig,
 )
 from .targets import ColumnMatrix, DatasetMatrix
 

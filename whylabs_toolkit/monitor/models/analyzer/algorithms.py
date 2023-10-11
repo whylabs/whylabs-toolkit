@@ -387,6 +387,7 @@ class DiffConfig(AlgorithmConfig):
     )
     baseline: Union[TrailingWindowBaseline, ReferenceProfileId, TimeRangeBaseline, SingleBatchBaseline]
 
+
 class ConjunctionConfig(NoExtrasBaseModel):
     """Conjunction (ANDs) composite analyzer joining multiple analyzers."""
 
@@ -394,6 +395,7 @@ class ConjunctionConfig(NoExtrasBaseModel):
     analyzerIds: List[str] = Field(
         description="The corresponding analyzer IDs for the conjunction.",
     )
+
 
 class DisjunctionConfig(NoExtrasBaseModel):
     """Disjunction (ORs) composite analyzer joining multiple analyzers."""
