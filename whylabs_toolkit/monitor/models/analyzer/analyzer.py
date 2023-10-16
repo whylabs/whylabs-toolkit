@@ -18,6 +18,8 @@ from .algorithms import (
     FixedThresholdsConfig,
     SeasonalConfig,
     StddevConfig,
+    ConjunctionConfig,
+    DisjunctionConfig,
 )
 from .targets import ColumnMatrix, DatasetMatrix
 
@@ -111,6 +113,8 @@ class Analyzer(NoExtrasBaseModel):
         DriftConfig,
         ComparisonConfig,
         SeasonalConfig,
+        ConjunctionConfig,
+        DisjunctionConfig,
     ] = Field(description="The configuration map of the analyzer", discriminator="type")
 
     class Config:

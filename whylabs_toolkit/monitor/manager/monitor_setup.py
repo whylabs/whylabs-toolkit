@@ -43,6 +43,8 @@ class MonitorSetup:
                 SeasonalConfig,
                 FrequentStringComparisonConfig,
                 ListComparisonConfig,
+                ConjunctionConfig,
+                DisjunctionConfig,
             ]
         ] = None
         self._target_columns: Optional[List[str]] = []
@@ -124,6 +126,8 @@ class MonitorSetup:
             SeasonalConfig,
             FrequentStringComparisonConfig,
             ListComparisonConfig,
+            ConjunctionConfig,
+            DisjunctionConfig,
         ]
     ]:
         return self._analyzer_config
@@ -139,6 +143,8 @@ class MonitorSetup:
             SeasonalConfig,
             FrequentStringComparisonConfig,
             ListComparisonConfig,
+            ConjunctionConfig,
+            DisjunctionConfig,
         ],
     ) -> None:
         self._analyzer_config = config
@@ -169,7 +175,7 @@ class MonitorSetup:
             raise ValueError("Config must first be set")
         tags = set(self._analyzer_tags or [])
         if is_constraint:
-            if not isinstance(self._analyzer_config, (FixedThresholdsConfig)):
+            if not isinstance(self._analyzer_config, (FixedThresholdsConfig, ConjunctionConfig, DisjunctionConfig)):
                 raise ValueError("Constraint can only be set with FixedThresholdsConfig")
             tags.add(TAG_ANALYZER_CONSTRAINT)
         else:
@@ -295,6 +301,8 @@ class MonitorSetup:
 
     def __set_dataset_matrix_for_dataset_metric(self) -> None:
         if self._analyzer_config:
+            if isinstance(self._analyzer_config, (ConjunctionConfig, DisjunctionConfig)):
+                return None
             if isinstance(self._analyzer_config.metric, DatasetMetric) and isinstance(
                 self._target_matrix, ColumnMatrix
             ):

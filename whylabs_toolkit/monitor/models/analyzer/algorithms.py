@@ -28,6 +28,8 @@ class AlgorithmType(str, Enum):
     seasonal = "seasonal"
     fixed = "fixed"
     experimental = "experimental"
+    conjunction = "conjunction"
+    disjunction = "disjunction"
 
 
 class DatasetMetric(str, Enum):
@@ -384,3 +386,21 @@ class DiffConfig(AlgorithmConfig):
         "the target's metric and the baseline metric. Both of these metrics MUST be in rolled up form",
     )
     baseline: Union[TrailingWindowBaseline, ReferenceProfileId, TimeRangeBaseline, SingleBatchBaseline]
+
+
+class ConjunctionConfig(NoExtrasBaseModel):
+    """Conjunction (ANDs) composite analyzer joining multiple analyzers."""
+
+    type: Literal[AlgorithmType.conjunction] = AlgorithmType.conjunction
+    analyzerIds: List[str] = Field(
+        description="The corresponding analyzer IDs for the conjunction.",
+    )
+
+
+class DisjunctionConfig(NoExtrasBaseModel):
+    """Disjunction (ORs) composite analyzer joining multiple analyzers."""
+
+    type: Literal[AlgorithmType.disjunction] = AlgorithmType.disjunction
+    analyzerIds: List[str] = Field(
+        description="The corresponding analyzer IDs for the disjunction.",
+    )

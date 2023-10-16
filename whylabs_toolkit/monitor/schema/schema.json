@@ -584,6 +584,64 @@
       },
       "additionalProperties": false
     },
+    "ConjunctionConfig": {
+      "title": "ConjunctionConfig",
+      "description": "Conjunction (ANDs) composite analyzer joining multiple analyzers\n    ",
+      "type": "object",
+      "properties": {
+        "type": {
+          "title": "Type",
+          "enum": [
+            "conjunction"
+          ],
+          "type": "string"
+        },
+        "analyzerIds": {
+          "title": "AnalyzerIds",
+          "description": "The corresponding analyzer IDs for the conjunction.",
+          "maxItems": 10,
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_\\-]+$"
+          }
+        }
+      },
+      "required": [
+        "type",
+        "analyzerIds"
+      ],
+      "additionalProperties": false
+    },
+    "DisjunctionConfig": {
+      "title": "DisjunctionConfig",
+      "description": "Disjunction (ORs) composite analyzer joining multiple analyzers\n    ",
+      "type": "object",
+      "properties": {
+        "type": {
+          "title": "Type",
+          "enum": [
+            "disjunction"
+          ],
+          "type": "string"
+        },
+        "analyzerIds": {
+          "title": "AnalyzerIds",
+          "description": "The corresponding analyzer IDs for the conjunction.",
+          "maxItems": 10,
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_\\-]+$"
+          }
+        }
+      },
+      "required": [
+        "type",
+        "analyzerIds"
+      ],
+      "additionalProperties": false
+    },
     "DatasetMetric": {
       "title": "DatasetMetric",
       "description": "Metrics that are applicable at the dataset level.",
@@ -656,7 +714,7 @@
     },
     "ThresholdType": {
       "title": "ThresholdType",
-      "description": "Threshold Type declaring the upper and lower bound.\n\nBy default an anomaly will be generated when the target is above or below the baseline\nby the specified threshold.\n\nIf its only desirable to alert when the target is above the\nbaseline and not the other way around, specify upper for your ThresholdType.",
+      "description": "Threshold Type declaring the upper and lower bound.\n\n    By default an anomaly will be generated when the target is above or below the baseline\n    by the specified threshold.\n\n    If its only desirable to alert when the target is above the\n    baseline and not the other way around, specify upper for your ThresholdType.\n    ",
       "enum": [
         "lower",
         "upper"
@@ -1576,6 +1634,8 @@
         "expected",
         "column_list",
         "comparison",
+        "conjunction",
+        "disjunction",
         "list_comparison",
         "frequent_string_comparison",
         "diff",
@@ -1902,6 +1962,8 @@
           "discriminator": {
             "propertyName": "type",
             "mapping": {
+              "conjunction": "#/definitions/ConjunctionConfig",
+              "disjunction": "#/definitions/DisjunctionConfig",
               "diff": "#/definitions/DiffConfig",
               "comparison": "#/definitions/ComparisonConfig",
               "list_comparison": "#/definitions/ListComparisonConfig",
@@ -1915,6 +1977,12 @@
             }
           },
           "oneOf": [
+            {
+              "$ref": "#/definitions/ConjunctionConfig"
+            },
+            {
+              "$ref": "#/definitions/DisjunctionConfig"
+            },
             {
               "$ref": "#/definitions/DiffConfig"
             },
