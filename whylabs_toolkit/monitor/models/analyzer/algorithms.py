@@ -240,6 +240,17 @@ class _ThresholdBaseConfig(AlgorithmConfig):
     )
 
 
+class ThresholdType(str, Enum):
+    """By default, an anomaly will be generated when the target is above or below the baseline
+    by the specified threshold.
+
+    If its only desirable to alert when the target is above the
+    baseline and not the other way around, specify upper for your ThresholdType."""
+
+    lower = "lower"  # type: ignore
+    upper = "upper"  # type: ignore
+
+
 class StddevConfig(_ThresholdBaseConfig):
     """Calculates upper bounds and lower bounds based on stddev from a series of numbers.
 
@@ -253,6 +264,7 @@ class StddevConfig(_ThresholdBaseConfig):
     factor: Optional[float] = Field(
         3.0, description="The multiplier used with stddev to build the upper and lower bounds."
     )
+    thresholdType: Optional[ThresholdType]
     minBatchSize: Optional[int] = Field(
         1, title="MinBatchSize", ge=1, description="Minimum number of batches that is required"
     )
@@ -362,17 +374,6 @@ class DiffMode(str, Enum):
 
     abs = "abs"
     pct = "pct"
-
-
-class ThresholdType(str, Enum):
-    """By default, an anomaly will be generated when the target is above or below the baseline
-    by the specified threshold.
-
-    If its only desirable to alert when the target is above the
-    baseline and not the other way around, specify upper for your ThresholdType."""
-
-    lower = "lower"  # type: ignore
-    upper = "upper"  # type: ignore
 
 
 class DiffConfig(AlgorithmConfig):
