@@ -1,8 +1,8 @@
 [tool.poetry]
 name = "whylabs-toolkit"
-version = "0.0.16"
+version = "0.0.17"
 description = "Whylabs CLI and Helpers package."
-authors = ["Anthony Naddeo <anthony.naddeo@gmail.com>", "Murilo Mendonca <murilommen@gmail.com>"]
+authors = ["Murilo Mendonca <murilommen@gmail.com>", "Anthony Naddeo <anthony.naddeo@gmail.com>"]
 license = "Apache-2.0 license"
 readme = "README.md"
 packages = [{include = "whylabs_toolkit/**/*.py"}]
@@ -10,7 +10,7 @@ include = ["whylabs_toolkit/monitor/schema/schema.json"]
 
 [tool.poetry.dependencies]
 python = "^3.8"
-whylabs-client = "^0.5"
+whylabs-client = "0.6.0"
 pydantic = "^1.10.4"
 whylogs = "^1.1.26"
 jsonschema = "^4.17.3"
@@ -29,5 +29,5 @@ line-length = 140
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
-[flake8]
+[tool.flake8]
 max-line-length = 140
