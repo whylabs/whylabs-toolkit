@@ -1,4 +1,5 @@
 """Schema for analyses."""
+import re
 from typing import Any, Dict, List, Optional, Union
 
 from pydantic import BaseModel, Field, constr, validator
@@ -23,6 +24,8 @@ from .algorithms import (
 )
 from .targets import ColumnMatrix, DatasetMatrix
 from whylabs_toolkit.helpers.cron_validators import validate_cron_expression
+
+CRON_REGEX = "^(0|\d) (\d+|\d+-\d+|\/\d+)(,\d+|\d+-\d+|\/\d+)* (\*|\d+|\d+-\d+|\/\d+) (\*|\d+|\d+-\d+|\/\d+) (\*|\d+|\d+-\d+|(1|2|3|4|5|6|0)(,\d+)*)$"
 
 
 class Analyzer(NoExtrasBaseModel):
