@@ -1,7 +1,8 @@
 """Schema for analyses."""
+import re
 from typing import Any, Dict, List, Optional, Union
 
-from pydantic import BaseModel, Field, constr
+from pydantic import BaseModel, Field, constr, validator
 
 from whylabs_toolkit.monitor.models.commons import NoExtrasBaseModel
 
@@ -22,6 +23,8 @@ from .algorithms import (
     DisjunctionConfig,
 )
 from .targets import ColumnMatrix, DatasetMatrix
+
+CRON_REGEX = "^(0|\d) (\d+|\d+-\d+|\/\d+)(,\d+|\d+-\d+|\/\d+)* (\*|\d+|\d+-\d+|\/\d+) (\*|\d+|\d+-\d+|\/\d+) (\*|\d+|\d+-\d+|(1|2|3|4|5|6|0)(,\d+)*)$"
 
 
 class Analyzer(NoExtrasBaseModel):
@@ -57,8 +60,8 @@ class Analyzer(NoExtrasBaseModel):
     ] = Field(  # noqa F722
         None, description="A list of tags that are associated with the analyzer."
     )
-    # disabling CronSchedule as it can be tricky on the BE
-    schedule: Optional[FixedCadenceSchedule] = Field(  # Optional[Union[CronSchedule, FixedCadenceSchedule]] = Field(
+
+    schedule: Optional[Union[FixedCadenceSchedule, CronSchedule]] = Field(
         None,
         description="A schedule for running the analyzer. If not set, the analyzer's considered disabled",
     )
@@ -99,6 +102,15 @@ class Analyzer(NoExtrasBaseModel):
         "backfill request. We support 48 hours for hourly data, 30 days for daily data, and 6 months for "
         "monthly data.",
     )
+
+    @validator("schedule", pre=True, always=True)
+    def validate_schedule(
+        cls, v: Optional[Union[FixedCadenceSchedule, CronSchedule]]
+    ) -> Optional[Union[FixedCadenceSchedule, CronSchedule]]:
+        """Validate the schedule."""
+        if isinstance(v, CronSchedule) and not re.match(CRON_REGEX, v.cron):
+            raise ValueError("CronSchedule must be no less granular than 1 hour and must have 5 fields.")
+        return v
 
     # NOT YET IMPLEMENTED:
     # ExperimentalConfig,

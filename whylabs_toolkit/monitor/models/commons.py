@@ -50,7 +50,6 @@ class CronSchedule(NoExtrasBaseModel):
     exclusionRanges: Optional[List[TimeRange]] = Field(
         title="ExclusionRanges", description="The ranges of dates during which this Analyzer is NOT run."
     )
-    # TODO: support other mode of configuring scheduling
 
 
 class Cadence(str, Enum):
