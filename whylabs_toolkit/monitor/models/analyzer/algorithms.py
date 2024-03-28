@@ -307,6 +307,7 @@ class SeasonalConfig(_ThresholdBaseConfig):
         default=1.0,
         description="The multiplier factor for calculating upper bounds and lower bounds from the prediction.",
     )
+    thresholdType: Optional[ThresholdType]
 
 
 class DriftConfig(AlgorithmConfig):
