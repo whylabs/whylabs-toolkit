@@ -1,5 +1,4 @@
 """Schema for analyses."""
-import re
 from typing import Any, Dict, List, Optional, Union
 
 from pydantic import BaseModel, Field, constr, validator
@@ -23,8 +22,7 @@ from .algorithms import (
     DisjunctionConfig,
 )
 from .targets import ColumnMatrix, DatasetMatrix
-
-CRON_REGEX = "^(0|\d) (\d+|\d+-\d+|\/\d+)(,\d+|\d+-\d+|\/\d+)* (\*|\d+|\d+-\d+|\/\d+) (\*|\d+|\d+-\d+|\/\d+) (\*|\d+|\d+-\d+|(1|2|3|4|5|6|0)(,\d+)*)$"
+from whylabs_toolkit.helpers.cron_validators import validate_cron_expression
 
 
 class Analyzer(NoExtrasBaseModel):
@@ -108,7 +106,7 @@ class Analyzer(NoExtrasBaseModel):
         cls, v: Optional[Union[FixedCadenceSchedule, CronSchedule]]
     ) -> Optional[Union[FixedCadenceSchedule, CronSchedule]]:
         """Validate the schedule."""
-        if isinstance(v, CronSchedule) and not re.match(CRON_REGEX, v.cron):
+        if isinstance(v, CronSchedule) and not validate_cron_expression(v.cron):
             raise ValueError("CronSchedule must be no less granular than 1 hour and must have 5 fields.")
         return v
 
