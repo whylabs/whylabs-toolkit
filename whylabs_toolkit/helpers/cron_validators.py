@@ -16,32 +16,36 @@ def split_cron_expression(cron: str) -> SplitCron:
     if len(cron_slots) != 5:
         raise ValueError("CronSchedule must have 5 fields.")
     return SplitCron(
-        minute=cron_slots[0],
-        hour=cron_slots[1],
+        day_of_week=cron_slots[0],
+        month=cron_slots[1],
         day_of_month=cron_slots[2],
-        month=cron_slots[3],
-        day_of_week=cron_slots[4],
+        hour=cron_slots[3],
+        minute=cron_slots[4],
     )
 
 
 def _is_not_less_granular_than_1_hour(split_cron: SplitCron) -> bool:
     """Check if the cron expression is less granular than 1 hour."""
-    if split_cron.minute == "*":
-        return False
+    # Specific days checks
+    if split_cron.minute != "*" and split_cron.minute != "0":
+        return True
+    if split_cron.hour != "*" and split_cron.hour != "0":
+        return True
+    if split_cron.day_of_month != "*" and split_cron.day_of_month != "1":
+        return True
+    if split_cron.month != "*" and split_cron.month != "1":
+        return True
+    if split_cron.day_of_week != "*" and split_cron.day_of_week != "1":
+        return True
 
-    for item in ["-", ","]:
-        if item in split_cron.minute:
-            return False
-
-    if split_cron.minute.startswith("*/"):
-        try:
-            divisor = int(split_cron.minute.split("/")[1])
-            if divisor < 60:
-                return False
-        except ValueError:
-            pass
-
-    return True
+    # Check range
+    for field in (split_cron.day_of_week, split_cron.month, split_cron.day_of_month, split_cron.hour):
+        for item in field.split(","):
+            if "-" in item:
+                start, end = map(int, item.split("-"))
+                if end - start > 0:
+                    return False
+    return False
 
 
 def validate_cron_expression(cron: str) -> bool:
