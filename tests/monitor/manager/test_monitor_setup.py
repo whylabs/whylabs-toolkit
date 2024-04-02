@@ -315,11 +315,18 @@ def test_cron_schedule_for_analyzer(monitor_setup) -> None:
         cron="0 9,10,17 * * *"
     )
     
-    monitor_setup.schedule = CronSchedule(cron="0,1 9,10,17 1,2,3 2,4,5 2,4")
+    monitor_setup.schedule = CronSchedule(cron="*/90 9,10,17 * * *") 
     monitor_setup.apply()
     
     assert monitor_setup.analyzer.schedule == CronSchedule(
-        cron="0,1 9,10,17 1,2,3 2,4,5 2,4"
+        cron="*/90 9,10,17 * * *"
+    )
+    
+    monitor_setup.schedule = CronSchedule(cron="0 9,10,17 1,2,3 2,4,5 2,4")
+    monitor_setup.apply()
+    
+    assert monitor_setup.analyzer.schedule == CronSchedule(
+        cron="0 9,10,17 1,2,3 2,4,5 2,4"
     )
     
     # All below Must fail
@@ -329,5 +336,13 @@ def test_cron_schedule_for_analyzer(monitor_setup) -> None:
         monitor_setup.apply()
         
     monitor_setup.schedule = CronSchedule(cron="0 0 * * * *") # Too many fields
+    with pytest.raises(ValueError):
+        monitor_setup.apply()
+        
+    monitor_setup.schedule = CronSchedule(cron="1,2 0 * * *") # Less granular than 1h
+    with pytest.raises(ValueError):
+        monitor_setup.apply()
+        
+    monitor_setup.schedule = CronSchedule(cron="*/15 0 * * *") # every 15min
     with pytest.raises(ValueError):
         monitor_setup.apply()
