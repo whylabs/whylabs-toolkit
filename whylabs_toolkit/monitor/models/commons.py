@@ -6,7 +6,9 @@ from typing import List, Literal, Optional
 from pydantic import BaseModel, Extra
 from pydantic.fields import Field
 
-CRON_REGEX = "(@(annually|yearly|monthly|weekly|daily|hourly))|" "((((\\d+,)+\\d+|(\\d+(\\/|-)\\d+)|\\d+|\\*) ?){5,7})"
+CRON_REGEX = (
+    "(@(annually|yearly|monthly|weekly|daily|hourly))|" "((((\\d+,)+\\d+|(\\d+(\\/|-)\\d+)|\\d+|\\*|\\*/\\d+) ?){5,7})"
+)
 DATASET_ID_REGEX = "[a-zA-Z0-9\\-_\\.]+"
 
 DATASET_ID_DEF = Field(
@@ -50,7 +52,6 @@ class CronSchedule(NoExtrasBaseModel):
     exclusionRanges: Optional[List[TimeRange]] = Field(
         title="ExclusionRanges", description="The ranges of dates during which this Analyzer is NOT run."
     )
-    # TODO: support other mode of configuring scheduling
 
 
 class Cadence(str, Enum):

@@ -31,7 +31,7 @@ class MonitorSetup:
 
         self._monitor_mode: Optional[Union[EveryAnomalyMode, DigestMode]] = None
         self._monitor_actions: Optional[List[Union[GlobalAction, EmailRecipient, SlackWebhook, PagerDuty]]] = None
-        self._analyzer_schedule: Optional[FixedCadenceSchedule] = None
+        self._analyzer_schedule: Optional[Union[FixedCadenceSchedule, CronSchedule]] = None
         self._target_matrix: Optional[Union[ColumnMatrix, DatasetMatrix]] = None
         self._analyzer_config: Optional[
             Union[

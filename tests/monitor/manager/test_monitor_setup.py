@@ -273,4 +273,76 @@ def test_set_non_iso_data_readiness_raises(monitor_setup) -> None:
     
     with pytest.raises(ValueError):
         monitor_setup.data_readiness_duration = "Some non-conformant string"
+
+
+def test_cron_schedule_for_analyzer(monitor_setup) -> None:
+    monitor_setup.config = FixedThresholdsConfig(
+        metric=DatasetMetric.classification_accuracy,
+        upper=0.75
+    )
+    monitor_setup.schedule = CronSchedule(cron="0 0 * * *")
+    monitor_setup.apply()
     
+    assert monitor_setup.analyzer.schedule == CronSchedule(
+        cron="0 0 * * *"
+    )
+    
+    monitor_setup.schedule = CronSchedule(cron="0 0 * * 1-5")
+    monitor_setup.apply()
+    
+    assert monitor_setup.analyzer.schedule == CronSchedule(
+        cron="0 0 * * 1-5"
+    )
+    
+    monitor_setup.schedule = CronSchedule(cron="0 0 * * 6,0")
+    monitor_setup.apply()
+    
+    assert monitor_setup.analyzer.schedule == CronSchedule(
+        cron="0 0 * * 6,0"
+    )
+    
+    monitor_setup.schedule = CronSchedule(cron="0 9-17 * * *")
+    monitor_setup.apply()
+    
+    assert monitor_setup.analyzer.schedule == CronSchedule(
+        cron="0 9-17 * * *"
+    )
+    
+    monitor_setup.schedule = CronSchedule(cron="0 9,10,17 * * *") 
+    monitor_setup.apply()
+    
+    assert monitor_setup.analyzer.schedule == CronSchedule(
+        cron="0 9,10,17 * * *"
+    )
+    
+    monitor_setup.schedule = CronSchedule(cron="*/90 9,10,17 * * *") 
+    monitor_setup.apply()
+    
+    assert monitor_setup.analyzer.schedule == CronSchedule(
+        cron="*/90 9,10,17 * * *"
+    )
+    
+    monitor_setup.schedule = CronSchedule(cron="0 9,10,17 1,2,3 2,4,5 2,4")
+    monitor_setup.apply()
+    
+    assert monitor_setup.analyzer.schedule == CronSchedule(
+        cron="0 9,10,17 1,2,3 2,4,5 2,4"
+    )
+    
+    # All below Must fail
+    
+    monitor_setup.schedule = CronSchedule(cron="* * * * *") # Every minute
+    with pytest.raises(ValueError):
+        monitor_setup.apply()
+        
+    monitor_setup.schedule = CronSchedule(cron="0 0 * * * *") # Too many fields
+    with pytest.raises(ValueError):
+        monitor_setup.apply()
+        
+    monitor_setup.schedule = CronSchedule(cron="1,2 0 * * *") # Less granular than 1h
+    with pytest.raises(ValueError):
+        monitor_setup.apply()
+        
+    monitor_setup.schedule = CronSchedule(cron="*/15 0 * * *") # every 15min
+    with pytest.raises(ValueError):
+        monitor_setup.apply()
