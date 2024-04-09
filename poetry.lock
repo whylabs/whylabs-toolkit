@@ -539,14 +539,14 @@ zstd = ["zstandard (>=0.18.0)"]
 
 [[package]]
 name = "whylabs-client"
-version = "0.6.0"
+version = "0.6.2"
 description = "WhyLabs API client"
 category = "main"
 optional = false
 python-versions = ">=3.6"
 files = [
-    {file = "whylabs-client-0.6.0.tar.gz", hash = "sha256:46101dda1d9ec802ec4c891018acdd8b73b3f34aef55ae938eb887affe2e248d"},
-    {file = "whylabs_client-0.6.0-py3-none-any.whl", hash = "sha256:686cc30492c206915af053f2bfb5a720b914f62c3ca56c88492fd7c60a1658a1"},
+    {file = "whylabs-client-0.6.2.tar.gz", hash = "sha256:7d8181317cd75f643935b45e87377fd21e17dd9117674a8996cf9a469be65a90"},
+    {file = "whylabs_client-0.6.2-py3-none-any.whl", hash = "sha256:3fe5edff4415ac15426a8aaed6adaf7e803818e997b825535e5aa5417757b7ae"},
 ]
 
 [package.dependencies]
@@ -645,4 +645,4 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "c699e8136f9768e7a99d7ce51e6a14af5f989adec59586f0ade9ae26971ec4bf"
+content-hash = "33f20a2d8395aad5fc1d6edd38492ef18ef8cfb74b5bbe4d019395f967b899b7"
