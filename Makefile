@@ -47,7 +47,7 @@ format-fix:
 	poetry run autoflake --in-place --remove-unused-variables $(PY_SOURCE)
 
 setup:
-	poetry install
+	poetry install -E diagnoser
 
 test:
 	poetry run pytest
