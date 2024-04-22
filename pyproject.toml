@@ -1,8 +1,9 @@
 [tool.poetry]
 name = "whylabs-toolkit"
 version = "0.0.18"
-description = "Whylabs CLI and Helpers package."
-authors = ["Murilo Mendonca <murilommen@gmail.com>", "Anthony Naddeo <anthony.naddeo@gmail.com>"]
+description = "Whylabs Toolkit package."
+authors = ["Murilo Mendonca <murilommen@gmail.com>", "Anthony Naddeo <anthony.naddeo@gmail.com>",
+    "Christine Draper <christine@whylabs.ai>"]
 license = "Apache-2.0 license"
 readme = "README.md"
 packages = [{include = "whylabs_toolkit/**/*.py"}]

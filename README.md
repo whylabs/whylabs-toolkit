@@ -13,10 +13,11 @@ pip install whylabs_toolkit
 
 The available packages that we have enable different use-cases for the `whylabs_toolkit`. To get started, navigate to one of the following sections and find useful tutorials there.
 
-| Package             | Usage                |
-|---------------------|----------------------|
-| [Monitor Manager](https://github.com/whylabs/whylabs-toolkit/blob/mainline/whylabs_toolkit/monitor/manager/README.md) | Author and modify existing WhyLabs monitor with Python |
-| [WhyLabs Helpers](https://github.com/whylabs/whylabs-toolkit/blob/mainline/whylabs_toolkit/helpers/README.md) | Interact with and modify your Datasets and ML Models specs in WhyLabs. |
+| Package                                                                                                                   | Usage                                                                  |
+|---------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------|
+| [Monitor Manager](https://github.com/whylabs/whylabs-toolkit/blob/mainline/whylabs_toolkit/monitor/manager/README.md)     | Author and modify existing WhyLabs monitor with Python.                |
+| [Monitor Diagnoser](https://github.com/whylabs/whylabs-toolkit/blob/mainline/whylabs_toolkit/monitor/diagnoser/README.md) | Diagnose problems with monitors.                                       |
+| [WhyLabs Helpers](https://github.com/whylabs/whylabs-toolkit/blob/mainline/whylabs_toolkit/helpers/README.md)             | Interact with and modify your Datasets and ML Models specs in WhyLabs. |
 
 ## Development
 
