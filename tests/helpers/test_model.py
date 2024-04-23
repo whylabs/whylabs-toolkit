@@ -40,6 +40,7 @@ def test_update_model_type(models_api: ModelsApi) -> None:
     assert model_meta["model_type"] == "CLASSIFICATION"
 
 
+@pytest.mark.skip(reason="Re-enable when fix to whylabs API is in prod")
 def test_create_custom_metric(models_api: ModelsApi) -> None:
     add_custom_metric(
         dataset_id="model-7",
