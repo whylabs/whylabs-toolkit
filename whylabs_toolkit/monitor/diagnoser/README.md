@@ -13,9 +13,14 @@ diagnoser may not match the dataset to any known conditions. Users will also usu
 most appropriate action to take to fix the monitor. A recommender is provided to suggest reasonable actions 
 and to automate some of the basic actions. We are happy to work with you to improve the diagnoser in such cases.
 
+## Usage
+To start using the diagnoser, install whylabs_toolkit including the diagnoser extra from PyPI with:
+```bash
+pip install 'whylabs_toolkit[diagnoser]'
+``` 
+
 See [diagnoser.ipynb](/examples/example_notebooks/diagnoser.ipynb) for an end-to-end example of identifying noisy
 monitors, diagnosing the conditions contributing to noise, and getting recommendations for fixing them.
 
-See [customized_diagnoser.ipynb](/examples/example_notebooks/customized_diagnoser.ipynb) for an example of how to 
+See [customized_diagnoser.ipynb](/examples/example_notebooks/customized_diagnoser.ipynb) for an example of how to
 customize the diagnosis for your specific needs.
-
