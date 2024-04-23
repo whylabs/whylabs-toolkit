@@ -770,4 +770,4 @@ diagnoser = ["isodate", "numpy", "pandas", "python-dateutil", "tabulate"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "f620e2af4fec27c6f6f97a9fc08add252e9a0ae55909e671c7d28266505d1fcc"
+content-hash = "dd7b6df400a44979482c1d8cddf045ac2297ac954a7e18a40172a26a4f0c36fe"

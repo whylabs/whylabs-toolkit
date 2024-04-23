@@ -12,16 +12,16 @@ include = ["whylabs_toolkit/monitor/schema/schema.json"]
 [tool.poetry.dependencies]
 python = "^3.8"
 whylabs-client = "^0.6.0"
-pydantic = "1.10.15"
+pydantic = "^1.10.15"
 whylogs = "^1.1.26"
 jsonschema = "^4.17.3"
 typing-extensions = "^4.11.0"
-urllib3 = ">=2.0.2,<2.1.0"
+urllib3 = "^2.0.2, <2.1"
 
 # diagnoser extra dependencies
 pandas = { version="^2.0.3", optional=true }
 numpy = { version="^1.24.1", optional=true }
-tabulate = { version="0.8.9", optional=true }
+tabulate = { version="^0.8.9", optional=true }
 isodate = { version="^0.6.1", optional=true }
 python-dateutil = { version="^2.8.2", optional=true }
 
