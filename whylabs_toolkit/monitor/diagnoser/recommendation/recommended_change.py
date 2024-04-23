@@ -8,8 +8,8 @@ from whylabs_toolkit.monitor.diagnoser.helpers.describe import describe_truncate
 
 
 class RecommendedChange:
-    name = ''
-    summary = ''
+    name = ""
+    summary = ""
     manual = True
     required_info: List[str] = []
 
@@ -23,12 +23,12 @@ class RecommendedChange:
 
     def merge(self, change: RecommendedChange) -> RecommendedChange:
         if change.name != self.name:
-            raise ValueError(f'Cannot merge {self.name} and {change.name}')
+            raise ValueError(f"Cannot merge {self.name} and {change.name}")
         merged = RecommendedChange(list(set(self.columns) | set(change.columns)), self.info)
         merged.merge_info(change.info)
         return merged
 
-    def merge_info(self, info:  Optional[dict]) -> Optional[dict]:
+    def merge_info(self, info: Optional[dict]) -> Optional[dict]:
         if self.info is None:
             self.info = info
         elif info is not None:
@@ -40,20 +40,21 @@ class RecommendedChange:
         return self.summary.format(**info)
 
     def describe(self) -> str:
-        return f'{self.summarize()} for {describe_truncated_list(self.columns)}'
+        return f"{self.summarize()} for {describe_truncated_list(self.columns)}"
 
     def can_automate(self) -> bool:
         return all(getattr(self.info, f, False) for f in self.required_info) and not self.manual
 
     def _check_can_do(self, analyzer: Analyzer) -> bool:
         if self.manual:
-            raise Exception(f'{self.name} has not been automated')
+            raise Exception(f"{self.name} has not been automated")
         if not self.can_automate():
-            raise Exception(f'{self.name} requires extra information '
-                            f'{[f for f in self.required_info if self.info is None or f not in self.info.keys()]}')
+            raise Exception(
+                f"{self.name} requires extra information "
+                f"{[f for f in self.required_info if self.info is None or f not in self.info.keys()]}"
+            )
         return True
 
     def generate_config(self, analyzer: Analyzer) -> List[Analyzer]:
         self._check_can_do(analyzer)
         return [analyzer]
-

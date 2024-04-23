@@ -21,18 +21,18 @@ class ChangeResults(NamedTuple):
     manual: List[RecommendedChange]
 
     def describe(self) -> str:
-        description = ''
+        description = ""
         if len(self.succeeded):
-            description += 'Successfully made the following changes:\n'
-            description += '\n\t'.join(['\t* ' + c.describe() for c in self.succeeded]) + '\n'
+            description += "Successfully made the following changes:\n"
+            description += "\n\t".join(["\t* " + c.describe() for c in self.succeeded]) + "\n"
         if len(self.failed):
-            description += 'Failed to make the following changes:\n'
-            description += '\n\t'.join(['\t* ' + c.describe() for c in self.failed])
-            description += '\nErrors:\n'
-            description += '\n\t'.join(['\t* ' + e for e in self.errors]) + '\n'
+            description += "Failed to make the following changes:\n"
+            description += "\n\t".join(["\t* " + c.describe() for c in self.failed])
+            description += "\nErrors:\n"
+            description += "\n\t".join(["\t* " + e for e in self.errors]) + "\n"
         if len(self.manual):
-            description += 'The following changes require manual intervention:\n'
-            description += '\n\t'.join(['\t* ' + c.describe() for c in self.manual]) + '\n'
+            description += "The following changes require manual intervention:\n"
+            description += "\n\t".join(["\t* " + c.describe() for c in self.manual]) + "\n"
         return description
 
 
@@ -40,18 +40,21 @@ class ChangeRecommender:
 
     _condition_order = [
         # specific conditions unlikely to be rectified by other actions
-        'changing_discrete', 'changing_continuous',
-        'few_unique', 'many_unique', 'very_few_unique',
-        'late_upload_mismatch',
-        'narrow_threshold_band',
-        'small_nonnull_batches',
+        "changing_discrete",
+        "changing_continuous",
+        "few_unique",
+        "many_unique",
+        "very_few_unique",
+        "late_upload_mismatch",
+        "narrow_threshold_band",
+        "small_nonnull_batches",
         # most general conditions
-        'stale_analysis',
-        'low_drift_threshold',
-        'fixed_threshold_mismatch',
-        'stddev_insufficient_baseline',
-        'missing_baseline_batches',
-        'fixed_baseline_mismatch'
+        "stale_analysis",
+        "low_drift_threshold",
+        "fixed_threshold_mismatch",
+        "stddev_insufficient_baseline",
+        "missing_baseline_batches",
+        "fixed_baseline_mismatch",
     ]
 
     def __init__(self, report: MonitorDiagnosisReport):
@@ -75,12 +78,12 @@ class ChangeRecommender:
     @staticmethod
     def _best_change_for_condition(condition: ConditionRecord) -> RecommendedChange:
         if condition.columns is None:
-            raise ValueError('Condition must have columns to recommend a change')
-        if condition.name in ['changing_discrete', 'changing_continuous']:
+            raise ValueError("Condition must have columns to recommend a change")
+        if condition.name in ["changing_discrete", "changing_continuous"]:
             return RemoveColumns(columns=condition.columns, info=condition.info)
         info = condition.info if condition.info else {}
-        info['condition'] = condition.name
-        info['summary'] = condition.summary
+        info["condition"] = condition.name
+        info["summary"] = condition.summary
         return ManualChange(columns=condition.columns, info=info)
 
     @property
@@ -93,8 +96,11 @@ class ChangeRecommender:
         return self._min_anomaly_count
 
     def recommend(self) -> List[RecommendedChange]:
-        by_col_count = self.report.diagnosticData.analysisResults.anomalies.byColumnCount if (
-                self.report.diagnosticData.analysisResults is not None) else []
+        by_col_count = (
+            self.report.diagnosticData.analysisResults.anomalies.byColumnCount
+            if (self.report.diagnosticData.analysisResults is not None)
+            else []
+        )
         count_tuples = [c.to_tuple() for c in by_col_count]
         cols, counts = zip(*count_tuples)
         anom_count = pd.Series(counts, index=cols)
@@ -118,19 +124,13 @@ class ChangeRecommender:
     def _delete_monitor(self) -> None:
         if self.monitor is not None and self.analyzer is not None:
             analyzer: Analyzer = self.analyzer
-            self.monitor_api.delete_monitor(
-                org_id=self.org_id,
-                dataset_id=self.dataset_id,
-                monitor_id=self.monitor.id
-            )
-        self.monitor_api.delete_analyzer(
-            org_id=self.org_id,
-            dataset_id=self.dataset_id,
-            analyzer_id=analyzer.id
-        )
+            self.monitor_api.delete_monitor(org_id=self.org_id, dataset_id=self.dataset_id, monitor_id=self.monitor.id)
+        self.monitor_api.delete_analyzer(org_id=self.org_id, dataset_id=self.dataset_id, analyzer_id=analyzer.id)
 
     def _add_new_monitor(self, new_analyzer: Analyzer) -> None:
-        new_monitor = Monitor(**self.monitor.dict(), id=new_analyzer.id) if self.monitor else Monitor(id=new_analyzer.id)
+        new_monitor = (
+            Monitor(**self.monitor.dict(), id=new_analyzer.id) if self.monitor else Monitor(id=new_analyzer.id)
+        )
         self.monitor_api.put_monitor(
             org_id=self.org_id,
             dataset_id=self.dataset_id,
@@ -165,5 +165,5 @@ class ChangeRecommender:
                     succeeded.append(c)
                 except Exception as e:
                     failed.append(c)
-                    errors.append(f'{c.name} failed with {e}')
+                    errors.append(f"{c.name} failed with {e}")
         return ChangeResults(succeeded, failed, errors, [c for c in changes if not c.can_automate()])

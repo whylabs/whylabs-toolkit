@@ -21,8 +21,14 @@ from whylabs_toolkit.utils.granularity import Granularity
 from whylabs_toolkit.monitor.diagnoser.helpers.utils import get_monitor_diagnostics_api, segment_as_readable_text
 from whylabs_toolkit.monitor.diagnoser.converters.granularity import time_period_to_granularity
 from whylabs_toolkit.monitor.diagnoser.constants import DEFAULT_BATCHES
-from whylabs_toolkit.monitor.diagnoser.models import NoisyMonitorStats, FailedMonitorStats, FailedSegmentStats, \
-    NoisySegmentStats, NoisyColumnStats, MonitorDiagnosisReport
+from whylabs_toolkit.monitor.diagnoser.models import (
+    NoisyMonitorStats,
+    FailedMonitorStats,
+    FailedSegmentStats,
+    NoisySegmentStats,
+    NoisyColumnStats,
+    MonitorDiagnosisReport,
+)
 from whylabs_toolkit.monitor.diagnoser.targeting import targeted_columns
 
 
@@ -92,7 +98,7 @@ class MonitorDiagnoser:
         if self._monitor_configs is None:
             config = self._monitor_api.get_monitor_config_v3(self.org_id, self.dataset_id)
             self._monitor_configs = []
-            for m in config.get('monitors', []):
+            for m in config.get("monitors", []):
                 try:
                     self._monitor_configs.append(Monitor.parse_obj(m))
                 except ValidationError:
@@ -168,13 +174,12 @@ class MonitorDiagnoser:
         """
         # get recommended diagnostic interval and the dataset's batch frequency
         resp: DiagnosticIntervalResponse = self._diagnostics_api.recommend_diagnostic_interval(
-            self.org_id,
-            DiagnosticIntervalRequest(dataset_id=self.dataset_id, batches=self.desired_batches)
+            self.org_id, DiagnosticIntervalRequest(dataset_id=self.dataset_id, batches=self.desired_batches)
         )
         time_period = resp.time_period
         self._diagnostic_interval = resp.interval
         if resp.start_timestamp is None or resp.end_timestamp is None:
-            raise Exception('No existing batch data')
+            raise Exception("No existing batch data")
 
         lineage = TimeRange(start=resp.start_timestamp, end=resp.end_timestamp)
         self.granularity = time_period_to_granularity(time_period)
@@ -189,39 +194,48 @@ class MonitorDiagnoser:
         """
 
         def merge_monitor_actions(item: Dict, mon_acts: List[Dict]) -> Dict:
-            monitor_action = next((m for m in mon_acts if m['analyzer_id'] == item['analyzer_id']), None)
+            monitor_action = next((m for m in mon_acts if m["analyzer_id"] == item["analyzer_id"]), None)
             if monitor_action:
                 item.update(monitor_action)
             else:
-                item['action_count'] = 0
-                item['action_targets'] = []
+                item["action_count"] = 0
+                item["action_targets"] = []
             return item
 
         if self._diagnostic_interval is None:
             self.choose_dataset_batches()
         resp: AnalyzersDiagnosticResponse = self._diagnostics_api.detect_noisy_analyzers(
-            self.org_id, AnalyzersDiagnosticRequest(dataset_id=self.dataset_id, interval=self._diagnostic_interval))
-        monitor_actions = [{
-            'monitor_id': m.id,
-            'analyzer_id': m.analyzerIds[0] if len(m.analyzerIds) > 0 else None,
-            'action_count': len(m.actions),
-            'action_targets': [a.target for a in m.actions if a.type == 'global']
-        } for m in self.monitor_configs]
-        self._noisy_monitors = [NoisyMonitorStats.parse_obj(merge_monitor_actions(item.to_dict(), monitor_actions))
-                                for item in resp.noisy_analyzers]
-        self._failed_monitors = [FailedMonitorStats.parse_obj(merge_monitor_actions(item.to_dict(), monitor_actions))
-                                 for item in resp.failed_analyzers]
+            self.org_id, AnalyzersDiagnosticRequest(dataset_id=self.dataset_id, interval=self._diagnostic_interval)
+        )
+        monitor_actions = [
+            {
+                "monitor_id": m.id,
+                "analyzer_id": m.analyzerIds[0] if len(m.analyzerIds) > 0 else None,
+                "action_count": len(m.actions),
+                "action_targets": [a.target for a in m.actions if a.type == "global"],
+            }
+            for m in self.monitor_configs
+        ]
+        self._noisy_monitors = [
+            NoisyMonitorStats.parse_obj(merge_monitor_actions(item.to_dict(), monitor_actions))
+            for item in resp.noisy_analyzers
+        ]
+        self._failed_monitors = [
+            FailedMonitorStats.parse_obj(merge_monitor_actions(item.to_dict(), monitor_actions))
+            for item in resp.failed_analyzers
+        ]
         if len(self._noisy_monitors) == 0:
-            raise Exception('No noisy monitors found')
+            raise Exception("No noisy monitors found")
         if self._monitor_id is None:
             self._monitor_id = self._noisy_monitors[0].monitor_id
         return self._noisy_monitors
 
     def get_analyzer_id_for_monitor(self) -> str:
-        analyzer_id: Optional[str] = next((m.analyzerIds[0] for m in self.monitor_configs if m.id == self.monitor_id_to_diagnose),
-                           None)
+        analyzer_id: Optional[str] = next(
+            (m.analyzerIds[0] for m in self.monitor_configs if m.id == self.monitor_id_to_diagnose), None
+        )
         if analyzer_id is None:
-            raise Exception(f'No analyzer found for monitor {self.monitor_id_to_diagnose}')
+            raise Exception(f"No analyzer found for monitor {self.monitor_id_to_diagnose}")
         return analyzer_id
 
     def detect_noisy_segments(self) -> List[NoisySegmentStats]:
@@ -229,7 +243,9 @@ class MonitorDiagnoser:
         resp: AnalyzerSegmentsDiagnosticResponse = self._diagnostics_api.detect_noisy_segments(
             self.org_id,
             AnalyzerSegmentsDiagnosticRequest(
-                dataset_id=self.dataset_id, analyzer_id=analyzer_id, interval=self._diagnostic_interval))
+                dataset_id=self.dataset_id, analyzer_id=analyzer_id, interval=self._diagnostic_interval
+            ),
+        )
         self._noisy_segments = [NoisySegmentStats.parse_obj(n.to_dict()) for n in resp.noisy_segments]
         self._failed_segments = [FailedSegmentStats.parse_obj(n.to_dict()) for n in resp.failed_segments]
         self.diagnostic_segment = self._noisy_segments[0].segment
@@ -240,31 +256,37 @@ class MonitorDiagnoser:
         resp: AnalyzerSegmentColumnsDiagnosticResponse = self._diagnostics_api.detect_noisy_columns(
             self.org_id,
             AnalyzerSegmentColumnsDiagnosticRequest(
-                dataset_id=self.dataset_id, analyzer_id=analyzer_id, interval=self._diagnostic_interval,
-                segment=WhyLabsSegment(tags=[WhyLabsSegmentTag(t.key, t.value) for t in self.diagnostic_segment.tags])))
+                dataset_id=self.dataset_id,
+                analyzer_id=analyzer_id,
+                interval=self._diagnostic_interval,
+                segment=WhyLabsSegment(tags=[WhyLabsSegmentTag(t.key, t.value) for t in self.diagnostic_segment.tags]),
+            ),
+        )
         self._noisy_columns = [NoisyColumnStats.parse_obj(n.to_dict()) for n in resp.noisy_columns]
         return self._noisy_columns
 
     def describe_segments(self) -> str:
         with_anomalies = [s for s in self.noisy_segments if s.total_anomalies > 0]
         with_failures = [s for s in self.failed_segments if s.total_failed > 0]
-        text = (f'{len(with_anomalies)} of {len(self.noisy_segments)} analyzed segments have anomalies '
-                f'and {len(with_failures)} have failures\n\n')
+        text = (
+            f"{len(with_anomalies)} of {len(self.noisy_segments)} analyzed segments have anomalies "
+            f"and {len(with_failures)} have failures\n\n"
+        )
         if len(with_anomalies):
-            text += 'Segments with anomalies:\n'
+            text += "Segments with anomalies:\n"
             text += pd.DataFrame.from_records(with_anomalies).to_markdown()
-            text += '\n'
+            text += "\n"
         if len(with_failures):
-            text += 'Segments with failures:\n'
+            text += "Segments with failures:\n"
             text += pd.DataFrame.from_records(with_failures).to_markdown()
-            text += '\n'
+            text += "\n"
         noisiest = segment_as_readable_text(self.noisy_segments[0].segment.tags)
-        text += f'Noisiest segment selected for diagnosis: {noisiest}\n'
+        text += f"Noisiest segment selected for diagnosis: {noisiest}\n"
         return text
 
     def describe_columns(self) -> str:
         cols = self.noisy_columns
-        text = f'Analysis ran on {len(cols)} columns in the diagnosed segment.\n'
+        text = f"Analysis ran on {len(cols)} columns in the diagnosed segment.\n"
         text += pd.DataFrame.from_records(cols).to_markdown()
         return text
 
@@ -281,17 +303,21 @@ class MonitorDiagnoser:
             self._diagnosed_columns = [c.column for c in self.noisy_columns[:100]]
         else:
             self._diagnosed_columns = columns[:100]
-        use_local_server = os.environ.get('USE_LOCAL_SERVER', False)
+        use_local_server = os.environ.get("USE_LOCAL_SERVER", False)
         if use_local_server:
             # Call the server function directly if configured to do so (for testing)
             try:
                 from smart_config.server.server import DiagnosisRequest
                 from smart_config.server.diagnosis.analyzer_diagnoser import AnalyzerDiagnoser
-                if use_local_server == 'library':
+
+                if use_local_server == "library":
                     # Call server code directly
                     analyzer_diagnoser = AnalyzerDiagnoser(
-                        self.org_id, self.dataset_id, self.get_analyzer_id_for_monitor(), self.diagnostic_interval,
-                        os.environ['WHYLABS_API_KEY']
+                        self.org_id,
+                        self.dataset_id,
+                        self.get_analyzer_id_for_monitor(),
+                        self.diagnostic_interval,
+                        os.environ["WHYLABS_API_KEY"],
                     )
                     analyzer_diagnoser.assemble_data([t for t in self.diagnostic_segment.tags], self._diagnosed_columns)
                     analyzer_diagnoser.run_detectors()
@@ -300,9 +326,16 @@ class MonitorDiagnoser:
                 else:
                     # Call local instance of server
                     from smart_config.server.service.diagnosis_service import DiagnosisService
-                    diagnosis_service = DiagnosisService(options={
-                        'headers': {'Accept': 'application/json', 'Content-Type': 'application/json',
-                                    'X-API-KEY': os.environ['WHYLABS_API_KEY']}})
+
+                    diagnosis_service = DiagnosisService(
+                        options={
+                            "headers": {
+                                "Accept": "application/json",
+                                "Content-Type": "application/json",
+                                "X-API-KEY": os.environ["WHYLABS_API_KEY"],
+                            }
+                        }
+                    )
                     report_dict = diagnosis_service.diagnose_sync(
                         DiagnosisRequest(
                             orgId=self.org_id,
@@ -312,18 +345,19 @@ class MonitorDiagnoser:
                             columns=self._diagnosed_columns,
                             segment=self.diagnostic_segment,
                             granularity=self.granularity,
-                        ))
+                        )
+                    )
             except ImportError:
-                raise Exception('USE_LOCAL_SERVER is set but server library is not available.')
+                raise Exception("USE_LOCAL_SERVER is set but server library is not available.")
         else:
             # TODO implement call through songbird/whylabs-client instead of direct
             # Call the diagnosis API via whyLabs client
-            raise NotImplementedError('Diagnosis API call not implemented')
+            raise NotImplementedError("Diagnosis API call not implemented")
 
         self._diagnosis = MonitorDiagnosisReport(
             **report_dict,
             analyzer=self.analyzer_to_diagnose,
             monitor=self.monitor_to_diagnose,
-            analyzedColumnCount=len(self.noisy_columns)
+            analyzedColumnCount=len(self.noisy_columns),
         )
         return self._diagnosis

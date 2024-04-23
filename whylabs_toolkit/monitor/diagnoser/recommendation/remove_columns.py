@@ -7,14 +7,14 @@ from whylabs_toolkit.monitor.models.analyzer import ColumnGroups
 
 
 class RemoveColumns(RecommendedChange):
-    name = 'remove_columns'
-    summary = 'Remove columns from the analyzer'
+    name = "remove_columns"
+    summary = "Remove columns from the analyzer"
     required_info: List[str] = []
     manual = False
 
     def _check_can_do(self, analyzer: Analyzer) -> bool:
         if analyzer.targetMatrix.type == TargetLevel.dataset:
-            raise ValueError('Cannot remove columns from a dataset level target matrix')
+            raise ValueError("Cannot remove columns from a dataset level target matrix")
         return super()._check_can_do(analyzer)
 
     def generate_config(self, analyzer: Analyzer) -> List[Analyzer]:
@@ -23,7 +23,9 @@ class RemoveColumns(RecommendedChange):
             return [analyzer]
         target_matrix: ColumnMatrix = analyzer.targetMatrix
         include: List[str] = analyzer.targetMatrix.include if analyzer.targetMatrix.include is not None else []
-        exclude: List[Union[ColumnGroups, str]] = analyzer.targetMatrix.exclude if analyzer.targetMatrix.exclude is not None else []
+        exclude: List[Union[ColumnGroups, str]] = (
+            analyzer.targetMatrix.exclude if analyzer.targetMatrix.exclude is not None else []
+        )
         to_remove = set(self.columns)
         # remove from includes if possible, otherwise exclude
         remove_includes = set(include).intersection(to_remove)
