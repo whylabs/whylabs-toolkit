@@ -35,7 +35,7 @@ class MonitorDiagnoser:
         self._diagnostics_api = get_monitor_diagnostics_api()
         self._monitor_api = get_monitor_api()
         self._models_api = get_models_api()
-        self._monitor_configs = None
+        self._monitor_configs: Optional[List[Monitor]] = None
         self._noisy_monitors: Optional[List[NoisyMonitorStats]] = None
         self._failed_monitors: Optional[List[FailedMonitorStats]] = None
         self._noisy_segments: Optional[List[NoisySegmentStats]] = None
@@ -45,7 +45,7 @@ class MonitorDiagnoser:
         self._monitor_id: Optional[str] = None
         self._diagnostic_segment: Optional[Segment] = None
         self._analyzer: Optional[Analyzer] = None
-        self._diagnosed_columns: Optional[str] = None
+        self._diagnosed_columns: Optional[List[str]] = None
         self._diagnosis: Optional[MonitorDiagnosisReport] = None
         self.schema: Optional[EntitySchema] = None
 
@@ -88,7 +88,7 @@ class MonitorDiagnoser:
         return self._noisy_columns
 
     @property
-    def monitor_configs(self):
+    def monitor_configs(self) -> List[Monitor]:
         if self._monitor_configs is None:
             config = self._monitor_api.get_monitor_config_v3(self.org_id, self.dataset_id)
             self._monitor_configs = []
@@ -106,8 +106,9 @@ class MonitorDiagnoser:
         return self._diagnostic_interval
 
     @diagnostic_interval.setter
-    def diagnostic_interval(self, interval: str):
+    def diagnostic_interval(self, interval: str) -> str:
         self._diagnostic_interval = interval
+        return self._diagnostic_interval
 
     @property
     def diagnostic_segment(self) -> Segment:
@@ -116,11 +117,12 @@ class MonitorDiagnoser:
         return self._diagnostic_segment
 
     @diagnostic_segment.setter
-    def diagnostic_segment(self, segment: Segment):
+    def diagnostic_segment(self, segment: Segment) -> Segment:
         if self._diagnostic_segment != segment:
             self._diagnostic_segment = segment
             self._noisy_columns = None
             self._diagnosis = None
+        return segment
 
     @property
     def monitor_id_to_diagnose(self) -> str:
@@ -129,7 +131,7 @@ class MonitorDiagnoser:
         return self._monitor_id
 
     @monitor_id_to_diagnose.setter
-    def monitor_id_to_diagnose(self, monitor_id: str):
+    def monitor_id_to_diagnose(self, monitor_id: str) -> str:
         if self._monitor_id != monitor_id:
             self._monitor_id = monitor_id
             # Reset anything specific to the monitor
@@ -139,12 +141,13 @@ class MonitorDiagnoser:
             self._noisy_columns = None
             self._diagnosis = None
             self._diagnostic_segment = None
+        return self._monitor_id
 
     @property
-    def monitor_to_diagnose(self) -> Monitor:
-        return next(m for m in self.monitor_configs if m.id == self._monitor_id)
+    def monitor_to_diagnose(self) -> Optional[Monitor]:
+        return next((m for m in self.monitor_configs if m.id == self._monitor_id), None)
 
-    def targeted_columns(self):
+    def targeted_columns(self) -> List[str]:
         if self.schema is None:
             self.schema = self._models_api.get_entity_schema(self.org_id, self.dataset_id)
         return targeted_columns(self.analyzer_to_diagnose.targetMatrix, self.schema)
@@ -176,7 +179,7 @@ class MonitorDiagnoser:
         lineage = TimeRange(start=resp.start_timestamp, end=resp.end_timestamp)
         self.granularity = time_period_to_granularity(time_period)
 
-        return lineage, self.granularity, self._diagnostic_interval
+        return lineage, self.granularity, resp.interval
 
     def detect_noisy_monitors(self) -> List[NoisyMonitorStats]:
         """
@@ -202,7 +205,7 @@ class MonitorDiagnoser:
             'monitor_id': m.id,
             'analyzer_id': m.analyzerIds[0] if len(m.analyzerIds) > 0 else None,
             'action_count': len(m.actions),
-            'action_targets': [a.target for a in m.actions]
+            'action_targets': [a.target for a in m.actions if a.type == 'global']
         } for m in self.monitor_configs]
         self._noisy_monitors = [NoisyMonitorStats.parse_obj(merge_monitor_actions(item.to_dict(), monitor_actions))
                                 for item in resp.noisy_analyzers]
@@ -215,13 +218,13 @@ class MonitorDiagnoser:
         return self._noisy_monitors
 
     def get_analyzer_id_for_monitor(self) -> str:
-        analyzer_id = next((m.analyzerIds[0] for m in self.monitor_configs if m.id == self.monitor_id_to_diagnose),
+        analyzer_id: Optional[str] = next((m.analyzerIds[0] for m in self.monitor_configs if m.id == self.monitor_id_to_diagnose),
                            None)
         if analyzer_id is None:
             raise Exception(f'No analyzer found for monitor {self.monitor_id_to_diagnose}')
         return analyzer_id
 
-    def detect_noisy_segments(self):
+    def detect_noisy_segments(self) -> List[NoisySegmentStats]:
         analyzer_id = self.get_analyzer_id_for_monitor()
         resp: AnalyzerSegmentsDiagnosticResponse = self._diagnostics_api.detect_noisy_segments(
             self.org_id,
@@ -232,7 +235,7 @@ class MonitorDiagnoser:
         self.diagnostic_segment = self._noisy_segments[0].segment
         return self._noisy_segments
 
-    def detect_noisy_columns(self):
+    def detect_noisy_columns(self) -> List[NoisyColumnStats]:
         analyzer_id = self.get_analyzer_id_for_monitor()
         resp: AnalyzerSegmentColumnsDiagnosticResponse = self._diagnostics_api.detect_noisy_columns(
             self.org_id,
@@ -275,7 +278,7 @@ class MonitorDiagnoser:
         if columns is None:
             if self._noisy_columns is None:
                 self.detect_noisy_columns()
-            self._diagnosed_columns = [c.column for c in self._noisy_columns[:100]]
+            self._diagnosed_columns = [c.column for c in self.noisy_columns[:100]]
         else:
             self._diagnosed_columns = columns[:100]
         use_local_server = os.environ.get('USE_LOCAL_SERVER', False)
@@ -321,6 +324,6 @@ class MonitorDiagnoser:
             **report_dict,
             analyzer=self.analyzer_to_diagnose,
             monitor=self.monitor_to_diagnose,
-            analyzedColumnCount=len(self._noisy_columns)
+            analyzedColumnCount=len(self.noisy_columns)
         )
         return self._diagnosis

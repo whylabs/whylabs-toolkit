@@ -1,4 +1,4 @@
-from typing import List, Union
+from typing import List, Union, Set
 
 from whylabs_toolkit.monitor.models import EntitySchema, ColumnMatrix, DatasetMatrix, TargetLevel
 
@@ -21,11 +21,12 @@ def expand_target(target: str, schema: EntitySchema) -> List[str]:
 def targeted_columns(target_matrix: Union[ColumnMatrix, DatasetMatrix], schema: EntitySchema) -> List[str]:
     if target_matrix is None:
         return []
-    if target_matrix.type == TargetLevel.dataset:
+    if isinstance(target_matrix, DatasetMatrix):
         return ['__internal__datasetMetrics']
-    columns = set()
-    for include in target_matrix.include:
-        columns.update(expand_target(include, schema))
+    columns: Set[str] = set()
+    if target_matrix.include is not None:
+        for include in target_matrix.include:
+                columns.update(expand_target(include, schema))
     if target_matrix.exclude is not None:
         for exclude in target_matrix.exclude:
             columns = columns - set(expand_target(exclude, schema))

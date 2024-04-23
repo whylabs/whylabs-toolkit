@@ -1,7 +1,8 @@
 import pandas as pd
 from typing import Dict, List, Optional, Tuple
 from pydantic import BaseModel
-from whylabs_toolkit.monitor.models import Analyzer, Monitor, Segment, TargetLevel, FixedThresholdsConfig
+from whylabs_toolkit.monitor.models import Analyzer, Monitor, Segment, TargetLevel, FixedThresholdsConfig, \
+    ConjunctionConfig, DisjunctionConfig, GlobalAction
 
 from whylabs_toolkit.monitor.diagnoser.helpers.describe import describe_truncated_table, filter_by_index, describe_truncated_list
 from whylabs_toolkit.monitor.diagnoser.helpers.utils import segment_as_readable_text
@@ -132,9 +133,9 @@ class DiagnosticDataSummary(BaseModel):
     def describe(self) -> str:
         return '\n'.join([
             f'Diagnostic segment is "{segment_as_readable_text(self.diagnosticSegment.tags)}".',
-            self.diagnosticBatches.describe(),
+            self.diagnosticBatches.describe() if self.diagnosticBatches is not None else '',
             self.diagnosticProfile.describe() if self.diagnosticProfile is not None else '',
-            self.analysisResults.describe()
+            self.analysisResults.describe() if self.analysisResults is not None else ''
         ])
 
 
@@ -166,19 +167,21 @@ class AnalyzerDiagnosisReport(BaseModel):
         if len(self.conditions) == 0:
             return 'No conditions related to noise were detected.'
         text = 'Conditions that may contribute to noise include:\n'
-        cols = []
+        condition_cols: List[str] = []
         for condition in self.conditions:
             text += f'\t* Condition {condition.name} ({condition.summary})'
             if condition.columns is not None:
-                cols += condition.columns
-                col_text = describe_truncated_list(cols, 10)
-                text += f' for {len(cols)} columns: {col_text}'
+                condition_cols += condition.columns
+                col_text = describe_truncated_list(condition_cols, 10)
+                text += f' for {len(condition_cols)} columns: {col_text}'
             text += '\n'
 
-        cols = pd.Series(cols).unique()
+        cols = pd.Series(condition_cols).unique()
         if len(cols) > 0:
             text += f'\nAnomalies for columns with these conditions:\n'
-            count_tuples = [c.to_tuple() for c in self.diagnosticData.analysisResults.anomalies.byColumnCount]
+            by_col_count = self.diagnosticData.analysisResults.anomalies.byColumnCount if (
+                    self.diagnosticData.analysisResults is not None) else []
+            count_tuples = [c.to_tuple() for c in by_col_count]
             idx, values = zip(*count_tuples)
             count_by_col = pd.Series(values, idx)
             cols_with_count = filter_by_index(cols.tolist(), count_by_col).sort_values(
@@ -207,18 +210,26 @@ class MonitorDiagnosisReport(AnalyzerDiagnosisReport):
         text = (f'Diagnosis is for monitor "{self.monitor.displayName if self.monitor.displayName else self.monitor.id}" '
                 f'[{self.monitor.id}] in {self.datasetId} {self.orgId}, over interval {self.interval}.\n')
         if len(self.monitor.actions) > 0:
-            text += f'Monitor has {len(self.monitor.actions)} notification actions {[a.target for a in self.monitor.actions]}.\n'
+            text += f'Monitor has {len(self.monitor.actions)} notification actions '
+            text += f'{[a.target for a in self.monitor.actions if isinstance(a, GlobalAction)]}.\n'
         return text
 
     def describe_analyzer(self) -> str:
-        baseline = 'no baseline' if isinstance(self.analyzer.config, FixedThresholdsConfig) else \
+        if self.analyzer is None:
+            return 'No analyzer found.\n'
+        if isinstance(self.analyzer.config, ConjunctionConfig) or isinstance(self.analyzer.config, DisjunctionConfig):
+            return f'\nAnalyzer is a composite {self.analyzer.config.type}.'
+        baseline = 'no baseline' if (isinstance(self.analyzer.config, FixedThresholdsConfig) or
+                                     self.analyzer.config.baseline is None) else \
             f'{self.analyzer.config.baseline.type} baseline'
-        # need to add better support for composite analyzers
         targeting_desc = ''
+        if self.analyzer is None:
+            return ''
+        metric = self.analyzer.config.metric
         if self.analyzer.targetMatrix is not None and self.analyzer.targetMatrix.type == TargetLevel.column:
             targeting_desc = (f'\nAnalyzer "{self.analyzer.id}" targets {self.diagnosticData.targetedColumnCount} '
                               f'columns and ran on {self.analyzedColumnCount} columns in the diagnosed segment.\n')
-        text = f'Analyzer is {self.analyzer.config.type} configuration for {self.analyzer.config.metric} metric with {baseline}.'
+        text = f'Analyzer is {self.analyzer.config.type} configuration for {metric} metric with {baseline}.'
         text += targeting_desc
         text += '\n'
         return text

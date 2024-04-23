@@ -11,11 +11,11 @@ class RecommendedChange:
     name = ''
     summary = ''
     manual = True
-    required_info = []
+    required_info: List[str] = []
 
     @classmethod
-    def from_condition(cls, condition: ConditionRecord):
-        return cls(condition.columns, condition.info)
+    def from_condition(cls, condition: ConditionRecord) -> RecommendedChange:
+        return cls(condition.columns if condition.columns is not None else [], condition.info)
 
     def __init__(self, columns: List[str], info: Optional[dict] = None):
         self.columns = columns

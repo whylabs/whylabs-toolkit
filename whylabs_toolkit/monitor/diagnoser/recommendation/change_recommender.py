@@ -74,6 +74,8 @@ class ChangeRecommender:
 
     @staticmethod
     def _best_change_for_condition(condition: ConditionRecord) -> RecommendedChange:
+        if condition.columns is None:
+            raise ValueError('Condition must have columns to recommend a change')
         if condition.name in ['changing_discrete', 'changing_continuous']:
             return RemoveColumns(columns=condition.columns, info=condition.info)
         info = condition.info if condition.info else {}
@@ -86,11 +88,14 @@ class ChangeRecommender:
         return self._min_anomaly_count
 
     @min_anomaly_count.setter
-    def min_anomaly_count(self, count: int):
+    def min_anomaly_count(self, count: int) -> int:
         self._min_anomaly_count = count
+        return self._min_anomaly_count
 
     def recommend(self) -> List[RecommendedChange]:
-        count_tuples = [c.to_tuple() for c in self.report.diagnosticData.analysisResults.anomalies.byColumnCount]
+        by_col_count = self.report.diagnosticData.analysisResults.anomalies.byColumnCount if (
+                self.report.diagnosticData.analysisResults is not None) else []
+        count_tuples = [c.to_tuple() for c in by_col_count]
         cols, counts = zip(*count_tuples)
         anom_count = pd.Series(counts, index=cols)
         cols_to_address = anom_count[anom_count >= self.min_anomaly_count]
@@ -102,7 +107,7 @@ class ChangeRecommender:
                 changes.append(self._best_change_for_condition(c))
         return changes
 
-    def _update_analyzer(self, updated: Analyzer):
+    def _update_analyzer(self, updated: Analyzer) -> None:
         self.monitor_api.put_analyzer(
             org_id=self.org_id,
             dataset_id=self.dataset_id,
@@ -110,8 +115,9 @@ class ChangeRecommender:
             body=updated.dict(exclude_none=True),
         )
 
-    def _delete_monitor(self):
-        if self.monitor is not None:
+    def _delete_monitor(self) -> None:
+        if self.monitor is not None and self.analyzer is not None:
+            analyzer: Analyzer = self.analyzer
             self.monitor_api.delete_monitor(
                 org_id=self.org_id,
                 dataset_id=self.dataset_id,
@@ -120,10 +126,10 @@ class ChangeRecommender:
         self.monitor_api.delete_analyzer(
             org_id=self.org_id,
             dataset_id=self.dataset_id,
-            analyzer_id=self.analyzer.id
+            analyzer_id=analyzer.id
         )
 
-    def _add_new_monitor(self, new_analyzer: Analyzer):
+    def _add_new_monitor(self, new_analyzer: Analyzer) -> None:
         new_monitor = Monitor(**self.monitor.dict(), id=new_analyzer.id) if self.monitor else Monitor(id=new_analyzer.id)
         self.monitor_api.put_monitor(
             org_id=self.org_id,
@@ -131,7 +137,7 @@ class ChangeRecommender:
             monitor_id=new_analyzer.id,  # use same id as the analyzer
             body=new_monitor.json(exclude_none=True),
         )
-        self._monitor_api.put_analyzer(
+        self.monitor_api.put_analyzer(
             org_id=self.org_id,
             dataset_id=self.dataset_id,
             analyzer_id=new_analyzer.id,
@@ -144,7 +150,7 @@ class ChangeRecommender:
         failed: List[RecommendedChange] = []
         errors: List[str] = []
         for c in changes:
-            if c.can_automate():
+            if c.can_automate() and self.analyzer:
                 try:
                     changed_analyzers = c.generate_config(self.analyzer)
                     if next((a.id for a in changed_analyzers), None) is None:

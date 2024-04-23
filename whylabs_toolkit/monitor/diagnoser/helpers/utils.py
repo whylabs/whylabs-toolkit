@@ -1,5 +1,5 @@
 import os
-from typing import List
+from typing import List, Optional
 
 from whylabs_client.api.monitor_diagnostics_api import MonitorDiagnosticsApi
 
@@ -18,7 +18,8 @@ def get_monitor_diagnostics_api(config: Config = Config()) -> MonitorDiagnostics
     return MonitorDiagnosticsApi(api_client=create_client(config=config))
 
 
-def env_setup(org_id: str, dataset_id: str, api_key: str = None, whylabs_endpoint: str = None):
+def env_setup(org_id: str, dataset_id: str, api_key: Optional[str] = None,
+              whylabs_endpoint: Optional[str] = None) -> None:
     """
     Set environment variables to work with both whylabs-toolkit and whylogs. Will pick up the API
     key from the environment if not provided as a parameter.
