@@ -55,4 +55,4 @@ def test_create_custom_metric(models_api: ModelsApi) -> None:
     
     assert entity["metrics"]["temperature.median"].to_dict() == {'column': 'temperature', 'default_metric': 'median','label': 'temperature.median'}
     
-    models_api.delete_entity_schema_metric(org_id=org_id, dataset_id="model-7", metric_label="temperature.median")
+    models_api.delete_entity_schema_metric(org_id=org_id, dataset_id="model-7", metric_name="temperature.median")
