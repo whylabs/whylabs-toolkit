@@ -1,5 +1,4 @@
 import os
-import json
 
 import pandas as pd
 from typing import Tuple, List, Optional, Dict
@@ -33,18 +32,20 @@ from whylabs_toolkit.monitor.diagnoser.models import (
 )
 from whylabs_toolkit.monitor.diagnoser.targeting import targeted_columns
 
-def to_mapped_dict(obj) -> dict:
+
+def to_mapped_dict(obj: object) -> object:
     """
     Convert a WhyLabs Client class instance into a JSON dictionary with keys mapped to the API schema. For example,
     the pythonized 'org_id' attribute becomes 'orgId'.
     :param obj:
     :return: dict
     """
-    if hasattr(obj, 'to_dict') and hasattr(obj, 'attribute_map'):
+    if hasattr(obj, "to_dict") and hasattr(obj, "attribute_map"):
         return {obj.attribute_map[k]: to_mapped_dict(getattr(obj, k)) for k, _ in obj.to_dict().items()}
     if isinstance(obj, list):
         return [to_mapped_dict(i) for i in obj]
     return obj
+
 
 class MonitorDiagnoser:
     def __init__(self, org_id: str, dataset_id: str):
@@ -127,7 +128,7 @@ class MonitorDiagnoser:
         return self._diagnostic_interval
 
     @diagnostic_interval.setter
-    def diagnostic_interval(self, interval: str):
+    def diagnostic_interval(self, interval: str) -> None:
         self._diagnostic_interval = interval
 
     @property
@@ -137,7 +138,7 @@ class MonitorDiagnoser:
         return self._diagnostic_segment
 
     @diagnostic_segment.setter
-    def diagnostic_segment(self, segment: Segment):
+    def diagnostic_segment(self, segment: Segment) -> None:
         if self._diagnostic_segment != segment:
             self._diagnostic_segment = segment
             self._noisy_columns = None
@@ -150,7 +151,7 @@ class MonitorDiagnoser:
         return self._monitor_id
 
     @monitor_id_to_diagnose.setter
-    def monitor_id_to_diagnose(self, monitor_id: str):
+    def monitor_id_to_diagnose(self, monitor_id: str) -> None:
         if self._monitor_id != monitor_id:
             self._monitor_id = monitor_id
             # Reset anything specific to the monitor
@@ -370,8 +371,9 @@ class MonitorDiagnoser:
                     interval=self.diagnostic_interval,
                     columns=self._diagnosed_columns,
                     segment=WhyLabsSegment(
-                        tags=[WhyLabsSegmentTag(t.key, t.value) for t in self.diagnostic_segment.tags]),
-                )
+                        tags=[WhyLabsSegmentTag(t.key, t.value) for t in self.diagnostic_segment.tags]
+                    ),
+                ),
             )
 
             report_dict = to_mapped_dict(response)
