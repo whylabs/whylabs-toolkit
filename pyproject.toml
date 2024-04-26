@@ -11,7 +11,7 @@ include = ["whylabs_toolkit/monitor/schema/schema.json"]
 
 [tool.poetry.dependencies]
 python = "^3.8"
-whylabs-client = "^0.6.0"
+whylabs-client = "^0.6.3"
 pydantic = "^1.10.15"
 whylogs = "^1.1.26"
 jsonschema = "^4.17.3"

@@ -1,4 +1,5 @@
 import os
+import json
 
 import pandas as pd
 from typing import Tuple, List, Optional, Dict
@@ -9,12 +10,13 @@ from whylabs_client.model.analyzer_segment_columns_diagnostic_response import An
 from whylabs_client.model.analyzer_segments_diagnostic_request import AnalyzerSegmentsDiagnosticRequest
 from whylabs_client.model.analyzer_segments_diagnostic_response import AnalyzerSegmentsDiagnosticResponse
 from whylabs_client.model.analyzers_diagnostic_response import AnalyzersDiagnosticResponse
+from whylabs_client.model.diagnosis_request import DiagnosisRequest
 from whylabs_client.model.diagnostic_interval_request import DiagnosticIntervalRequest
 from whylabs_client.model.diagnostic_interval_response import DiagnosticIntervalResponse
 from whylabs_client.model.analyzers_diagnostic_request import AnalyzersDiagnosticRequest
 from whylabs_client.model.segment import Segment as WhyLabsSegment
 from whylabs_client.model.segment_tag import SegmentTag as WhyLabsSegmentTag
-from whylabs_toolkit.helpers.utils import get_monitor_api, get_models_api
+from whylabs_toolkit.helpers.utils import get_monitor_api, get_models_api, get_monitor_diagnostics_api
 from whylabs_toolkit.monitor.models import TimeRange, Monitor, Segment, Analyzer, EntitySchema
 from whylabs_toolkit.utils.granularity import Granularity
 
@@ -31,6 +33,18 @@ from whylabs_toolkit.monitor.diagnoser.models import (
 )
 from whylabs_toolkit.monitor.diagnoser.targeting import targeted_columns
 
+def to_mapped_dict(obj) -> dict:
+    """
+    Convert a WhyLabs Client class instance into a JSON dictionary with keys mapped to the API schema. For example,
+    the pythonized 'org_id' attribute becomes 'orgId'.
+    :param obj:
+    :return: dict
+    """
+    if hasattr(obj, 'to_dict') and hasattr(obj, 'attribute_map'):
+        return {obj.attribute_map[k]: to_mapped_dict(getattr(obj, k)) for k, _ in obj.to_dict().items()}
+    if isinstance(obj, list):
+        return [to_mapped_dict(i) for i in obj]
+    return obj
 
 class MonitorDiagnoser:
     def __init__(self, org_id: str, dataset_id: str):
@@ -41,6 +55,7 @@ class MonitorDiagnoser:
         self._diagnostics_api = get_monitor_diagnostics_api()
         self._monitor_api = get_monitor_api()
         self._models_api = get_models_api()
+        self._diagnostics_api = get_monitor_diagnostics_api()
         self._monitor_configs: Optional[List[Monitor]] = None
         self._noisy_monitors: Optional[List[NoisyMonitorStats]] = None
         self._failed_monitors: Optional[List[FailedMonitorStats]] = None
@@ -112,9 +127,8 @@ class MonitorDiagnoser:
         return self._diagnostic_interval
 
     @diagnostic_interval.setter
-    def diagnostic_interval(self, interval: str) -> str:
+    def diagnostic_interval(self, interval: str):
         self._diagnostic_interval = interval
-        return self._diagnostic_interval
 
     @property
     def diagnostic_segment(self) -> Segment:
@@ -123,12 +137,11 @@ class MonitorDiagnoser:
         return self._diagnostic_segment
 
     @diagnostic_segment.setter
-    def diagnostic_segment(self, segment: Segment) -> Segment:
+    def diagnostic_segment(self, segment: Segment):
         if self._diagnostic_segment != segment:
             self._diagnostic_segment = segment
             self._noisy_columns = None
             self._diagnosis = None
-        return segment
 
     @property
     def monitor_id_to_diagnose(self) -> str:
@@ -137,7 +150,7 @@ class MonitorDiagnoser:
         return self._monitor_id
 
     @monitor_id_to_diagnose.setter
-    def monitor_id_to_diagnose(self, monitor_id: str) -> str:
+    def monitor_id_to_diagnose(self, monitor_id: str):
         if self._monitor_id != monitor_id:
             self._monitor_id = monitor_id
             # Reset anything specific to the monitor
@@ -147,7 +160,6 @@ class MonitorDiagnoser:
             self._noisy_columns = None
             self._diagnosis = None
             self._diagnostic_segment = None
-        return self._monitor_id
 
     @property
     def monitor_to_diagnose(self) -> Optional[Monitor]:
@@ -307,7 +319,7 @@ class MonitorDiagnoser:
         if use_local_server:
             # Call the server function directly if configured to do so (for testing)
             try:
-                from smart_config.server.server import DiagnosisRequest
+                from smart_config.server.server import DiagnosisRequest as DiagnoserDiagnosisRequest
                 from smart_config.server.diagnosis.analyzer_diagnoser import AnalyzerDiagnoser
 
                 if use_local_server == "library":
@@ -337,22 +349,32 @@ class MonitorDiagnoser:
                         }
                     )
                     report_dict = diagnosis_service.diagnose_sync(
-                        DiagnosisRequest(
+                        DiagnoserDiagnosisRequest(
                             orgId=self.org_id,
                             datasetId=self.dataset_id,
                             analyzerId=self.get_analyzer_id_for_monitor(),
                             interval=self.diagnostic_interval,
                             columns=self._diagnosed_columns,
                             segment=self.diagnostic_segment,
-                            granularity=self.granularity,
                         )
                     )
             except ImportError:
                 raise Exception("USE_LOCAL_SERVER is set but server library is not available.")
         else:
-            # TODO implement call through songbird/whylabs-client instead of direct
             # Call the diagnosis API via whyLabs client
-            raise NotImplementedError("Diagnosis API call not implemented")
+            response = self._diagnostics_api.diagnose_analyzer_sync(
+                self.org_id,
+                DiagnosisRequest(
+                    dataset_id=self.dataset_id,
+                    analyzer_id=self.get_analyzer_id_for_monitor(),
+                    interval=self.diagnostic_interval,
+                    columns=self._diagnosed_columns,
+                    segment=WhyLabsSegment(
+                        tags=[WhyLabsSegmentTag(t.key, t.value) for t in self.diagnostic_segment.tags]),
+                )
+            )
+
+            report_dict = to_mapped_dict(response)
 
         self._diagnosis = MonitorDiagnosisReport(
             **report_dict,

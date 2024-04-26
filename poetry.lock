@@ -676,13 +676,13 @@ zstd = ["zstandard (>=0.18.0)"]
 
 [[package]]
 name = "whylabs-client"
-version = "0.6.2"
+version = "0.6.3"
 description = "WhyLabs API client"
 optional = false
 python-versions = ">=3.6"
 files = [
-    {file = "whylabs-client-0.6.2.tar.gz", hash = "sha256:7d8181317cd75f643935b45e87377fd21e17dd9117674a8996cf9a469be65a90"},
-    {file = "whylabs_client-0.6.2-py3-none-any.whl", hash = "sha256:3fe5edff4415ac15426a8aaed6adaf7e803818e997b825535e5aa5417757b7ae"},
+    {file = "whylabs-client-0.6.3.tar.gz", hash = "sha256:4df4daa436f7899c60575c5a72641a2b3cbfe9d2f0cc0d6b4831746d13342088"},
+    {file = "whylabs_client-0.6.3-py3-none-any.whl", hash = "sha256:050bcfd1493fbb303f38b02b750fb5321abeeed1e775f7dfd570998d3bf5719b"},
 ]
 
 [package.dependencies]
@@ -781,4 +781,4 @@ diagnoser = ["isodate", "numpy", "pandas", "python-dateutil", "tabulate"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "14e09374513c67afeab23e3431078c556d5cbe4c83190c7cd9c2dd44f189fb40"
+content-hash = "20fc341db7d79a6f3190c5e3da4008c508584233d74c491ccbd91528c325d681"
