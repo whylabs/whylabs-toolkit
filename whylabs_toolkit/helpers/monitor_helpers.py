@@ -78,6 +78,19 @@ def get_analyzers(
         return None
 
 
+def time_period_to_granularity(time_period: str) -> Granularity:
+    if time_period == "PT1H":
+        return Granularity.hourly
+
+    if time_period == "P1W":
+        return Granularity.weekly
+
+    if time_period == "P1M":
+        return Granularity.monthly
+
+    return Granularity.daily
+
+
 def get_model_granularity(
     org_id: Optional[str] = None, dataset_id: Optional[str] = None, config: Config = Config()
 ) -> Optional[Granularity]:
@@ -87,16 +100,8 @@ def get_model_granularity(
     api = get_models_api(config=config)
     model_meta = api.get_model(org_id=org_id, model_id=dataset_id)
 
-    time_period_to_gran = {
-        "H": Granularity.hourly,
-        "D": Granularity.daily,
-        "W": Granularity.weekly,
-        "M": Granularity.monthly,
-    }
     if model_meta:
-        for key, value in time_period_to_gran.items():
-            if key in model_meta["time_period"]:
-                return value
+        return time_period_to_granularity(model_meta["time_period"])
     return None
 
 

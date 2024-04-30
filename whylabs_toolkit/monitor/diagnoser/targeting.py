@@ -1,6 +1,6 @@
 from typing import List, Union, Set
 
-from whylabs_toolkit.monitor.models import EntitySchema, ColumnMatrix, DatasetMatrix, TargetLevel
+from whylabs_toolkit.monitor.models import EntitySchema, ColumnMatrix, DatasetMatrix
 
 
 def expand_target(target: str, schema: EntitySchema) -> List[str]:
@@ -10,7 +10,7 @@ def expand_target(target: str, schema: EntitySchema) -> List[str]:
     if target == "group:discrete":
         return [name for (name, c) in col_items if c.discreteness == "discrete"]
     if target == "group:continuous":
-        return [name for (name, c) in col_items if c.discreteness != "discrete"]
+        return [name for (name, c) in col_items if c.discreteness == "continuous"]
     if target == "group:input":
         return [name for (name, c) in col_items if c.classifier == "input"]
     if target == "group:output":

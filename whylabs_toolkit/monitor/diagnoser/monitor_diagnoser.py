@@ -20,7 +20,7 @@ from whylabs_toolkit.monitor.models import TimeRange, Monitor, Segment, Analyzer
 from whylabs_toolkit.utils.granularity import Granularity
 
 from whylabs_toolkit.monitor.diagnoser.helpers.utils import get_monitor_diagnostics_api, segment_as_readable_text
-from whylabs_toolkit.monitor.diagnoser.converters.granularity import time_period_to_granularity
+from whylabs_toolkit.helpers.monitor_helpers import time_period_to_granularity
 from whylabs_toolkit.monitor.diagnoser.constants import DEFAULT_BATCHES
 from whylabs_toolkit.monitor.diagnoser.models import (
     NoisyMonitorStats,

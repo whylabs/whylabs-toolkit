@@ -16,19 +16,6 @@ def batches_to_timedelta(time_period: str, batches: int) -> relativedelta:
     return relativedelta(days=batches)
 
 
-def time_period_to_granularity(time_period: str) -> Granularity:
-    if time_period == "PT1H":
-        return Granularity.hourly
-
-    if time_period == "P1W":
-        return Granularity.weekly
-
-    if time_period == "P1M":
-        return Granularity.monthly
-
-    return Granularity.daily
-
-
 def calculate_num_batches(interval: str, granularity: str) -> int:
     # Parse the ISO8601 interval string into a start and end datetime
     start, end = interval.split("/")
