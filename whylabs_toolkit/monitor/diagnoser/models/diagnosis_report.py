@@ -186,14 +186,14 @@ class AnalyzerDiagnosisReport(BaseModel):
     def describe_conditions(self) -> str:
         if len(self.conditions) == 0:
             return "No conditions related to noise were detected."
-        text = "Conditions that may contribute to noise include:\n"
         condition_cols: List[str] = []
+        text = "Conditions that may contribute to noise include:\n"
         for condition in self.conditions:
             text += f"\t* Condition {condition.name} ({condition.summary})"
             if condition.columns is not None:
                 condition_cols += condition.columns
-                col_text = describe_truncated_list(condition_cols, 10)
-                text += f" for {len(condition_cols)} columns: {col_text}"
+                col_text = describe_truncated_list(condition.columns, 10)
+                text += f" for {len(condition.columns)} columns: {col_text}"
             text += "\n"
 
         cols = pd.Series(condition_cols).unique()
