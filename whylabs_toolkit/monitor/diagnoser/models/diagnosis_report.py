@@ -187,8 +187,8 @@ class AnalyzerDiagnosisReport(BaseModel):
         if len(self.conditions) == 0:
             return "No conditions related to noise were detected."
         text = "Conditions that may contribute to noise include:\n"
-        condition_cols: List[str] = []
         for condition in self.conditions:
+            condition_cols: List[str] = []
             text += f"\t* Condition {condition.name} ({condition.summary})"
             if condition.columns is not None:
                 condition_cols += condition.columns
