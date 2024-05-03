@@ -1,4 +1,5 @@
 from whylabs_client.api.dataset_profile_api import DatasetProfileApi
+from whylabs_client.api.monitor_diagnostics_api import MonitorDiagnosticsApi
 from whylabs_client.api.models_api import ModelsApi
 from whylabs_client.api.notification_settings_api import NotificationSettingsApi
 from whylabs_client.api.monitor_api import MonitorApi
@@ -21,3 +22,7 @@ def get_notification_api(config: Config = Config()) -> NotificationSettingsApi:
 
 def get_monitor_api(config: Config = Config()) -> MonitorApi:
     return MonitorApi(api_client=create_client(config=config))
+
+
+def get_monitor_diagnostics_api(config: Config = Config()) -> MonitorDiagnosticsApi:
+    return MonitorDiagnosticsApi(api_client=create_client(config=config))
