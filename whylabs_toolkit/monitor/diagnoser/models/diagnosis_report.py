@@ -95,7 +95,7 @@ class FailureRecord(BaseModel):
     byTypeCount: List[NamedCount]
 
     def describe(self) -> str:
-        failures = pd.DataFrame([c.to_tuple() for c in self.byColumnCount], columns=['column', 'count'])
+        failures = pd.DataFrame([c.to_tuple() for c in self.byColumnCount], columns=["column", "count"])
         failure_types = [t.name for t in self.byTypeCount]
         if len(failures) == 0:
             return "No failures were detected."
@@ -116,7 +116,7 @@ class AnomalyRecord(BaseModel):
     byColumnBatchCount: List[NamedCount]
 
     def describe(self) -> str:
-        counts = pd.DataFrame([c.to_tuple() for c in self.byColumnCount], columns=['column', 'count'])
+        counts = pd.DataFrame([c.to_tuple() for c in self.byColumnCount], columns=["column", "count"])
         max_count = int(self.maxAnomalyCount)
         max_pct = max_count * 100 / self.batchCount
         mean_count = float(self.meanAnomalyCount)
@@ -208,8 +208,8 @@ class AnalyzerDiagnosisReport(BaseModel):
             idx, values = zip(*count_tuples)
             count_by_col = pd.Series(values, idx)
             cols_with_count = filter_by_index(cols.tolist(), count_by_col).sort_values(ascending=False)
-            cols_with_count.index.name = 'column'
-            cols_with_count.name = 'count'
+            cols_with_count.index.name = "column"
+            cols_with_count.name = "count"
             text += describe_truncated_table(pd.DataFrame(cols_with_count).reset_index())
             text += f"\nAccounting for {cols_with_count.sum()} anomalies out of " f"{count_by_col.sum()}\n"
 
