@@ -24,4 +24,5 @@ def calculate_num_batches(interval: str, granularity: str) -> int:
     else:
         raise ValueError(f"Unsupported granularity: {granularity}")
 
-    return floor(difference)
+    diff_as_int: int = floor(difference)
+    return diff_as_int
