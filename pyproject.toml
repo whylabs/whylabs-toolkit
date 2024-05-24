@@ -42,6 +42,10 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.flake8]
 max-line-length = 140
+ignore = ["F405"]
+
+[tool.pyright]
+include = ["whylabs_toolkit/**/*.py"]
 
 [tool.poetry.extras]
 diagnoser = ["pandas", "numpy", "tabulate", "isodate", "python-dateutil"]

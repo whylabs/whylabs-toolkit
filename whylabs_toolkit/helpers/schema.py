@@ -51,7 +51,7 @@ class UpdateEntity(ABC):
     def _put_updated_entity_schema(self) -> None:
         metadata_dict = self.current_entity_schema["metadata"]
         entity_schema_dict = EntitySchema(columns=self.columns_dict, metadata=metadata_dict)
-        self._put_entity_schema(schema=entity_schema_dict)
+        self._put_entity_schema(schema=entity_schema_dict)  # type: ignore
 
     def update(self) -> None:
         self._validate_input()

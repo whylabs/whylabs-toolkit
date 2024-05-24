@@ -122,5 +122,5 @@ def delete_monitor(
         resp_monitor = api.delete_monitor(org_id=org_id, dataset_id=dataset_id, monitor_id=monitor_id)
         logger.debug(f"Deleted monitor with Resp:{resp_monitor}")
     except ApiValueError as e:
-        logger.error(f"Error deleting monitor {monitor_id}: {e.msg}")
+        logger.error(f"Error deleting monitor {monitor_id}: {e.msg}")  # type: ignore
         raise e
