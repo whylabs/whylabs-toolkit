@@ -1,6 +1,7 @@
 """Schema for configuring a monitor."""
 from enum import Enum
 from typing import Any, Dict, List, Literal, Optional, Union
+from typing_extensions import Annotated
 
 from pydantic import BaseModel, Field, constr
 
@@ -182,12 +183,15 @@ class Monitor(NoExtrasBaseModel):
     tags: Optional[  # type: ignore
         List[constr(min_length=3, max_length=32, regex="[0-9a-zA-Z\\-_]")]  # type:ignore # noqa: F722
     ] = Field(None, description="A list of tags that are associated with the monitor.")
-    analyzerIds: List[constr(regex="^[A-Za-z0-9_\\-]+$")] = Field(  # type: ignore # noqa: F722
-        title="AnalyzerIds",
-        description="The corresponding analyzer ID. Even though it's plural, we only support one analyzer at the "
-        "moment",
-        max_items=100,
-    )
+    analyzerIds: Annotated[
+        str,
+        Field(
+            title="AnalyzerIds",
+            description="The corresponding analyzer IDs for the conjunction.",
+            # max_items=10,
+            pattern="^[A-Za-z0-9_\\-]+$",
+        ),
+    ]
     schedule: Union[FixedCadenceSchedule, CronSchedule, ImmediateSchedule] = Field(
         description="Schedule of the monitor. We only support hourly monitor at " "the finest granularity",
     )

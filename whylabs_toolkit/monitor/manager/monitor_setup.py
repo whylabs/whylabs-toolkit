@@ -3,8 +3,6 @@ import logging
 from datetime import datetime, timezone
 from typing import Optional, List, Union, Any
 
-from whylabs_client.exceptions import NotFoundException
-
 from whylabs_toolkit.helpers.utils import get_models_api
 from whylabs_toolkit.monitor.models import *
 from whylabs_toolkit.monitor.models.analyzer.targets import ColumnGroups
