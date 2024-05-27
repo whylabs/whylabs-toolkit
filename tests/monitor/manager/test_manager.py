@@ -27,7 +27,7 @@ class TestModelManager(BaseTestMonitor):
         assert manager.validate()
 
     def test_failing_validation(self, monitor_setup: MonitorSetup) -> None:
-        monitor_setup.actions = [EmailRecipient(id="some_long_id", destination="someemail@email.com")]
+        monitor_setup.actions = [GlobalAction(target="some_long_id")]
         monitor_setup.config.mode = "weird_mode" # type: ignore
         monitor_setup.apply()
 

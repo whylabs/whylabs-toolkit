@@ -62,7 +62,7 @@ class Validations:
 
     @staticmethod
     def get_or_default(env: ConfigVars) -> str:
-        val = os.getenv(env.name, str(env.value))
+        val = os.getenv(env.name, env.value)
         if not val:
             raise TypeError(f"No default value for {env.name}")
         return val

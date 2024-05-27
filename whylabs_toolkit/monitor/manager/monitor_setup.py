@@ -30,6 +30,8 @@ class MonitorSetup:
         self._monitor_mode: Optional[Union[EveryAnomalyMode, DigestMode]] = None
         self._monitor_actions: List[GlobalAction] = []
         self._analyzer_schedule: Optional[Union[FixedCadenceSchedule, CronSchedule]] = None
+        self._target_columns: Optional[List[str]] = []
+        self._exclude_columns: Optional[List[str]] = []
         self._target_matrix: Union[ColumnMatrix, DatasetMatrix] = ColumnMatrix(
             include=self._target_columns, exclude=self._exclude_columns, segments=[]
         )
@@ -45,8 +47,6 @@ class MonitorSetup:
             ConjunctionConfig,
             DisjunctionConfig,
         ]
-        self._target_columns: Optional[List[str]] = []
-        self._exclude_columns: Optional[List[str]] = []
         self._monitor_tags: Optional[List[str]] = []
         self._analyzer_tags: Optional[List[str]] = []
         self._analyzer_disable_target_rollup: Optional[bool] = None
