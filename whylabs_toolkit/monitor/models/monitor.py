@@ -180,9 +180,10 @@ class Monitor(NoExtrasBaseModel):
         max_length=256,
         regex="[0-9a-zA-Z \\-_]+",
     )
-    tags: Optional[  # type: ignore
-        List[constr(min_length=3, max_length=32, regex="[0-9a-zA-Z\\-_]")]  # type:ignore # noqa: F722
-    ] = Field(None, description="A list of tags that are associated with the monitor.")
+    tags: Annotated[
+        Optional[List[str]],
+        Field(title="Tags", description="The corresponding segment tags.", max_items=10, pattern="[0-9a-zA-Z\\-_]+$"),
+    ] = None
     analyzerIds: Annotated[
         List[str],
         Field(
