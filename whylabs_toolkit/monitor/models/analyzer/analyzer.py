@@ -54,7 +54,7 @@ class Analyzer(NoExtrasBaseModel):
         regex="[0-9a-zA-Z \\-_]+",
     )
     tags: Optional[  # type: ignore
-        List[constr(min_length=3, max_length=32, regex="[0-9a-zA-Z\\-_]")]  # noqa
+        List[constr(min_length=3, max_length=32, regex="[0-9a-zA-Z\\-_]")]  # type: ignore
     ] = Field(  # noqa F722
         None, description="A list of tags that are associated with the analyzer."
     )

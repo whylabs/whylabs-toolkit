@@ -3,8 +3,6 @@ import logging
 from datetime import datetime, timezone
 from typing import Optional, List, Union, Any
 
-from whylabs_client.exceptions import NotFoundException
-
 from whylabs_toolkit.helpers.utils import get_models_api
 from whylabs_toolkit.monitor.models import *
 from whylabs_toolkit.monitor.models.analyzer.targets import ColumnGroups
@@ -30,25 +28,25 @@ class MonitorSetup:
         self._models_api = get_models_api(config=self._config)
 
         self._monitor_mode: Optional[Union[EveryAnomalyMode, DigestMode]] = None
-        self._monitor_actions: Optional[List[Union[GlobalAction, EmailRecipient, SlackWebhook, PagerDuty]]] = None
+        self._monitor_actions: List[GlobalAction] = []
         self._analyzer_schedule: Optional[Union[FixedCadenceSchedule, CronSchedule]] = None
-        self._target_matrix: Optional[Union[ColumnMatrix, DatasetMatrix]] = None
-        self._analyzer_config: Optional[
-            Union[
-                DiffConfig,
-                FixedThresholdsConfig,
-                StddevConfig,
-                DriftConfig,
-                ComparisonConfig,
-                SeasonalConfig,
-                FrequentStringComparisonConfig,
-                ListComparisonConfig,
-                ConjunctionConfig,
-                DisjunctionConfig,
-            ]
-        ] = None
         self._target_columns: Optional[List[str]] = []
         self._exclude_columns: Optional[List[str]] = []
+        self._target_matrix: Union[ColumnMatrix, DatasetMatrix] = ColumnMatrix(
+            include=self._target_columns, exclude=self._exclude_columns, segments=[]
+        )
+        self._analyzer_config: Union[
+            DiffConfig,
+            FixedThresholdsConfig,
+            StddevConfig,
+            DriftConfig,
+            ComparisonConfig,
+            SeasonalConfig,
+            FrequentStringComparisonConfig,
+            ListComparisonConfig,
+            ConjunctionConfig,
+            DisjunctionConfig,
+        ]
         self._monitor_tags: Optional[List[str]] = []
         self._analyzer_tags: Optional[List[str]] = []
         self._analyzer_disable_target_rollup: Optional[bool] = None
@@ -116,19 +114,17 @@ class MonitorSetup:
     @property
     def config(
         self,
-    ) -> Optional[
-        Union[
-            DiffConfig,
-            FixedThresholdsConfig,
-            StddevConfig,
-            DriftConfig,
-            ComparisonConfig,
-            SeasonalConfig,
-            FrequentStringComparisonConfig,
-            ListComparisonConfig,
-            ConjunctionConfig,
-            DisjunctionConfig,
-        ]
+    ) -> Union[
+        DiffConfig,
+        FixedThresholdsConfig,
+        StddevConfig,
+        DriftConfig,
+        ComparisonConfig,
+        SeasonalConfig,
+        FrequentStringComparisonConfig,
+        ListComparisonConfig,
+        ConjunctionConfig,
+        DisjunctionConfig,
     ]:
         return self._analyzer_config
 
@@ -150,11 +146,11 @@ class MonitorSetup:
         self._analyzer_config = config
 
     @property
-    def actions(self) -> Optional[List[Union[GlobalAction, EmailRecipient, SlackWebhook, PagerDuty]]]:
+    def actions(self) -> Optional[List[GlobalAction]]:
         return self._monitor_actions
 
     @actions.setter
-    def actions(self, actions: List[Union[GlobalAction, EmailRecipient, SlackWebhook, PagerDuty]]) -> None:
+    def actions(self, actions: List[GlobalAction]) -> None:
         self._monitor_actions = actions
 
     @property
@@ -238,9 +234,6 @@ class MonitorSetup:
         """
         if self._validate_columns_input(columns=columns):
             self._target_columns = columns
-            self._target_matrix = self._target_matrix or ColumnMatrix(
-                include=self._target_columns, exclude=self._exclude_columns, segments=[]
-            )
             if isinstance(self._target_matrix, ColumnMatrix):
                 self._target_matrix.include = self._target_columns
 
@@ -271,6 +264,8 @@ class MonitorSetup:
 
         self.analyzer = Analyzer(
             id=self.credentials.analyzer_id,
+            metadata=None,
+            disabled=False,
             displayName=self.credentials.analyzer_id,
             disableTargetRollup=self._analyzer_disable_target_rollup,
             targetMatrix=self._target_matrix,
@@ -281,10 +276,12 @@ class MonitorSetup:
         )
 
     def __set_monitor(
-        self, monitor_mode: Optional[Union[EveryAnomalyMode, DigestMode]], monitor_actions: Optional[List[Any]]
+        self, monitor_mode: Union[EveryAnomalyMode, DigestMode], monitor_actions: List[GlobalAction] = []
     ) -> None:
         self.monitor = Monitor(
             id=self.credentials.monitor_id,
+            metadata=None,
+            severity=None,
             disabled=False,
             displayName=self.credentials.monitor_id,
             tags=self._monitor_tags,
@@ -309,7 +306,7 @@ class MonitorSetup:
                 logger.warning(
                     "ColumnMatrix is not configurable with a DatasetMetric." "Changing it to DatasetMatrix instead"
                 )
-                self._target_matrix = DatasetMatrix(segments=self._target_matrix.segments)
+                self._target_matrix = DatasetMatrix(type=TargetLevel.dataset, segments=self._target_matrix.segments)
                 return None
 
             elif isinstance(self._target_matrix, DatasetMatrix) and not isinstance(
@@ -337,7 +334,7 @@ class MonitorSetup:
                 "Missing data point needs to be set with target_matrix of type DatasetMatrix"
                 "Changing to DatasetMatrix now."
             )
-            self._target_matrix = DatasetMatrix(segments=self._target_matrix.segments)
+            self._target_matrix = DatasetMatrix(type=TargetLevel.dataset, segments=self._target_matrix.segments)
             return None
 
         if (
@@ -349,18 +346,19 @@ class MonitorSetup:
                 "secondsSinceLastUpload needs to be set with target_matrix of type DatasetMatrix"
                 "Changing to DatasetMatrix now."
             )
-            self._target_matrix = DatasetMatrix(segments=self._target_matrix.segments)
+            self._target_matrix = DatasetMatrix(type=TargetLevel.dataset, segments=self._target_matrix.segments)
             return None
 
     def apply(self) -> None:
-        monitor_mode = self._monitor_mode or DigestMode()
-        actions = self._monitor_actions or []
+        monitor_mode = self._monitor_mode or DigestMode(
+            type="DIGEST", filter=None, creationTimeOffset=None, datasetTimestampOffset=None, groupBy=None
+        )
         self._analyzer_schedule = self._analyzer_schedule or FixedCadenceSchedule(
             cadence=get_model_granularity(
                 org_id=self.credentials.org_id, dataset_id=self.credentials.dataset_id  # type: ignore
             )
         )
 
-        self.__set_monitor(monitor_mode=monitor_mode, monitor_actions=actions)
+        self.__set_monitor(monitor_mode=monitor_mode, monitor_actions=self._monitor_actions)
 
         self.__set_analyzer()

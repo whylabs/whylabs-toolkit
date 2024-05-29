@@ -1,8 +1,9 @@
 """Schema for configuring a monitor."""
 from enum import Enum
 from typing import Any, Dict, List, Literal, Optional, Union
+from typing_extensions import Annotated
 
-from pydantic import BaseModel, Field, constr, HttpUrl, parse_obj_as, validator
+from pydantic import BaseModel, Field, constr
 
 
 from whylabs_toolkit.monitor.models.commons import (
@@ -28,43 +29,6 @@ class GlobalAction(NoExtrasBaseModel):
 
     type: Literal["global"] = "global"
     target: str = Field(description="The unique action ID in the platform", regex="[a-zA-Z0-9\\-_]+", max_length=100)
-
-
-class EmailRecipient(NoExtrasBaseModel):
-    """Action to send an email."""
-
-    type: Literal["email"] = "email"
-    id: str = Field(description="The e-mail ID to which you wish to send notifications to")
-    destination: str = Field(description="Destination email", format="email", max_length=1000)
-
-
-class SlackWebhook(NoExtrasBaseModel):
-    """Action to send a Slack webhook."""
-
-    type: Literal["slack"] = "slack"
-    id: str = Field(description="The endpoint ID to which you wish to send notifications to")
-    destination: str = Field(description="The Slack target webhook endpoint")
-
-
-class RawWebhook(NoExtrasBaseModel):
-    """Action to send a Raw webhook."""
-
-    type: Literal["raw"] = "raw"
-    id: str = Field(description="The endpoint ID to which you wish to send notifications to")
-    destination: Optional[str] = Field(
-        default=None, description="Sending raw unformatted message in JSON format to a webhook"
-    )
-
-
-class PagerDuty(NoExtrasBaseModel):
-    """Action to send a PagerDuty notification."""
-
-    type: Literal["pager_duty"] = "pager_duty"
-    id: str = Field(description="The PagerDuty endpoint ID to send notifications to")
-    destination: Optional[str] = Field(
-        default=None,
-        description="The secret key to access the PagerDuty endpoint. Required when the ID was not created",
-    )
 
 
 class AnomalyFilter(NoExtrasBaseModel):
@@ -216,15 +180,19 @@ class Monitor(NoExtrasBaseModel):
         max_length=256,
         regex="[0-9a-zA-Z \\-_]+",
     )
-    tags: Optional[  # type: ignore
-        List[constr(min_length=3, max_length=32, regex="[0-9a-zA-Z\\-_]")]  # noqa F722
-    ] = Field(None, description="A list of tags that are associated with the monitor.")
-    analyzerIds: List[constr(regex="^[A-Za-z0-9_\\-]+$")] = Field(  # type: ignore # noqa: F722
-        title="AnalyzerIds",
-        description="The corresponding analyzer ID. Even though it's plural, we only support one analyzer at the "
-        "moment",
-        max_items=100,
-    )
+    tags: Annotated[
+        Optional[List[str]],
+        Field(title="Tags", description="The corresponding segment tags.", max_items=10, pattern="[0-9a-zA-Z\\-_]+$"),
+    ] = None
+    analyzerIds: Annotated[
+        List[str],
+        Field(
+            title="AnalyzerIds",
+            description="The corresponding analyzer IDs for the conjunction.",
+            # max_items=10,
+            pattern="^[A-Za-z0-9_\\-]+$",
+        ),
+    ]
     schedule: Union[FixedCadenceSchedule, CronSchedule, ImmediateSchedule] = Field(
         description="Schedule of the monitor. We only support hourly monitor at " "the finest granularity",
     )
@@ -234,7 +202,7 @@ class Monitor(NoExtrasBaseModel):
         description="Notification mode and how we might handle different analysis",
         discriminator="type",
     )
-    actions: List[Union[GlobalAction, EmailRecipient, SlackWebhook, PagerDuty]] = Field(
+    actions: List[GlobalAction] = Field(
         description="List of destination for the outgoing messages",
         max_items=100,
     )
