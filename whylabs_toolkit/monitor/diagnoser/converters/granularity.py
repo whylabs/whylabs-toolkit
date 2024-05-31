@@ -1,19 +1,5 @@
-from dateutil.relativedelta import relativedelta
-from whylabs_toolkit.utils.granularity import Granularity
+from math import floor
 from isodate import parse_datetime, parse_duration, parse_date
-
-
-def batches_to_timedelta(time_period: str, batches: int) -> relativedelta:
-    if time_period == "PT1H":
-        return relativedelta(hours=batches)
-
-    if time_period == "P1W":
-        return relativedelta(weeks=batches)
-
-    if time_period == "P1M":
-        return relativedelta(months=batches)
-
-    return relativedelta(days=batches)
 
 
 def calculate_num_batches(interval: str, granularity: str) -> int:
@@ -25,16 +11,18 @@ def calculate_num_batches(interval: str, granularity: str) -> int:
     except ValueError:
         end_date = start_date + parse_duration(end)
 
-    # Calculate the difference based on the granularity
+    # Calculate the (somewhat approximate) difference based on the granularity
+    # Truncates to whole batches, ignores leap seconds
     if granularity == "hourly":
-        difference = relativedelta(end_date, start_date).days * 24 + relativedelta(end_date, start_date).hours
+        difference = (end_date - start_date).total_seconds() / 3600
     elif granularity == "daily":
-        difference = relativedelta(end_date, start_date).days
+        difference = (end_date - start_date).total_seconds() / (3600 * 24)
     elif granularity == "weekly":
-        difference = relativedelta(end_date, start_date).weeks
+        difference = (end_date - start_date).total_seconds() / (3600 * 24 * 7)
     elif granularity == "monthly":
-        difference = relativedelta(end_date, start_date).months
+        difference = (end_date.year - start_date.year) * 12 + end_date.month - start_date.month
     else:
         raise ValueError(f"Unsupported granularity: {granularity}")
 
-    return difference
+    diff_as_int: int = floor(difference)
+    return diff_as_int
