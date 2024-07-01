@@ -48,13 +48,10 @@ monitor_setup.config = StddevConfig(
 ```
 
 ## Add alert actions 
-Now that you have a logic to which you will generate alerts, you need to define **how** you wish to be notified:
+Now that you have a logic to which you will generate alerts, you need to define the Global Actions that will be triggered once this monitor detects an anomaly. In order to create an action, you can refer to [our docs](https://docs.whylabs.ai/docs/whylabs-notifications/#overview) and click through the UI or do it programmatically. Once you have an action ID, you can use the `whylabs-toolkit` to append that action to your monitor by using the following assignment:
 
 ```python
-monitor_setup.actions = [
-        EmailRecipient(id="my-email", destination="some_mail@example.com"),
-        SlackWebhook(id="my-slack-wh", destination="https://slack.web.hook.com")
-]
+monitor_setup.actions = [GlobalAction(target="my_slack_webhook")] # you can define a list of GlobalAction's to be triggered 
 ```
 
 ## Define a schedule
@@ -153,13 +150,9 @@ Which will print the following JSON object to the console:
       },
       "actions": [
         {
-          "type": "email",
-          "target": "some_mail@example.com"
+          "type": "global",
+          "target": "my_slack_webhook"
         },
-        {
-          "type": "slack",
-          "target": "https://slack.web.hook.com"
-        }
       ]
     }
   ]
@@ -260,7 +253,7 @@ monitor_setup.set_target_columns(columns=["group: discrete"])
 monitor_setup.exclude_target_columns(columns=["group:output"])
 
 # Instead of setting a new action, extend the existing ones
-monitor_setup.actions.extend([EmailRecipient(id="existing-email-id")])
+monitor_setup.actions.extend([GlobalAction(target="my_pagerduty_id")])
 
 ## Save your modifications
 monitor_setup.apply()
