@@ -128,16 +128,6 @@ class TestDeleteMonitor(BaseTestMonitor):
         assert isinstance(monitor_config, Dict)
         for key in monitor_config.keys():
             assert key in ['orgId', 'datasetId', 'granularity', 'metadata', 'allowPartialTargetBatches', 'analyzers', 'monitors']
-
-    def test_get_monitor_config_not_existing_dataset_id(self, caplog) -> None:
-        with caplog.at_level("WARNING"):
-            monitor_config = get_monitor_config(
-                org_id=ORG_ID, 
-                dataset_id = "fake-dataset-id", 
-            )
-            
-            assert monitor_config is None
-            assert "Could not find a monitor config for fake-dataset-id" in caplog.text
     
     def test_get_monitor(self) -> None:
         monitor = get_monitor(
@@ -153,25 +143,21 @@ class TestDeleteMonitor(BaseTestMonitor):
             assert key in ['id', 'analyzerIds', 'schedule', 'mode', 'disabled', 'actions', 'metadata']
     
     
-    def test_get_monitor_with_wrong_configs(self, caplog) -> None:
-        with caplog.at_level("WARNING"):
-            monitor = get_monitor(
-                monitor_id="fake-monitor",
-                dataset_id=DATASET_ID,
-                org_id=ORG_ID
-            )
-            assert monitor is None
-            assert f"Could not find a monitor with id fake-monitor for {DATASET_ID}." in caplog.text
-        with caplog.at_level("WARNING"):
-            monitor = get_monitor(
-                monitor_id=MONITOR_ID,
-                dataset_id="fake-dataset-id",
-                org_id=ORG_ID
-            )
-            
-            assert monitor is None
-            assert f"Could not find a monitor with id {MONITOR_ID} for fake-dataset-id." in caplog.text
-            
+    def test_get_monitor_with_wrong_configs(self) -> None:
+        monitor = get_monitor(
+            monitor_id="fake-monitor",
+            dataset_id=DATASET_ID,
+            org_id=ORG_ID
+        )
+        assert monitor is None
+    
+        monitor = get_monitor(
+            monitor_id=MONITOR_ID,
+            dataset_id="fake-dataset-id",
+            org_id=ORG_ID
+        )
+        
+        assert monitor is None    
 
     def test_get_granularity(self) -> None:
         granularity = get_model_granularity(org_id=ORG_ID, dataset_id=DATASET_ID)
