@@ -7,7 +7,12 @@ from whylabs_toolkit.helpers.utils import get_models_api
 from whylabs_toolkit.monitor.models import *
 from whylabs_toolkit.monitor.models.analyzer.targets import ColumnGroups
 from whylabs_toolkit.monitor.manager.credentials import MonitorCredentials
-from whylabs_toolkit.helpers.monitor_helpers import get_analyzers, get_monitor, get_model_granularity
+from whylabs_toolkit.helpers.monitor_helpers import (
+    get_analyzers,
+    get_monitor,
+    get_model_granularity,
+    get_monitor_config,
+)
 from whylabs_toolkit.helpers.config import Config
 
 
@@ -54,20 +59,16 @@ class MonitorSetup:
 
         self._prefill_properties()
 
-    def _check_if_monitor_exists(self) -> Any:
+    def _check_if_monitor_exists(self) -> Optional[Monitor]:
         existing_monitor = get_monitor(
             org_id=self.credentials.org_id,
             dataset_id=self.credentials.dataset_id,
             monitor_id=self.credentials.monitor_id,
             config=self._config,
         )
-        if existing_monitor:
-            existing_monitor = Monitor.parse_obj(existing_monitor)
-            logger.info(f"Got existing {self.credentials.monitor_id} from WhyLabs!")
-        else:
-            logger.info(f"Did not find a monitor with {self.credentials.monitor_id}, creating a new one.")
-            existing_monitor = None
-        return existing_monitor
+        if existing_monitor is not None:
+            return Monitor.parse_obj(existing_monitor)
+        return None
 
     def _check_if_analyzer_exists(self) -> Any:
         existing_analyzers = get_analyzers(
@@ -76,12 +77,8 @@ class MonitorSetup:
             monitor_id=self.credentials.monitor_id,
             config=self._config,
         )
-        if existing_analyzers:
-            existing_analyzer = Analyzer.parse_obj(existing_analyzers[0])  # enforcing 1:1 relationship
-
-        else:
-            existing_analyzer = None
-        return existing_analyzer
+        if existing_analyzers is not None:
+            return Analyzer.parse_obj(existing_analyzers[0])  # enforcing 1:1 relationship
 
     def _prefill_properties(self) -> None:
         if self.monitor:
