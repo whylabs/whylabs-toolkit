@@ -14,17 +14,20 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-# TODO create deactivate_monitor
-
-
 def get_monitor_config(org_id: str, dataset_id: str, config: Config = Config()) -> Any:
     api = get_monitor_api(config=config)
     try:
         monitor_config = api.get_monitor_config_v3(org_id=org_id, dataset_id=dataset_id)
+        logger.info(f"Found monitor config for {dataset_id}")
         return monitor_config
     except NotFoundException:
-        logger.warning(f"Could not find a monitor config for {dataset_id}")
+        logger.info(f"Could not find a monitor config for {dataset_id}")
         return None
+    except ForbiddenException as e:
+        logger.warning(
+            f"You don't have access to monitor config for {dataset_id}. Did you set a correct WHYLABS_API_KEY?"
+        )
+        raise e
 
 
 def get_monitor(
@@ -37,11 +40,14 @@ def get_monitor(
     try:
         monitor = api.get_monitor(org_id=org_id, dataset_id=dataset_id, monitor_id=monitor_id)
         return monitor
-    except (ForbiddenException, NotFoundException):
-        logger.warning(
-            f"Could not find a monitor with id {monitor_id} for {dataset_id}." "Did you set a correct WHYLABS_API_KEY?"
-        )
+    except (NotFoundException):
+        logger.info(f"Didn't find a monitor with id {monitor_id} for {dataset_id}. Creating a new one...")
         return None
+    except ForbiddenException as e:
+        logger.warning(
+            f"You don't have access to monitor {monitor_id} for {dataset_id}. Did you set a correct WHYLABS_API_KEY?"
+        )
+        raise e
 
 
 def get_analyzer_ids(
