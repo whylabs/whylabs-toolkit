@@ -646,9 +646,6 @@
       "title": "DatasetMetric",
       "description": "Metrics that are applicable at the dataset level.",
       "enum": [
-        "profile.count",
-        "profile.last_ingestion_time",
-        "profile.first_ingestion_time",
         "column_row_count_sum",
         "shape_column_count",
         "shape_row_count",
@@ -662,7 +659,9 @@
         "classification.auroc",
         "regression.mse",
         "regression.mae",
-        "regression.rmse"
+        "regression.rmse",
+        "missingDatapoint",
+        "secondsSinceLastUpload"
       ],
       "type": "string"
     },

@@ -35,11 +35,6 @@ class AlgorithmType(str, Enum):
 class DatasetMetric(str, Enum):
     """Metrics that are applicable at the dataset level."""
 
-    # ingestion health. null value if not ingested yet
-    profile_count = "profile.count"
-    profile_last_ingestion_time = "profile.last_ingestion_time"
-    profile_first_ingestion_time = "profile.first_ingestion_time"
-
     # within the batch
     column_row_count_sum = "column_row_count_sum"
     # shape metrics?
@@ -62,6 +57,7 @@ class DatasetMetric(str, Enum):
 
     # other metrics
     missing_data_point = "missingDatapoint"
+    seconds_since_last_upload = "secondsSinceLastUpload"
 
 
 class SimpleColumnMetric(str, Enum):
