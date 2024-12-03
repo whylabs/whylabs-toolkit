@@ -1,6 +1,7 @@
 import os
 import logging
 from enum import Enum
+from typing import Optional
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -94,5 +95,5 @@ class Validations:
         return val
 
     @staticmethod
-    def get(env: ConfigVars) -> str:
+    def get(env: ConfigVars) -> Optional[str]:
         return os.getenv(env.name)
