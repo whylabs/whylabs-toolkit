@@ -12,10 +12,10 @@ from whylabs_toolkit.helpers.utils import get_monitor_api
 from whylabs_toolkit.utils.granularity import Granularity
 
 
-ORG_ID = os.environ["ORG_ID"]
-DATASET_ID = os.environ["DATASET_ID"]
-MONITOR_ID = os.environ["MONITOR_ID"]
-ANALYZER_ID = os.environ["ANALYZER_ID"]
+ORG_ID = os.environ["WHYLABS_DEFAULT_ORG_ID"]
+DATASET_ID = os.environ["WHYLABS_DEFAULT_DATASET_ID"]
+MONITOR_ID = os.environ["WHYLABS_DEFAULT_MONITOR_ID"]
+ANALYZER_ID = os.environ["WHYLABS_DEFAULT_ANALYZER_ID"]
 MONITOR_BODY = {
     "id": MONITOR_ID, "analyzerIds": [ANALYZER_ID], 
     "schedule": {"type": "immediate"}, 

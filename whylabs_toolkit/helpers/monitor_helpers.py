@@ -40,7 +40,7 @@ def get_monitor(
     try:
         monitor = api.get_monitor(org_id=org_id, dataset_id=dataset_id, monitor_id=monitor_id)
         return monitor
-    except (NotFoundException):
+    except NotFoundException:
         logger.info(f"Didn't find a monitor with id {monitor_id} for {dataset_id}. Creating a new one...")
         return None
     except ForbiddenException as e:

@@ -107,7 +107,7 @@ class TestExistingMonitor(BaseTestMonitor):
         assert isinstance(existing_monitor_setup.config, StddevConfig)
 
     def test_create_monitor_from_existing_monitor_id(self, existing_monitor_setup) -> None:
-        assert existing_monitor_setup.monitor.id == os.environ["MONITOR_ID"]
+        assert existing_monitor_setup.monitor.id == os.environ["WHYLABS_DEFAULT_MONITOR_ID"]
 
         new_credentials = MonitorCredentials(monitor_id="new_monitor_id")
 

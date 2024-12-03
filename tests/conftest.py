@@ -3,7 +3,7 @@ import os
 import pytest
 
 from whylabs_toolkit.monitor.manager import MonitorSetup
-from whylabs_toolkit.monitor.models import *
+from whylabs_toolkit.monitor.models import DiffConfig, DiffMode, SimpleColumnMetric, TrailingWindowBaseline
 from whylabs_toolkit.helpers.config import UserConfig
 
 
@@ -21,7 +21,7 @@ def monitor_setup() -> MonitorSetup:
 @pytest.fixture
 def existing_monitor_setup() -> MonitorSetup:
     monitor_setup = MonitorSetup(
-        monitor_id=os.environ["MONITOR_ID"]
+        monitor_id=os.environ["WHYLABS_DEFAULT_MONITOR_ID"]
     )
     return monitor_setup
 
@@ -31,6 +31,6 @@ def user_config() -> UserConfig:
         api_key=os.environ["DEV_WHYLABS_API_KEY"],
         org_id=os.environ["DEV_ORG_ID"],
         dataset_id=os.environ["DEV_DATASET_ID"],
-        whylabs_host="https://songbird.development.whylabsdev.com"
+        whylabs_api_endpoint="https://songbird.development.whylabsdev.com"
     )
     return config

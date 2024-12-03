@@ -7,7 +7,7 @@ from whylabs_toolkit.helpers.models import get_models_api
 def test_setup_with_private_endpoint():
     os.environ["WHYLABS_PRIVATE_API_ENDPOINT"] = "http://private.com"
     
-    api_endpoint = Config().get_whylabs_host()
+    api_endpoint = Config().get_whylabs_api_endpoint()
     
     assert api_endpoint == "http://private.com"
     
