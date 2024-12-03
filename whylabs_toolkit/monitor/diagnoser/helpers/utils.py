@@ -17,6 +17,7 @@ def get_monitor_diagnostics_api(config: Config = Config()) -> MonitorDiagnostics
     """
     return MonitorDiagnosticsApi(api_client=create_client(config=config))
 
+
 # TODO this should not be required anymore, but need to test
 def env_setup(
     org_id: str, dataset_id: str, api_key: Optional[str] = None, whylabs_endpoint: Optional[str] = None

@@ -36,9 +36,11 @@ class Config:
     def get_whylabs_api_endpoint(self) -> str:
         _private_api_endpoint = Validations.get(ConfigVars.WHYLABS_PRIVATE_API_ENDPOINT)
         if _private_api_endpoint and isinstance(_private_api_endpoint, str):
-            logger.warning(f"Using private API endpoint: {_private_api_endpoint}. "
-                           f"WHYLABS_PRIVATE_API_ENDPOINT will be deprecated in the future. "
-                           f"You should use the WHYLABS_API_ENDPOINT for this purpose.")
+            logger.warning(
+                f"Using private API endpoint: {_private_api_endpoint}. "
+                f"WHYLABS_PRIVATE_API_ENDPOINT will be deprecated in the future. "
+                f"You should use the WHYLABS_API_ENDPOINT for this purpose."
+            )
             return _private_api_endpoint
         return Validations.get_or_default(ConfigVars.WHYLABS_API_ENDPOINT)
 
@@ -56,7 +58,13 @@ class Config:
 
 
 class UserConfig(Config):
-    def __init__(self, api_key: str, org_id: str, dataset_id: str, whylabs_api_endpoint: str = ConfigVars.WHYLABS_API_ENDPOINT.value):
+    def __init__(
+        self,
+        api_key: str,
+        org_id: str,
+        dataset_id: str,
+        whylabs_api_endpoint: str = ConfigVars.WHYLABS_API_ENDPOINT.value,
+    ):
         self.api_key = api_key
         self.whylabs_api_endpoint = whylabs_api_endpoint
         self.whylabs_host = self.whylabs_api_endpoint
