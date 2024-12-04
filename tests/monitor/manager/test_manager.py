@@ -1,14 +1,12 @@
 import json
 import os
 from typing import Dict
-from unittest import TestCase
-from unittest.mock import call, MagicMock
 
 import pytest
 from jsonschema import ValidationError
 
 from whylabs_toolkit.monitor.manager import MonitorManager, MonitorSetup
-from whylabs_toolkit.monitor.models import *
+from whylabs_toolkit.monitor.models import GlobalAction
 from tests.helpers.test_monitor_helpers import BaseTestMonitor
 from whylabs_toolkit.helpers.monitor_helpers import get_monitor, get_analyzer_ids, get_monitor_config
 
@@ -39,19 +37,19 @@ class TestModelManager(BaseTestMonitor):
         manager.save()
 
         monitor = get_monitor(
-            org_id=os.environ["ORG_ID"],
-            dataset_id=os.environ["DATASET_ID"],
-            monitor_id=os.environ["MONITOR_ID"]
+            org_id=os.environ["WHYLABS_DEFAULT_ORG_ID"],
+            dataset_id=os.environ["WHYLABS_DEFAULT_DATASET_ID"],
+            monitor_id=os.environ["WHYLABS_DEFAULT_MONITOR_ID"]
         )
 
         assert monitor is not None
         assert isinstance(monitor, Dict)
-        assert monitor.get("id") == os.environ["MONITOR_ID"]
+        assert monitor.get("id") == os.environ["WHYLABS_DEFAULT_MONITOR_ID"]
 
         assert get_analyzer_ids(
-            org_id=os.environ["ORG_ID"],
-            dataset_id=os.environ["DATASET_ID"],
-            monitor_id=os.environ["MONITOR_ID"]
+            org_id=os.environ["WHYLABS_DEFAULT_ORG_ID"],
+            dataset_id=os.environ["WHYLABS_DEFAULT_DATASET_ID"],
+            monitor_id=os.environ["WHYLABS_DEFAULT_MONITOR_ID"]
         )
     
     def test_monitor_running_eagerly(self, existing_monitor_setup: MonitorSetup) -> None:

@@ -40,7 +40,7 @@ def get_monitor(
     try:
         monitor = api.get_monitor(org_id=org_id, dataset_id=dataset_id, monitor_id=monitor_id)
         return monitor
-    except (NotFoundException):
+    except NotFoundException:
         logger.info(f"Didn't find a monitor with id {monitor_id} for {dataset_id}. Creating a new one...")
         return None
     except ForbiddenException as e:
@@ -63,9 +63,17 @@ def get_analyzer_ids(
                 if item["id"] == monitor_id:
                     resp = item["analyzerIds"]
                     return resp
-    except ForbiddenException:
+
+    except NotFoundException:
         logger.warning(f"Could not find analyzer IDs for {org_id}, {dataset_id}, {monitor_id}")
         return None
+
+    except ForbiddenException:
+        logger.error(f"Could not get analyzer id's due to a ForbiddenException, did you set a correct WHYLABS_API_KEY?")
+        return None
+
+    except Exception as e:
+        raise e
 
 
 def get_analyzers(

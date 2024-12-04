@@ -10,6 +10,10 @@ from whylabs_toolkit.helpers.dataset_profiles import (
     process_date_input
 )
 
+ORG_ID = os.environ["WHYLABS_DEFAULT_ORG_ID"]
+DATASET_ID = os.environ["WHYLABS_DEFAULT_DATASET_ID"]
+
+
 def test_validate_timestamp_in_millis() -> None:
     assert validate_timestamp_in_millis(1627233600000) == True
     assert validate_timestamp_in_millis(-1231214) == False
@@ -42,22 +46,22 @@ def test_delete_profile_for_datetime_range():
     result = delete_all_profiles_for_period(
         start=datetime(2023,7,5), 
         end=datetime(2023,7,6), 
-        dataset_id = os.environ["DATASET_ID"], 
-        org_id=os.environ["ORG_ID"]
+        dataset_id = DATASET_ID,
+        org_id=ORG_ID
     )
     
-    assert result.get("id") == f"{os.environ['ORG_ID']}/{os.environ['DATASET_ID']}"
+    assert result.get("id") == f"{ORG_ID}/{DATASET_ID}"
 
 
 def test_delete_profiles_for_milliseconds_range():
     result = delete_all_profiles_for_period(
         start=int(datetime(2023,7,5).timestamp()*1000.0), 
         end=int(datetime(2023,7,6).timestamp()*1000.0), 
-        dataset_id = os.environ["DATASET_ID"], 
-        org_id=os.environ["ORG_ID"]
+        dataset_id = DATASET_ID,
+        org_id= ORG_ID
     )
     
-    assert result.get("id") == f"{os.environ['ORG_ID']}/{os.environ['DATASET_ID']}"
+    assert result.get("id") == f"{ORG_ID}/{DATASET_ID}"
 
 
 def test_delete_profiles_raises_if_other_format_is_passed():
@@ -65,15 +69,15 @@ def test_delete_profiles_raises_if_other_format_is_passed():
         delete_all_profiles_for_period(
             start=-123123123123, 
             end=int(datetime(2023,7,6).timestamp()*1000.0), 
-            dataset_id = os.environ["DATASET_ID"], 
-            org_id=os.environ["ORG_ID"]
+            dataset_id = DATASET_ID,
+            org_id= ORG_ID
         )
     with pytest.raises(ValueError):
         delete_all_profiles_for_period(
             start="string_example", 
             end=int(datetime(2023,7,6).timestamp()*1000.0), 
-            dataset_id = os.environ["DATASET_ID"], 
-            org_id=os.environ["ORG_ID"]
+            dataset_id = DATASET_ID,
+            org_id = ORG_ID
         )
 
 @patch('whylabs_toolkit.helpers.dataset_profiles.get_dataset_profile_api')
@@ -86,22 +90,22 @@ def test_delete_profiles_calls_delete_analyzer_results(mock_get_api):
     
     
     delete_all_profiles_for_period(
-        start=int(datetime(2023,7,5).timestamp()*1000.0), 
-        end=int(datetime(2023,7,6).timestamp()*1000.0), 
-        dataset_id = os.environ["DATASET_ID"], 
-        org_id=os.environ["ORG_ID"]
+        start = int(datetime(2023,7,5).timestamp()*1000.0),
+        end = int(datetime(2023,7,6).timestamp()*1000.0),
+        dataset_id = DATASET_ID,
+        org_id = ORG_ID
     )
     
     mock_call.delete_dataset_profiles.assert_called_with(
-        org_id=os.environ["ORG_ID"], 
-        dataset_id=os.environ["DATASET_ID"], 
+        org_id= ORG_ID,
+        dataset_id= DATASET_ID,
         profile_start_timestamp=int(datetime(2023,7,5).timestamp()*1000.0), 
         profile_end_timestamp=int(datetime(2023,7,6).timestamp()*1000.0)
     )
     
     mock_call.delete_analyzer_results.assert_called_with(
-        org_id=os.environ["ORG_ID"], 
-        dataset_id=os.environ["DATASET_ID"], 
+        org_id = ORG_ID,
+        dataset_id = DATASET_ID,
         start_timestamp=int(datetime(2023,7,5).timestamp()*1000.0), 
         end_timestamp=int(datetime(2023,7,6).timestamp()*1000.0)
     )

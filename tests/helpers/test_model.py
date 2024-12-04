@@ -7,8 +7,8 @@ from whylabs_toolkit.helpers.models import update_model_metadata, add_custom_met
 from whylabs_toolkit.helpers.utils import get_models_api
 from whylabs_toolkit.helpers.config import Config
 
-ORG_ID = os.environ["ORG_ID"]
-DATASET_ID = os.environ["DATASET_ID"]
+ORG_ID = os.environ["WHYLABS_DEFAULT_ORG_ID"]
+DATASET_ID = os.environ["WHYLABS_DEFAULT_DATASET_ID"]
 
 
 @pytest.fixture

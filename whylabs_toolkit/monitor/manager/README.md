@@ -10,11 +10,11 @@ The first step is to set your credentials to access WhyLabs. Define your environ
 ```python
 import os
 
-os.environ["ORG_ID"] = "org-id"
+os.environ["WHYLABS_DEFAULT_ORG_ID"] = "org-id"
 os.environ["WHYLABS_API_KEY"] = "api-key"
 
 # Option 1: set your dataset_id as an env var 
-os.environ["DATASET_ID"] = "dataset-id"
+os.environ["WHYLABS_DEFAULT_DATASET_ID"] = "dataset-id"
 ```
 
 ## Create a Monitor Setup

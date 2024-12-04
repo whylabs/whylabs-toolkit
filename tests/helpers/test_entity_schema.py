@@ -11,8 +11,8 @@ from whylabs_toolkit.helpers.schema import (
 )
 from whylabs_toolkit.monitor.models.column_schema import ColumnDataType
 
-ORG_ID = os.environ["ORG_ID"]
-DATASET_ID = os.environ["DATASET_ID"]
+ORG_ID = os.environ["WHYLABS_DEFAULT_ORG_ID"]
+DATASET_ID = os.environ["WHYLABS_DEFAULT_DATASET_ID"]
 
 
 def test_change_columns_input_output() -> None:
