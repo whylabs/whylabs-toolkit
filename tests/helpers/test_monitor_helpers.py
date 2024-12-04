@@ -6,7 +6,8 @@ from whylabs_toolkit.helpers.monitor_helpers import (
     get_model_granularity,
     get_monitor_config,
     get_analyzer_ids,
-    get_monitor
+    get_monitor,
+    list_monitors
 )
 from whylabs_toolkit.helpers.utils import get_monitor_api
 from whylabs_toolkit.utils.granularity import Granularity
@@ -183,3 +184,13 @@ class TestDeleteMonitor(BaseTestMonitor):
 
         for analyzer in monitor_config["analyzers"]:
             assert ANALYZER_ID not in analyzer["id"]
+
+    def test_list_monitors(self) -> None:
+        monitors = list_monitors(org_id=ORG_ID, dataset_id=DATASET_ID)
+
+        assert monitors == [MONITOR_ID]
+
+    def test_list_monitors_with_wrong_configs(self) -> None:
+        monitors = list_monitors(org_id=ORG_ID, dataset_id="model-doesnt-exist")
+
+        assert monitors == []
