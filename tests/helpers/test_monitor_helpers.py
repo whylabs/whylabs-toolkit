@@ -185,6 +185,8 @@ class TestDeleteMonitor(BaseTestMonitor):
         for analyzer in monitor_config["analyzers"]:
             assert ANALYZER_ID not in analyzer["id"]
 
+
+class TestListMonitor(BaseTestMonitor):
     def test_list_monitors(self) -> None:
         monitors = list_monitors(org_id=ORG_ID, dataset_id=DATASET_ID)
 
