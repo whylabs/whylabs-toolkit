@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "whylabs-toolkit"
-version = "0.1.1"
+version = "0.1.2"
 description = "Whylabs Toolkit package."
 authors = ["Murilo Mendonca <murilommen@gmail.com>", "Anthony Naddeo <anthony.naddeo@gmail.com>",
     "Christine Draper <christine@whylabs.ai>"]
