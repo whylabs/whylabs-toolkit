@@ -138,3 +138,24 @@ def delete_monitor(
     except ApiValueError as e:
         logger.error(f"Error deleting monitor {monitor_id}: {e.msg}")  # type: ignore
         raise e
+
+
+def list_monitors(org_id: Optional[str], dataset_id: Optional[str], config: Config = Config()) -> List[str]:
+    org_id = org_id or config.get_default_org_id()
+    dataset_id = dataset_id or config.get_default_dataset_id()
+
+    try:
+        monitors = get_monitor_config(org_id=org_id, dataset_id=dataset_id)
+        if monitors is not None:
+            return [monitor["id"] for monitor in monitors.get("monitors")]
+        else:
+            logger.info(f"No monitors found for {dataset_id}")
+            return []
+    except ForbiddenException as e:
+        logger.warning(
+            f"You don't have access to monitor list for {dataset_id}. Did you set a correct WHYLABS_API_KEY?"
+        )
+        raise e
+    except Exception as e:
+        logger.error(f"Error listing monitors for {dataset_id}: {e}")
+        raise e
