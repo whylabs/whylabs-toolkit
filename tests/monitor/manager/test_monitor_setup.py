@@ -274,7 +274,18 @@ def test_set_non_iso_data_readiness_raises(monitor_setup) -> None:
     with pytest.raises(ValueError):
         monitor_setup.data_readiness_duration = "Some non-conformant string"
 
-
+def test_column_matrix_has_at_least_one_group(monitor_setup) -> None:
+    monitor_setup.config = DriftConfig(
+        metric = ComplexMetrics.histogram,
+        threshold = 0.6,
+        baseline = ReferenceProfileId(profileId="test_prof")
+    )
+    
+    monitor_setup.apply()
+    
+    assert isinstance(monitor_setup.target_matrix, ColumnMatrix)
+    assert monitor_setup.target_matrix.include == ["*"]
+    
 def test_cron_schedule_for_analyzer(monitor_setup) -> None:
     monitor_setup.config = FixedThresholdsConfig(
         metric=DatasetMetric.classification_accuracy,

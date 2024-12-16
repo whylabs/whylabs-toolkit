@@ -35,11 +35,14 @@ class MonitorSetup:
         self._monitor_mode: Optional[Union[EveryAnomalyMode, DigestMode]] = None
         self._monitor_actions: List[GlobalAction] = []
         self._analyzer_schedule: Optional[Union[FixedCadenceSchedule, CronSchedule]] = None
-        self._target_columns: Optional[List[str]] = []
+        self._target_columns: Optional[List[str]] = ["*"]
         self._exclude_columns: Optional[List[str]] = []
-        self._target_matrix: Union[ColumnMatrix, DatasetMatrix] = ColumnMatrix(
+        
+        self._default_column_matrix = ColumnMatrix(
             include=self._target_columns, exclude=self._exclude_columns, segments=[]
         )
+        
+        self._target_matrix: Union[ColumnMatrix, DatasetMatrix] = self._default_column_matrix
         self._analyzer_config: Union[
             DiffConfig,
             FixedThresholdsConfig,
@@ -237,9 +240,7 @@ class MonitorSetup:
     def exclude_target_columns(self, columns: List[str]) -> None:
         if self._validate_columns_input(columns=columns):
             self._exclude_columns = columns
-            self._target_matrix = self._target_matrix or ColumnMatrix(
-                include=self._target_columns, exclude=self._exclude_columns, segments=[]
-            )
+            self._target_matrix = self._target_matrix or self._default_column_matrix
             if isinstance(self._target_matrix, ColumnMatrix):
                 self._target_matrix.exclude = self._exclude_columns
 
@@ -254,8 +255,6 @@ class MonitorSetup:
         )
 
     def __set_analyzer(self) -> None:
-        self.__configure_target_matrix()
-
         self.__set_dataset_matrix_for_dataset_metric()
         self.__set_dataset_matrix_for_missing_data_metric()
 
@@ -288,11 +287,6 @@ class MonitorSetup:
             actions=monitor_actions,
         )
 
-    def __configure_target_matrix(self) -> None:
-        self._target_matrix = self._target_matrix or ColumnMatrix(
-            include=self._target_columns or ["*"], exclude=self._exclude_columns, segments=[]
-        )
-
     def __set_dataset_matrix_for_dataset_metric(self) -> None:
         if self._analyzer_config:
             if isinstance(self._analyzer_config, (ConjunctionConfig, DisjunctionConfig)):
@@ -313,11 +307,7 @@ class MonitorSetup:
                     "Setting a DatasetMatrix requires a DatasetMetric to be used"
                     "Changing it to an empty ColumnMatrix instead"
                 )
-                self._target_matrix = ColumnMatrix(
-                    include=self._target_columns or ["*"],
-                    exclude=self._exclude_columns,
-                    segments=self._target_matrix.segments,
-                )
+                self._target_matrix = self._default_column_matrix
                 return None
 
     def __set_dataset_matrix_for_missing_data_metric(self) -> None:
