@@ -37,11 +37,11 @@ class MonitorSetup:
         self._analyzer_schedule: Optional[Union[FixedCadenceSchedule, CronSchedule]] = None
         self._target_columns: Optional[List[str]] = ["*"]
         self._exclude_columns: Optional[List[str]] = []
-        
+
         self._default_column_matrix = ColumnMatrix(
             include=self._target_columns, exclude=self._exclude_columns, segments=[]
         )
-        
+
         self._target_matrix: Union[ColumnMatrix, DatasetMatrix] = self._default_column_matrix
         self._analyzer_config: Union[
             DiffConfig,
